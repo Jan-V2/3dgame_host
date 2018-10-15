@@ -4,30 +4,19 @@ using System.Linq;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
-using Controllers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Views;
 
 namespace AmazonSimulator_VS
 {
     public class Startup
     {
-        public static SimulationController simulationController;
 
         public Startup(IConfiguration configuration)
         {
-            simulationController = new SimulationController(new Models.World());
-
-            Thread InstanceCaller = new Thread(
-                new ThreadStart(simulationController.Simulate));
-
-            // Start the thread.
-            InstanceCaller.Start();
-
             Configuration = configuration;
         }
 
@@ -54,31 +43,7 @@ namespace AmazonSimulator_VS
                 ContentTypeProvider = provider
             });
 
-            app.UseWebSockets();
-            app.Use(async (context, next) =>
-            {
-                if (context.Request.Path == "/connect_client")
-                {
-                    if (context.WebSockets.IsWebSocketRequest)
-                    {
-                        WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync();
 
-                        ClientView cs = new ClientView(webSocket);
-                        simulationController.AddView(cs);
-                        await cs.StartReceiving();
-                        simulationController.RemoveView(cs);
-                    }
-                    else
-                    {
-                        context.Response.StatusCode = 400;
-                    }
-                }
-                else
-                {
-                    await next();
-                }
-
-            });
 
             if (env.IsDevelopment())
             {

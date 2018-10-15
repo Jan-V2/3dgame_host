@@ -10,6 +10,7 @@ var LoadingManager = null;
 // Chack for the Loading Screen which will follow in a sec
 var RESOURCES_LOADED = false;
 var selfRef = this;
+let orbit_controls;
 
 // Set up the loadingScreen / path on line 18 doesn't exist anymore needs to be changed
 var loadingScreen = {
@@ -20,9 +21,13 @@ var loadingScreen = {
 };
 
 // Changes the command from the server which is send as a JavaScript Object Notation to a readable string
-function parseCommand(input = "") {
+function parseCommand(input) {
+    if (input === undefined){
+        input = "";
+    }
     return JSON.parse(input);
 }
+
 
 // Once the window has opened this function springs to life
 window.onload = function () {
@@ -30,7 +35,7 @@ window.onload = function () {
 }
 
 // Sets up all the stuff we need
-function init() {
+function init_3d() {
     // For debugging / performance stats, could be handy dandy when trying it on a mobile device
     (function () { var script = document.createElement('script'); script.onload = function () { var stats = new Stats(); document.body.appendChild(stats.dom); requestAnimationFrame(function loop() { stats.update(); requestAnimationFrame(loop) }); }; script.src = '//rawgit.com/mrdoob/stats.js/master/build/stats.min.js'; document.head.appendChild(script); })();
 
@@ -93,6 +98,22 @@ function init() {
     scene.add(light);
 }
 
+function init_input() {
+    document.addEventListener('keydown', function(event) {
+        if (event.key === "w" || event.key === "W"){
+            exampleSocket.send("w");
+        }else if (event.key === "a" || event.key === "A"){
+            exampleSocket.send("a");
+        }else if (event.key === "s" || event.key === "S"){
+            exampleSocket.send("s");
+        }else if (event.key === "d" || event.key === "D"){
+            exampleSocket.send("d");
+        }
+        console.log("input send");
+    });
+    console.log("input initted");
+}
+
 // Adjusts the scene to the correct window size whenever the window gets resized 
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
@@ -126,9 +147,9 @@ function ConnectToServer() {
         var command = parseCommand(event.data);
 
         // This will be changed later but better to keep it as an example for now
-        if (command.command == "update") {
+        if (command.type === "update") {
             if (Object.keys(worldObjects).indexOf(command.parameters.guid) < 0) {
-                if (command.parameters.type == "robot") {
+                if (command.parameters.type === "robot") {
                     var geometry = new THREE.BoxGeometry(0.9, 0.3, 0.9);
                     var cubeMaterials = [
                         new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load("textures/robot_side.png"), side: THREE.DoubleSide }), //LEFT
@@ -149,18 +170,37 @@ function ConnectToServer() {
                 worldObjects[command.parameters.guid] = group;
             }
 
-            var object = worldObjects[command.parameters.guid];
+            var target = worldObjects[command.parameters.guid];
 
-            object.position.x = command.parameters.x;
-            object.position.y = command.parameters.y;
-            object.position.z = command.parameters.z;
+            target.position.x = command.parameters.x;
+            target.position.y = command.parameters.y;
+            target.position.z = command.parameters.z;
 
-            object.rotation.x = command.parameters.rotationX;
-            object.rotation.y = command.parameters.rotationY;
-            object.rotation.z = command.parameters.rotationZ;
+            target.rotation.x = command.parameters.rotationX;
+            target.rotation.y = command.parameters.rotationY;
+            target.rotation.z = command.parameters.rotationZ;
+
+            // noinspection JSValidateTypes
+
+        }else if (command.type === "rotate"){
+            let dir = command.arg.direction;
+            if (dir === "up"){
+                target.rotation.x += Math.PI / 2;
+            }else if (dir === "down"){
+                target.rotation.x -= Math.PI / 2;
+            }else if (dir === "left"){
+                target.rotation.y += Math.PI / 2;
+            }else if (dir === "right"){
+                target.rotation.y -= Math.PI / 2;
+            }
         }
-    }
+        console.log(command);
+    };
 
-    init();
+    init_3d();
+    init_input();
     animate();
+
+
 }
+
