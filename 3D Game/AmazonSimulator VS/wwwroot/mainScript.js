@@ -10,6 +10,11 @@ var LoadingManager = null;
 // Chack for the Loading Screen which will follow in a sec
 var RESOURCES_LOADED = false;
 var selfRef = this;
+var dummy = new THREE.Mesh(new THREE.CubeGeometry(1, 1, 1), new THREE.MeshBasicMaterial({ color: 0x000000 }));
+var cube = new THREE.Mesh(new THREE.CubeGeometry(100, 100, 100), new THREE.MeshBasicMaterial());
+var r = 0;
+var p;
+var ax;
 let orbit_controls;
 
 // Set up the loadingScreen / path on line 18 doesn't exist anymore needs to be changed
@@ -28,6 +33,23 @@ function parseCommand(input) {
     return JSON.parse(input);
 }
 
+THREE.Object3D.prototype.rotateAroundWorldAxis = function () {
+
+    var q1 = new THREE.Quaternion();
+    return function (point, axis, angle) {
+
+        q1.setFromAxisAngle(axis, angle);
+
+        this.quaternion.multiplyQuaternions(q1, this.quaternion);
+
+        this.position.sub(point);
+        this.position.applyQuaternion(q1);
+        this.position.add(point);
+
+        return this;
+    }
+
+}();
 
 // Once the window has opened this function springs to life
 window.onload = function () {
@@ -91,6 +113,14 @@ function init_3d() {
     plane.position.x = 15;
     plane.position.z = 15;
     scene.add(plane);
+
+    dummy.position.x = -50;
+    dummy.position.z = 50;
+    scene.add(dummy);
+    
+    cube.position.x = 50;
+    cube.position.y = 50;
+    scene.add(cube);
 
     // Add lighting to the scene
     var light = new THREE.AmbientLight(0x404040);
@@ -159,7 +189,13 @@ function startUp() {
     init_3d();
     init_input();
     animate();
+    r = Math.PI / 100;
 
-
+    setInterval(function () {
+        p = new THREE.Vector3(0, 0, 0);
+        ax = new THREE.Vector3(0, 0, 1);
+        cube.rotateAroundWorldAxis(p, ax, r);
+    }, 20);
 }
+
 
