@@ -31,7 +31,7 @@ function parseCommand(input) {
 
 // Once the window has opened this function springs to life
 window.onload = function () {
-    ConnectToServer();
+    startUp();
 }
 
 // Sets up all the stuff we need
@@ -96,6 +96,20 @@ function init_3d() {
     var light = new THREE.AmbientLight(0x404040);
     light.intensity = 4;
     scene.add(light);
+
+    var box_geometry = new THREE.BoxGeometry(0.9, 0.3, 0.9);
+    var cubeMaterials = [
+        new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load("textures/robot_side.png"), side: THREE.DoubleSide }), //LEFT
+        new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load("textures/robot_side.png"), side: THREE.DoubleSide }), //RIGHT
+        new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load("textures/robot_top.png"), side: THREE.DoubleSide }), //TOP
+        new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load("textures/robot_bottom.png"), side: THREE.DoubleSide }), //BOTTOM
+        new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load("textures/robot_front.png"), side: THREE.DoubleSide }), //FRONT
+        new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load("textures/robot_front.png"), side: THREE.DoubleSide }), //BACK
+    ];
+    var material = new THREE.MeshFaceMaterial(cubeMaterials);
+    var robot = new THREE.Mesh(geometry, material);
+
+    scene.add(robot);
 }
 
 function init_input() {
@@ -139,63 +153,8 @@ function animate() {
 }
 
 // Sets up a connection with the server and handles the server commands
-function ConnectToServer() {
-    exampleSocket = new WebSocket("ws://" + window.location.hostname + ":" + window.location.port + "/connect_client");
-    exampleSocket.onmessage = function (event) {
+function startUp() {
 
-        var group = new THREE.Group();
-        var command = parseCommand(event.data);
-
-        // This will be changed later but better to keep it as an example for now
-        if (command.type === "update") {
-            if (Object.keys(worldObjects).indexOf(command.parameters.guid) < 0) {
-                if (command.parameters.type === "robot") {
-                    var geometry = new THREE.BoxGeometry(0.9, 0.3, 0.9);
-                    var cubeMaterials = [
-                        new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load("textures/robot_side.png"), side: THREE.DoubleSide }), //LEFT
-                        new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load("textures/robot_side.png"), side: THREE.DoubleSide }), //RIGHT
-                        new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load("textures/robot_top.png"), side: THREE.DoubleSide }), //TOP
-                        new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load("textures/robot_bottom.png"), side: THREE.DoubleSide }), //BOTTOM
-                        new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load("textures/robot_front.png"), side: THREE.DoubleSide }), //FRONT
-                        new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load("textures/robot_front.png"), side: THREE.DoubleSide }), //BACK
-                    ];
-                    var material = new THREE.MeshFaceMaterial(cubeMaterials);
-                    var robot = new THREE.Mesh(geometry, material);
-                    robot.position.y = 0.15;
-                    
-                    group.add(robot);
-
-                }
-                scene.add(group);
-                worldObjects[command.parameters.guid] = group;
-            }
-
-            var target = worldObjects[command.parameters.guid];
-
-            target.position.x = command.parameters.x;
-            target.position.y = command.parameters.y;
-            target.position.z = command.parameters.z;
-
-            target.rotation.x = command.parameters.rotationX;
-            target.rotation.y = command.parameters.rotationY;
-            target.rotation.z = command.parameters.rotationZ;
-
-            // noinspection JSValidateTypes
-
-        }else if (command.type === "rotate"){
-            let dir = command.arg.direction;
-            if (dir === "up"){
-                target.rotation.x += Math.PI / 2;
-            }else if (dir === "down"){
-                target.rotation.x -= Math.PI / 2;
-            }else if (dir === "left"){
-                target.rotation.y += Math.PI / 2;
-            }else if (dir === "right"){
-                target.rotation.y -= Math.PI / 2;
-            }
-        }
-        console.log(command);
-    };
 
     init_3d();
     init_input();
