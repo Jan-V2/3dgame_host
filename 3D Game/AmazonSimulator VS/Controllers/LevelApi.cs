@@ -1,16 +1,31 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Controllers
 {
     public class LevelApi
     {
         public List<Level> level = new List<Level>();
+
+        /// <summary>
+        /// Checks if the list which is used to send the levels to the client is empty or
+        /// if there are some variables already in it from a previous level
+        /// and resets it to make room for the new level
+        /// </summary>
+        public void CheckLevelList()
+        {
+            if (level != null)
+            {
+                level = new List<Level>();
+            }
+        }
         /// <summary>
         /// Create level one and adds it to a list
         /// </summary>
         /// <returns>level</returns>
         public void LevelOne()
         {
+            CheckLevelList();
             Level[] levelone = new Level[34];
             levelone[0] = new Level("plane", 0, 0);
             levelone[1] = new Level("plane1", 0, -5);
@@ -60,6 +75,7 @@ namespace Controllers
         /// <returns>level</returns>
         public void LevelTwo()
         {
+            CheckLevelList();
             Level[] leveltwo = new Level[42];
             leveltwo[0] = new Level("plane", -5, -30);
             leveltwo[1] = new Level("plane1", -5, -35);
@@ -116,6 +132,7 @@ namespace Controllers
         /// <returns></returns>
         public void LevelThree()
         {
+            CheckLevelList();
             Level[] levelthree = new Level[53];
             levelthree[0] = new Level("plane", -15, -25);
             levelthree[1] = new Level("plane1", -15, -30);
@@ -176,6 +193,16 @@ namespace Controllers
             {
                 level.Add(levelthree[x]);
             }
+        }
+
+        public void LevelFour()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void LevelFive()
+        {
+            throw new NotImplementedException();
         }
     }
 }
