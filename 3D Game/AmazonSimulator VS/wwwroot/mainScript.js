@@ -16,7 +16,12 @@ let orbit_controls;
 var loadingScreen = {
     scene: new THREE.Scene(),
     camera: new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 100),
-    box: new THREE.Mesh(new THREE.PlaneGeometry(5, 5, 0), new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load("textures/models/misctextures/rmportal.png"), side: THREE.DoubleSide, transparent: true, opacity: 1.0 })
+    box: new THREE.Mesh(new THREE.PlaneGeometry(5, 5, 0), new THREE.MeshBasicMaterial(
+        {
+            map: new THREE.TextureLoader().load("textures/models/misctextures/rmportal.png"),
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 1.0 })
     )
 };
 
@@ -29,16 +34,22 @@ function parseCommand(input) {
 }
 
 
-// Once the window has opened this function springs to life
-window.onload = function () {
-    startUp();
-}
 
 // Sets up all the stuff we need
 function init_3d() {
     // For debugging / performance stats, could be handy dandy when trying it on a mobile device
-    (function () { var script = document.createElement('script'); script.onload = function () { var stats = new Stats(); document.body.appendChild(stats.dom); requestAnimationFrame(function loop() { stats.update(); requestAnimationFrame(loop) }); }; script.src = '//rawgit.com/mrdoob/stats.js/master/build/stats.min.js'; document.head.appendChild(script); })();
-
+/*    (function () { var script = document.createElement('script'); script.onload = function () {
+            var stats = new Stats();
+            $("#game")[0].appendChild(stats.dom);
+            requestAnimationFrame(function loop() {
+                stats.update();
+                requestAnimationFrame(loop)
+            });
+        };
+            script.src = '//rawgit.com/mrdoob/stats.js/master/build/stats.min.js'; document.head.appendChild(script);
+        }
+    )();*/
+    
     // Setup camera
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
     cameraControls = new THREE.OrbitControls(camera);
@@ -78,7 +89,9 @@ function init_3d() {
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight + 5);
-    document.body.appendChild(renderer.domElement);
+    
+    //$("#game")[0].appendChild(renderer.domElement);
+    renderer.domElement.setAttribute("id", "three_renderer");
 
     // Continuesly check if the window gets resized
     window.addEventListener('resize', onWindowResize, false);
@@ -113,6 +126,7 @@ function init_3d() {
 }
 
 function init_input() {
+    // todo handelt wasd inpu door het over de websocket niet meer bestaat te sturen die
     document.addEventListener('keydown', function(event) {
         if (event.key === "w" || event.key === "W"){
             exampleSocket.send("w");
@@ -128,14 +142,14 @@ function init_input() {
     console.log("input initted");
 }
 
-// Adjusts the scene to the correct window size whenever the window gets resized 
+// Adjusts the scene to the correct window size whenever the window gets resized
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-// Changes the scene as per updated model so we see the models change   
+// Changes the scene as per updated model so we see the models change
 function animate() {
 
     /* Implements the LoadingScreen
@@ -146,20 +160,15 @@ function animate() {
         return;
     }
     */
-
     requestAnimationFrame(animate);
     cameraControls.update();
     renderer.render(scene, camera);
 }
 
-// Sets up a connection with the server and handles the server commands
-function startUp() {
-
-
+// Once the window has opened this function springs to life
+window.onload = function () {
     init_3d();
     init_input();
     animate();
-
-
-}
+};
 
