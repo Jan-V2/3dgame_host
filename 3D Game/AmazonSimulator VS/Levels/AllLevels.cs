@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Controllers;
 
 namespace Levels
 {
@@ -197,7 +198,64 @@ namespace Levels
 
         public void LevelFour()
         {
-            throw new NotImplementedException();
+            CheckLevelList();
+            Level[] levelfour = new Level[50];
+            levelfour[0] = new Level("plane", 0, 0);
+            levelfour[1] = new Level("plane1", 0, -5);
+            levelfour[2] = new Level("plane2", 0, -10);
+            levelfour[3] = new Level("plane3", 0, -15);
+            levelfour[4] = new Level("plane4", 0, -20);
+            levelfour[5] = new Level("plane5", 0 ,-25);
+            levelfour[6] = new Level("plane6", 0, -30);
+            levelfour[7] = new Level("plane7", 0, -35);
+            levelfour[8] = new Level("plane8", 0, -40);
+            levelfour[9] = new Level("plane9", 0 ,-45);
+            levelfour[10] = new Level("plane10", 0, -50);
+            levelfour[11] = new Level("plane11", -5, 0);
+            levelfour[12] = new Level("plane12", -5, -5);
+            levelfour[13] = new Level("plane13", -5 ,-10);
+            levelfour[14] = new Level("plane14", -5, -15);
+            levelfour[15] = new Level("plane15", -5, -20);
+            levelfour[16] = new Level("plane16", -5, -25);
+            levelfour[17] = new Level("plane17", -5, -30);
+            levelfour[18] = new Level("plane18", -5, -45);
+            levelfour[19] = new Level("plane19", -5, -50);
+            levelfour[20] = new Level("plane20", -10, -20);
+            levelfour[21] = new Level("plane21", -10, -25);
+            levelfour[22] = new Level("plane22", -10, -30);
+            levelfour[23] = new Level("plane23", -10, -45);
+            levelfour[24] = new Level("plane24", -10, -50);
+            levelfour[25] = new Level("plane25", -15, -45);
+            levelfour[26] = new Level("plane26", -15, -50);
+            levelfour[27] = new Level("plane27", -20, -5);
+            levelfour[28] = new Level("plane28", -20, -10);
+            levelfour[29] = new Level("plane29", -20, -15);
+            levelfour[30] = new Level("plane30", -20, -40);
+            levelfour[31] = new Level("plane31", -20, -45);
+            levelfour[32] = new Level("plane32", -20, -50);
+            levelfour[33] = new Level("plane33", -25, -5);
+            levelfour[34] = new Level("plane34", -25, -15);
+            levelfour[35] = new Level("plane35", -25 , -35);
+            levelfour[36] = new Level("plane36", -25, -40);
+            levelfour[37] = new Level("plane37", -25, -45);
+            levelfour[38] = new Level("plane38", -25, -50);
+            levelfour[39] = new Level("plane39", -30, -5);
+            levelfour[40] = new Level("plane40", -30, -10);
+            levelfour[41] = new Level("plane41", -30, -15);
+            levelfour[42] = new Level("plane42", -30, -20);
+            levelfour[43] = new Level("plane43", -30, -25);
+            levelfour[44] = new Level("plane44", -30, -30);
+            levelfour[45] = new Level("plane45", -30, -35);
+            levelfour[46] = new Level("plane46", -30, -50);
+            levelfour[47] = new Level("plane47", -35, -10);
+            levelfour[48] = new Level("plane48", -35, -15);
+            levelfour[49] = new Level("plane49", -35, -30);
+            levelfour[50] = new Level("plane50", -35, -35);
+
+            for (int x = 0; x <= levelfour.Length; x++)
+            {
+                level.Add(levelfour[x]);
+            }
         }
 
         public void LevelFive()
