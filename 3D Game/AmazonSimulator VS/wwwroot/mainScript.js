@@ -107,7 +107,7 @@ function init_3d() {
     window.addEventListener('resize', onWindowResize, false);
 
     // Setup our 1st test map
-    var geometry = new THREE.PlaneGeometry(31, 30, 31);
+    var geometry = new THREE.PlaneGeometry(31, 31);
     var material = new THREE.MeshPhongMaterial({ color: 0xffffff, side: THREE.DoubleSide });
     var plane = new THREE.Mesh(geometry, material);
     plane.rotation.x = Math.PI / 2.0;
@@ -170,6 +170,7 @@ function init_input() {
             }
             console.log("input send");
         }
+            console.log("posX: " + cube.position.x);
     });
     console.log("input initted");
 }
@@ -237,10 +238,12 @@ function fallBlock(axis, dir) {
                 }
 
                 counter++;
-                cube.position.z -= 0.1;
-                cubeZ -= 0.1;
-                cube.position.y -= 0.2;
-                cubeY -= 0.2;
+                if (counter >= 10) {
+                    cube.position.y -= 0.2;
+                    cubeY = cube.position.y;
+                    cube.position.z -= 0.1;
+                    cubeZ -= 0.1;
+                }
 
                 cube.rotateAroundWorldAxis(p, ax, r);
                 console.log("xinc");
@@ -276,10 +279,12 @@ function fallBlock(axis, dir) {
                 }
 
                 counter++;
-                cube.position.z += 0.1;
-                cubeZ += 0.1;
-                cube.position.y -= 0.2;
-                cubeY -= 0.2;
+                if (counter >= 10) {
+                    cube.position.y -= 0.2;
+                    cubeY = cube.position.y;
+                    cube.position.z += 0.1;
+                    cubeZ += 0.1;
+                }
 
                 cube.rotateAroundWorldAxis(p, ax, r);
                 console.log("xdec");
@@ -327,10 +332,12 @@ function fallBlock(axis, dir) {
                 }
 
                 counter++;
-                cube.position.x -= 0.1;
-                cubeX -= 0.1;
-                cube.position.y -= 0.2;
-                cubeY -= 0.2;
+                if (counter >= 10) {
+                    cube.position.y -= 0.2;
+                    cubeY = cube.position.y;
+                    cube.position.x -= 0.1;
+                    cubeX -= 0.1;
+                }
 
                 cube.rotateAroundWorldAxis(p, ax, r);
                 console.log("zinc");
@@ -366,10 +373,12 @@ function fallBlock(axis, dir) {
                 }
 
                 counter++;
-                cube.position.x += 0.1;
-                cubeX += 0.1;
-                cube.position.y -= 0.2;
-                cubeY -= 0.2;
+                if (counter >= 10) {
+                    cube.position.y -= 0.2;
+                    cubeY = cube.position.y;
+                    cube.position.x += 0.1;
+                    cubeX += 0.1;
+                }
 
                 cube.rotateAroundWorldAxis(p, ax, r);
                 console.log("zdec");
