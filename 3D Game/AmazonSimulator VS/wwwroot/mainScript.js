@@ -109,7 +109,7 @@ function init_3d() {
     window.addEventListener('resize', onWindowResize, false);
 
     // Setup our 1st test map
-    var geometry = new THREE.PlaneGeometry(30, 30, 32);
+    var geometry = new THREE.PlaneGeometry(31, 30, 31);
     var material = new THREE.MeshPhongMaterial({ color: 0xffffff, side: THREE.DoubleSide });
     var plane = new THREE.Mesh(geometry, material);
     plane.rotation.x = Math.PI / 2.0;
@@ -152,13 +152,13 @@ function init_3d() {
 function init_input() {
     document.addEventListener('keydown', function(event) {
         if ((event.key === "w" || event.key === "W") && inputReady === true) {
-            blockMovement('x', "inc");
+            moveBlock('x', "inc");
         }else if ((event.key === "a" || event.key === "A") && inputReady === true){
-            blockMovement('z', "inc");
+            moveBlock('z', "inc");
         }else if ((event.key === "s" || event.key === "S") && inputReady === true){
-            blockMovement('x', "dec");
+            moveBlock('x', "dec");
         } else if ((event.key === "d" || event.key === "D") && inputReady === true) {
-            blockMovement('z', "dec");
+            moveBlock('z', "dec");
         }
         console.log("input send");
     });
@@ -192,7 +192,7 @@ function correctRot(rotation) {
     }
 }
 
-function blockMovement(axis, dir) {
+function moveBlock(axis, dir) {
     inputReady = false;
     counter = 0;
 
@@ -204,6 +204,7 @@ function blockMovement(axis, dir) {
 
     if (axis === 'x') {
         var sRot = cube.rotation.x;
+        ax = new THREE.Vector3(1, 0, 0);
 
         if (flatZ) {
             yOffset = 0.5;
@@ -213,41 +214,28 @@ function blockMovement(axis, dir) {
         }
 
         if (dir === "inc") {
+            r = -Math.PI / 20;
+
             var i = setInterval(function () {
                 if (sRot === 0) {
-                    r = -Math.PI / 20;
                     p = new THREE.Vector3(cubeX, cubeY - yOffset, cubeZ - 0.5);
-                    ax = new THREE.Vector3(1, 0, 0);
-                    cube.rotateAroundWorldAxis(p, ax, r);
                 }
                 else if (sRot === Math.PI / 2) {
-                    r = -Math.PI / 20;
                     p = new THREE.Vector3(cubeX, cubeY - 0.5, cubeZ - yOffset);
-                    ax = new THREE.Vector3(1, 0, 0);
-                    cube.rotateAroundWorldAxis(p, ax, r);
                 }
                 else if (sRot === Math.PI) {
-                    r = -Math.PI / 20;
                     p = new THREE.Vector3(cubeX, cubeY - yOffset, cubeZ - 0.5);
-                    ax = new THREE.Vector3(1, 0, 0);
-                    cube.rotateAroundWorldAxis(p, ax, r);
                 }
 
                 counter++;
+                cube.rotateAroundWorldAxis(p, ax, r);
                 console.log("xinc");
 
                 if (counter >= 10) {
                     cube.rotation.x = correctRot(cube.rotation.x);
                     cube.rotation.z = correctRot(cube.rotation.z);
 
-                    if (!flatZ) {
-                        if (flatX) {
-                            flatX = false;
-                        }
-                        else {
-                            flatX = true;
-                        }
-                    }
+                    toggleFlat('x');
 
                     console.log("zflat: " + flatZ);
                     console.log("xflat: " + flatX);
@@ -260,41 +248,29 @@ function blockMovement(axis, dir) {
             }, 20);
         }
         else if (dir === "dec") {
+            r = Math.PI / 20;
+
             var j = setInterval(function () {
                 if (sRot === 0) {
-                    r = Math.PI / 20;
                     p = new THREE.Vector3(cubeX, cubeY - yOffset, cubeZ + 0.5);
-                    ax = new THREE.Vector3(1, 0, 0);
-                    cube.rotateAroundWorldAxis(p, ax, r);
                 }
                 else if (sRot === Math.PI / 2) {
-                    r = Math.PI / 20;
                     p = new THREE.Vector3(cubeX, cubeY - 0.5, cubeZ + yOffset);
-                    ax = new THREE.Vector3(1, 0, 0);
-                    cube.rotateAroundWorldAxis(p, ax, r);
                 }
                 else if (sRot === Math.PI) {
-                    r = Math.PI / 20;
                     p = new THREE.Vector3(cubeX, cubeY - yOffset, cubeZ + 0.5);
-                    ax = new THREE.Vector3(1, 0, 0);
-                    cube.rotateAroundWorldAxis(p, ax, r);
                 }
 
                 counter++;
+
+                cube.rotateAroundWorldAxis(p, ax, r);
                 console.log("xdec");
 
                 if (counter >= 10) {
                     cube.rotation.x = correctRot(cube.rotation.x);
                     cube.rotation.z = correctRot(cube.rotation.z);
 
-                    if (!flatZ) {
-                        if (flatX) {
-                            flatX = false;
-                        }
-                        else {
-                            flatX = true;
-                        }
-                    }
+                    toggleFlat('x');
 
                     console.log("zflat: " + flatZ);
                     console.log("xflat: " + flatX);
@@ -309,6 +285,7 @@ function blockMovement(axis, dir) {
     }
     else if (axis === 'z') {
         sRot = cube.rotation.z;
+        ax = new THREE.Vector3(0, 0, 1);
 
         if (flatX) {
             yOffset = 0.5;
@@ -318,41 +295,28 @@ function blockMovement(axis, dir) {
         }
 
         if (dir === "inc") {
+            r = Math.PI / 20;
+
             var k = setInterval(function () {
                 if (sRot === 0) {
-                    r = Math.PI / 20;
                     p = new THREE.Vector3(cubeX - 0.5, cubeY - yOffset, cubeZ);
-                    ax = new THREE.Vector3(0, 0, 1);
-                    cube.rotateAroundWorldAxis(p, ax, r);
                 }
                 else if (sRot === Math.PI / 2) {
-                    r = Math.PI / 20;
                     p = new THREE.Vector3(cubeX - yOffset, cubeY - 0.5, cubeZ);
-                    ax = new THREE.Vector3(0, 0, 1);
-                    cube.rotateAroundWorldAxis(p, ax, r);
                 }
                 else if (sRot === Math.PI) {
-                    r = Math.PI / 20;
                     p = new THREE.Vector3(cubeX - 0.5, cubeY - yOffset, cubeZ);
-                    ax = new THREE.Vector3(0, 0, 1);
-                    cube.rotateAroundWorldAxis(p, ax, r);
                 }
 
                 counter++;
+                cube.rotateAroundWorldAxis(p, ax, r);
                 console.log("zinc");
 
                 if (counter >= 10) {
                     cube.rotation.x = correctRot(cube.rotation.x);
                     cube.rotation.z = correctRot(cube.rotation.z);
 
-                    if (!flatX) {
-                        if (flatZ) {
-                            flatZ = false;
-                        }
-                        else {
-                            flatZ = true;
-                        }
-                    }
+                    toggleFlat('z');
 
                     console.log("zflat: " + flatZ);
                     console.log("xflat: " + flatX);
@@ -365,41 +329,28 @@ function blockMovement(axis, dir) {
             }, 20);
         }
         else if (dir === "dec") {
+            r = -Math.PI / 20;
+
             var m = setInterval(function () {
                 if (sRot === 0) {
-                    r = -Math.PI / 20;
                     p = new THREE.Vector3(cubeX + 0.5, cubeY - yOffset, cubeZ);
-                    ax = new THREE.Vector3(0, 0, 1);
-                    cube.rotateAroundWorldAxis(p, ax, r);
                 }
                 else if (sRot === Math.PI / 2) {
-                    r = -Math.PI / 20;
                     p = new THREE.Vector3(cubeX + yOffset, cubeY - 0.5, cubeZ);
-                    ax = new THREE.Vector3(0, 0, 1);
-                    cube.rotateAroundWorldAxis(p, ax, r);
                 }
                 else if (sRot === Math.PI) {
-                    r = -Math.PI / 20;
                     p = new THREE.Vector3(cubeX + 0.5, cubeY - yOffset, cubeZ);
-                    ax = new THREE.Vector3(0, 0, 1);
-                    cube.rotateAroundWorldAxis(p, ax, r);
                 }
 
                 counter++;
+                cube.rotateAroundWorldAxis(p, ax, r);
                 console.log("zdec");
 
                 if (counter >= 10) {
                     cube.rotation.x = correctRot(cube.rotation.x);
                     cube.rotation.z = correctRot(cube.rotation.z);
-                    
-                    if (!flatX) {
-                        if (flatZ) {
-                            flatZ = false;
-                        }
-                        else {
-                            flatZ = true;
-                        }
-                    }
+
+                    toggleFlat('z');
                     
                     console.log("zflat: " + flatZ);
                     console.log("xflat: " + flatX);
@@ -439,6 +390,29 @@ function startUp() {
 
     console.log("zflat: " + flatZ);
     console.log("xflat: " + flatX);
+}
+
+function toggleFlat(axis) {
+    if (axis === 'x') {
+        if (!flatZ) {
+            if (flatX) {
+                flatX = false;
+            }
+            else {
+                flatX = true;
+            }
+        }
+    }
+    else if (axis === 'z') {
+        if (!flatX) {
+            if (flatZ) {
+                flatZ = false;
+            }
+            else {
+                flatZ = true;
+            }
+        }
+    }
 }
 
 
