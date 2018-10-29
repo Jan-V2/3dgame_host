@@ -19,6 +19,7 @@ var cubeZ = 15;
 var flatX = false;
 var flatZ = false;
 var counter = 0;
+var animInterval = 20;
 var p;
 var ax;
 let orbit_controls;
@@ -158,8 +159,7 @@ function init_input() {
                 moveBlock('x', "dec");
             } else if (event.key === "d" || event.key === "D") {
                 moveBlock('z', "dec");
-            }
-            else if (event.key === "t" || event.key === "T") {
+            } else if (event.key === "t" || event.key === "T") {
                 fallBlock('x', "inc");
             } else if (event.key === "f" || event.key === "F") {
                 fallBlock('z', "inc");
@@ -255,7 +255,7 @@ function fallBlock(axis, dir) {
                     inputReady = true;
                     clearInterval(i);
                 }
-            }, 20);
+            }, animInterval);
         }
         else if (dir === "dec") {
             r = Math.PI / 20;
@@ -289,7 +289,7 @@ function fallBlock(axis, dir) {
                     inputReady = true;
                     clearInterval(j);
                 }
-            }, 20);
+            }, animInterval);
         }
     }
     else if (axis === 'z') {
@@ -335,7 +335,7 @@ function fallBlock(axis, dir) {
                     inputReady = true;
                     clearInterval(k);
                 }
-            }, 20);
+            }, animInterval);
         }
         else if (dir === "dec") {
             r = -Math.PI / 20;
@@ -369,7 +369,7 @@ function fallBlock(axis, dir) {
                     inputReady = true;
                     clearInterval(m);
                 }
-            }, 20);
+            }, animInterval);
         }
     }
 }
@@ -427,7 +427,7 @@ function moveBlock(axis, dir) {
                     inputReady = true;
                     clearInterval(i);
                 }
-            }, 20);
+            }, animInterval);
         }
         else if (dir === "dec") {
             r = Math.PI / 20;
@@ -462,7 +462,7 @@ function moveBlock(axis, dir) {
                     inputReady = true;
                     clearInterval(j);
                 }
-            }, 20);
+            }, animInterval);
         }
     }
     else if (axis === 'z') {
@@ -508,7 +508,7 @@ function moveBlock(axis, dir) {
                     inputReady = true;
                     clearInterval(k);
                 }
-            }, 20);
+            }, animInterval);
         }
         else if (dir === "dec") {
             r = -Math.PI / 20;
@@ -542,7 +542,7 @@ function moveBlock(axis, dir) {
                     inputReady = true;
                     clearInterval(m);
                 }
-            }, 20);
+            }, animInterval);
         }
     }
 }
