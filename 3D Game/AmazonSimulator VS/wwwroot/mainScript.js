@@ -36,7 +36,7 @@ function parseCommand(input) {
 
 
 // Sets up all the stuff we need
-function init_3d() {
+function init_3d(map) {
     // For debugging / performance stats, could be handy dandy when trying it on a mobile device
 /*    (function () { var script = document.createElement('script'); script.onload = function () {
             var stats = new Stats();
@@ -90,21 +90,26 @@ function init_3d() {
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight + 5);
     
-    //$("#game")[0].appendChild(renderer.domElement);
+    $("#game")[0].appendChild(renderer.domElement);
     renderer.domElement.setAttribute("id", "three_renderer");
 
     // Continuesly check if the window gets resized
-    window.addEventListener('resize', onWindowResize, false);
 
     // Setup our 1st test map
-    var geometry = new THREE.PlaneGeometry(30, 30, 32);
+    var geometry = new THREE.PlaneGeometry(5, 5, 5);
     var material = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide });
-    var plane = new THREE.Mesh(geometry, material);
-    plane.rotation.x = Math.PI / 2.0;
-    plane.position.x = 15;
-    plane.position.z = 15;
-    scene.add(plane);
 
+    for (let i = 0; i < map.layout.length; i++) {
+        for (let j = 0; j < map.layout[0].length; j++) {
+            if (map.layout[i][j]){
+                let plane = new THREE.Mesh(geometry, material);
+                plane.rotation.x = Math.PI / 2.0;
+                plane.position.x = 5*i;
+                plane.position.z = 5*j;
+                scene.add(plane);
+            }
+        }
+    }
     // Add lighting to the scene
     var light = new THREE.AmbientLight(0x404040);
     light.intensity = 4;
@@ -166,9 +171,9 @@ function animate() {
 }
 
 // Once the window has opened this function springs to life
-window.onload = function () {
-    init_3d();
+function start_game (map) {
+    init_3d(map);
     init_input();
     animate();
-};
+}
 

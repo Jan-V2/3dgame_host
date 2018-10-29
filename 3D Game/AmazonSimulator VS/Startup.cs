@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
+using Levels;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.StaticFiles;
@@ -25,7 +26,7 @@ namespace AmazonSimulator_VS
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.AddMvc();
+            services.AddMvc();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -44,8 +45,6 @@ namespace AmazonSimulator_VS
                 ContentTypeProvider = provider
             });
 
-
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -56,7 +55,7 @@ namespace AmazonSimulator_VS
             }
 
             //app.UseHttpsRedirection();
-            //app.UseMvc();
+            app.UseMvc();
 
             //app.UseDirectoryBrowser(new DirectoryBrowserOptions());
         }

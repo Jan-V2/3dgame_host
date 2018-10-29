@@ -7,38 +7,52 @@ namespace Levels
 {
     public class Level
     {
-        private double _x = 0;
-        private double _y = 0;
-        private double _z = 0;
+        private bool[,] layout;
+        private List<Coord> starts = new List<Coord>();
+        private List<Coord> ends = new List<Coord>();
 
-        private double _rX = 0;
-        private double _rY = 0;
-        private double _rZ = 0;
-
-        public double rotationX { get { return _rX; } }
-        public double rotationY { get { return _rY; } }
-        public double rotationZ { get { return _rZ; } }
-
-        public string type { get; }
-        private string name;
-        public double x { get { return _x; } }
-        public double y { get { return _y; } }
-        public double z { get { return _z; } }
-
-        public bool needsUpdate = true;
-
-        public Level(string name, double x, double z)
+        public Level(char[,] level_data)
         {
-            this.name = name;
-            this.type = "level";
+            layout = new bool[level_data.GetLength(0), level_data.GetLength(1)];
+            for (int i = 0; i < level_data.GetLength(0); i++)
+            {
+                for (int j = 0; j < level_data.GetLength(1); j++)
+                {
+                    char square = level_data[i, j];
+                    if (square == 'l'){
+                        layout[i, j] = false;
+                    }else if (square == 's'){
+                        layout[i, j] = true;
+                        starts.Add(new Coord(i,j));
+                    }else if (square == 'v'){
+                        layout[i, j] = true;
+                    }else if (square == 'e'){
+                        ends.Add(new Coord(i,j));
+                        layout[i, j] = true;
+                    }
+                }
+            }
+        }
 
-            this._x = x;
-            this._y = 0;
-            this._z = z;
+        public string get_json()
+        {
+            return JsonConvert.SerializeObject(new {
+                layout,
+                starts,
+                ends
+            });
+        }
+    }
 
-            this._rX = 0;
-            this._rY = 0;
-            this._rZ = 0;
+    public class Coord
+    {
+        public int X { get; }
+        public int Y { get; }
+
+        public Coord(int x, int y)
+        {
+            Y = y;
+            X = x;
         }
     }
 }
