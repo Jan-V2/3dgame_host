@@ -128,8 +128,12 @@ function init_3d() {
     // Setup camera
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
     cameraControls = new THREE.OrbitControls(camera);
-    camera.position.z = 30;
-    camera.position.y = 5;
+    dummy.position.x = cube.position.x;
+    dummy.position.y = 3;
+    dummy.position.z = cube.position.z;
+    cameraControls.target = dummy.position;
+    camera.position.z = 35;
+    camera.position.y = 15;
     camera.position.x = 15;
     cameraControls.update();
 
@@ -410,7 +414,10 @@ function moveBlock(axis, dir) {
                 }
 
                 counter++;
+
                 cube.rotateAroundWorldAxis(p, ax, r);
+                dummy.position.x = cube.position.x;
+                dummy.position.z = cube.position.z;
                 console.log("xinc");
 
                 if (counter >= 10) {
@@ -446,6 +453,8 @@ function moveBlock(axis, dir) {
                 counter++;
 
                 cube.rotateAroundWorldAxis(p, ax, r);
+                dummy.position.x = cube.position.x;
+                dummy.position.z = cube.position.z;
                 console.log("xdec");
 
                 if (counter >= 10) {
@@ -491,7 +500,10 @@ function moveBlock(axis, dir) {
                 }
 
                 counter++;
+
                 cube.rotateAroundWorldAxis(p, ax, r);
+                dummy.position.x = cube.position.x;
+                dummy.position.z = cube.position.z;
                 console.log("zinc");
 
                 if (counter >= 10) {
@@ -525,7 +537,10 @@ function moveBlock(axis, dir) {
                 }
 
                 counter++;
+
                 cube.rotateAroundWorldAxis(p, ax, r);
+                dummy.position.x = cube.position.x;
+                dummy.position.z = cube.position.z;
                 console.log("zdec");
 
                 if (counter >= 10) {
