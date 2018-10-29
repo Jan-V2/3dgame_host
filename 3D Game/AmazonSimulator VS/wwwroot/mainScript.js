@@ -241,7 +241,7 @@ function fallBlock(axis, dir) {
                 cubeZ -= 0.1;
                 cube.position.y -= 0.2;
                 cubeY -= 0.2;
-                p = new THREE.Vector3(cubeX, cubeY, cubeZ);
+
                 cube.rotateAroundWorldAxis(p, ax, r);
                 console.log("xinc");
 
