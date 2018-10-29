@@ -38,7 +38,7 @@ function parseCommand(input) {
 // Sets up all the stuff we need
 function init_3d() {
     // For debugging / performance stats, could be handy dandy when trying it on a mobile device
-/*    (function () { var script = document.createElement('script'); script.onload = function () {
+    (function () { var script = document.createElement('script'); script.onload = function () {
             var stats = new Stats();
             $("#game")[0].appendChild(stats.dom);
             requestAnimationFrame(function loop() {
@@ -48,7 +48,7 @@ function init_3d() {
         };
             script.src = '//rawgit.com/mrdoob/stats.js/master/build/stats.min.js'; document.head.appendChild(script);
         }
-    )();*/
+    )();
     
     // Setup camera
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
