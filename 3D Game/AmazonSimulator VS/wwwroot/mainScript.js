@@ -252,13 +252,6 @@ function fallBlock(axis, dir) {
                     cube.rotation.x = correctRot(cube.rotation.x);
                     cube.rotation.z = correctRot(cube.rotation.z);
 
-                    toggleFlat('x');
-
-                    console.log("zflat: " + flatZ);
-                    console.log("xflat: " + flatX);
-                    console.log(cube.position.y);
-                    console.log(cube.rotation.x);
-
                     inputReady = true;
                     clearInterval(i);
                 }
@@ -292,13 +285,6 @@ function fallBlock(axis, dir) {
                 if (counter >= 100) {
                     cube.rotation.x = correctRot(cube.rotation.x);
                     cube.rotation.z = correctRot(cube.rotation.z);
-
-                    toggleFlat('x');
-
-                    console.log("zflat: " + flatZ);
-                    console.log("xflat: " + flatX);
-                    console.log(cube.position.y);
-                    console.log(cube.rotation.x);
 
                     inputReady = true;
                     clearInterval(j);
@@ -346,13 +332,6 @@ function fallBlock(axis, dir) {
                     cube.rotation.x = correctRot(cube.rotation.x);
                     cube.rotation.z = correctRot(cube.rotation.z);
 
-                    toggleFlat('z');
-
-                    console.log("zflat: " + flatZ);
-                    console.log("xflat: " + flatX);
-                    console.log(cube.position.y);
-                    console.log(cube.rotation.z);
-
                     inputReady = true;
                     clearInterval(k);
                 }
@@ -386,13 +365,6 @@ function fallBlock(axis, dir) {
                 if (counter >= 100) {
                     cube.rotation.x = correctRot(cube.rotation.x);
                     cube.rotation.z = correctRot(cube.rotation.z);
-
-                    toggleFlat('z');
-                    
-                    console.log("zflat: " + flatZ);
-                    console.log("xflat: " + flatX);
-                    console.log(cube.position.y);
-                    console.log(cube.rotation.z);
 
                     inputReady = true;
                     clearInterval(m);
