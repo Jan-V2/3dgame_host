@@ -34,7 +34,7 @@ Vue.component('main_menu', {
         select_level: function (level_num) {
             console.log(level_num);
             this.game_started = true;
-            start_game(JSON.parse(utils.syncAjax("api/levels/3")));
+            startUp(JSON.parse(utils.syncAjax("api/levels/3")));
         },
         recalculate_padding: function () {
             let padding = (window.innerHeight - this.$refs.level_selector.clientHeight) / 2;
