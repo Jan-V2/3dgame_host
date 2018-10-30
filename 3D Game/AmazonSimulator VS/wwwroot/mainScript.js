@@ -419,5 +419,14 @@ function toggleFlat(axis) {
     }
 }
 
-
-
+function setP(sRot) {
+    if (sRot === 0) {
+        p = new THREE.Vector3(cubeX + xOffset, cubeY - yOffset, cubeZ + zOffset);
+    }
+    else if (sRot === Math.PI / 2) {
+        p = new THREE.Vector3(cubeX + yOffsetX, cubeY - 0.5, cubeZ + yOffsetZ);
+    }
+    else if (sRot === Math.PI) {
+        p = new THREE.Vector3(cubeX + xOffset, cubeY - yOffset, cubeZ + zOffset);
+    }
+}
