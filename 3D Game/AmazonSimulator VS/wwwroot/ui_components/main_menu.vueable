@@ -1,7 +1,7 @@
 <div >
     % v-if="!game_started" =>
     <div class="wrapper" ref="level_selector" v-bind:style="{paddingTop: padding_top + 'px'}">
-        % v-for="level_num in _.range(levels)" @click="select_level(level_num)" =>
+        % v-for="level_num in _.range(levels)" @click="select_level(level_num + 1)" =>
         <button type="button" class="btn btn-primary" >{{"level " + (level_num + 1)}}</button>
     </div>
 </div>

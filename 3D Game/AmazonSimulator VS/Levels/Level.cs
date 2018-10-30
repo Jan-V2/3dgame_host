@@ -21,7 +21,7 @@ namespace Levels
                     char square = level_data[i, j];
                     if (square == 'l'){
                         layout[i, j] = false;
-                    }else if (square == 's'){
+                    }else if (square == 'b'){
                         layout[i, j] = true;
                         starts.Add(new Coord(i,j));
                     }else if (square == 'v'){
