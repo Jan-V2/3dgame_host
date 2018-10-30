@@ -47,37 +47,15 @@ namespace Levels
 
     public class Coord
     {
-        public int X { get; }
-        public int Y { get; }
+        public int x { get; }
+        public int y { get; }
 
         public Coord(int x, int y)
         {
-            Y = y;
-            X = x;
-        }
-        /*public Level()
-        {
-            this.A = string.Empty;
-            this.B = new int();
-            this.C = new int();
+            this.y = y;
+            this.x = x;
         }
 
-        public string A
-        {
-            get;
-            set;
-        }
-
-        public int B
-        {
-            get;
-            set;
-        }
-        public int C
-        {
-            get;
-            set;
-        }*/
 
     }
 }
