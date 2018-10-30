@@ -15,7 +15,7 @@ namespace text_naar_level_array_converter
                     ).ToString()
                 ).ToString()
             ).ToString();
-            path += "\\Level 4.txt";
+            path += "\\level6.txt";
             TextReader fileStream = File.OpenText(path);
             var data = fileStream.ReadToEnd();
 
