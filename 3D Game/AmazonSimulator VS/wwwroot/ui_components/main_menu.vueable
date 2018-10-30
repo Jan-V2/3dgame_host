@@ -4,8 +4,4 @@
         % v-for="level_num in _.range(levels)" @click="select_level(level_num)" =>
         <button type="button" class="btn btn-primary" >{{"level " + (level_num + 1)}}</button>
     </div>
-    % v-else =>
-    <div>
-        <h1>game started</h1>
-    </div>
 </div>

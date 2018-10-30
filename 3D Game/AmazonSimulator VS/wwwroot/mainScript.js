@@ -1,15 +1,11 @@
 ﻿// Declare variables that are needed here so it's all grouped nicely
 var camera, scene, renderer;
 var cameraControls;
-var exampleSocket;
 // Path needs to be changed for both or we keep them doesn't really matter
 var modelPath = "/3dmodels/";
 var texturesPath = "/textures/models/";
-var worldObjects = {};
 var LoadingManager = null;
 // Chack for the Loading Screen which will follow in a sec
-var RESOURCES_LOADED = false;
-var selfRef = this;
 var dummy = new THREE.Mesh(new THREE.CubeGeometry(1, 1, 1), new THREE.MeshPhysicalMaterial({ color: 0x000000 }));
 var cube = new THREE.Mesh(new THREE.CubeGeometry(1, 2, 1), new THREE.MeshPhysicalMaterial({color: 0xFF0000}));
 var r = 0;
@@ -22,8 +18,9 @@ var counter = 0;
 var animInterval = 20;
 var p;
 var ax;
-let orbit_controls;
+let squaresize = 1
 var inputReady = true;
+let map;
 
 // Set up the loadingScreen / path on line 18 doesn't exist anymore needs to be changed
 var loadingScreen = {
@@ -80,7 +77,7 @@ function init_3d(map) {
         };
             script.src = '//rawgit.com/mrdoob/stats.js/master/build/stats.min.js'; document.head.appendChild(script);
         }
-    )();
+    )();*/
     
     // Setup camera
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
@@ -93,29 +90,6 @@ function init_3d(map) {
     // Create Scene
     scene = new THREE.Scene();
 
-    /* Show the loadingScreen
-    loadingScreen.box.position.set(0, 0, 2);
-    loadingScreen.camera.lookAt(loadingScreen.box.position);
-    loadingScreen.scene.add(loadingScreen.box);
-    */
-
-    /* Setup the loading Manager / needed for the LoadingScreen otherwise we'll have an infinite loading screen lol
-    loadingManager = new THREE.LoadingManager();
-
-    loadingManager.onProgress = function (item, loaded, total) {
-        console.log(item, loaded, total);
-    };
-
-    loadingManager.onLoad = function () {
-        console.log("Loaded all resources!");
-        RESOURCES_LOADED = true;
-    };
-    */
-
-    /* Handles the skybox in the scene / added like shown <Path, leftside, rightside, upside, downside, frontside, backside, image type>
-    skyBox = new SkyBox("path", "left", "right", "up", "down", "front", "back", ".png");
-    scene.add(skyBox);
-    */
 
     // Setup the WebGL renderer / alpha should help with loading in images with transparent parts <p.s. also makes background white for some reason>
     renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -132,16 +106,29 @@ function init_3d(map) {
 
     // Setup our 1st test map
 
-    var geometry = new THREE.PlaneGeometry(31, 31);
+    var geometry = new THREE.PlaneGeometry(squaresize, squaresize);
     var material = new THREE.MeshPhongMaterial({ color: 0xffffff, side: THREE.DoubleSide });
-    var plane = new THREE.Mesh(geometry, material);
-    plane.rotation.x = Math.PI / 2.0;
-    plane.position.x = 15;
-    plane.position.z = 15;
-    plane.receiveShadow = true;
-    plane.castShadow = false;
-    scene.add(plane);
-    
+
+
+    for (let i = 0; i < map.layout.length; i++) {
+        for (let j = 0; j < map.layout[0].length; j++) {
+            if (map.layout[i][j]){
+                let plane = new THREE.Mesh(geometry, material);
+                plane.rotation.x = Math.PI / 2.0;
+                plane.position.x = squaresize*i;
+                plane.position.z = squaresize*j;
+                plane.receiveShadow = true;
+                plane.castShadow = false;
+                scene.add(plane);
+            }
+        }
+    }
+
+    console.log(map);
+    cubeX = map.starts[0].x;
+    cubeZ = map.starts[0].y;
+
+
     cube.position.x = cubeX;
     cube.position.y = cubeY;
     cube.position.z = cubeZ;
@@ -161,17 +148,7 @@ function init_3d(map) {
     camera.position.x = 15;
     cameraControls.update();
 
-    for (let i = 0; i < map.layout.length; i++) {
-        for (let j = 0; j < map.layout[0].length; j++) {
-            if (map.layout[i][j]){
-                let plane = new THREE.Mesh(geometry, material);
-                plane.rotation.x = Math.PI / 2.0;
-                plane.position.x = 5*i;
-                plane.position.z = 5*j;
-                scene.add(plane);
-            }
-        }
-    }
+
     // Add lighting to the scene
     var light = new THREE.PointLight(0x404040);
     light.position.y = 30;
@@ -188,7 +165,6 @@ function init_3d(map) {
 }
 
 function init_input() {
-    // todo handelt wasd inpu door het over de websocket niet meer bestaat te sturen die
     document.addEventListener('keydown', function(event) {
         if (inputReady === true) {
             if (event.key === "w" || event.key === "W") {
@@ -615,8 +591,8 @@ function animate() {
 }
 
 // Sets up a connection with the server and handles the server commands
-window.onload = function startUp() {
-    init_3d();
+function startUp(level) {
+    init_3d(level);
     init_input();
     animate();
 
