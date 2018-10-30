@@ -69,6 +69,7 @@ THREE.Object3D.prototype.rotateAroundWorldAxis = function () {
 function init_3d(map) {
     // For debugging / performance stats, could be handy dandy when trying it on a mobile device
 
+
 /*    (function () { var script = document.createElement('script'); script.onload = function () {
             var stats = new Stats();
             $("#game")[0].appendChild(stats.dom);
@@ -79,7 +80,7 @@ function init_3d(map) {
         };
             script.src = '//rawgit.com/mrdoob/stats.js/master/build/stats.min.js'; document.head.appendChild(script);
         }
-    )();*/
+    )();
     
     // Setup camera
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);

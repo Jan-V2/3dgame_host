@@ -1,3 +1,4 @@
+
 let main_menu_template;
 
 let parser = new Vueable();

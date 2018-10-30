@@ -33,9 +33,10 @@ namespace Levels
                 }
             }
         }
-
+      
         public string get_json()
         {
+
             return JsonConvert.SerializeObject(new {
                 layout,
                 starts,
@@ -54,5 +55,29 @@ namespace Levels
             Y = y;
             X = x;
         }
+        /*public Level()
+        {
+            this.A = string.Empty;
+            this.B = new int();
+            this.C = new int();
+        }
+
+        public string A
+        {
+            get;
+            set;
+        }
+
+        public int B
+        {
+            get;
+            set;
+        }
+        public int C
+        {
+            get;
+            set;
+        }*/
+
     }
 }
