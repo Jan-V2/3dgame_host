@@ -21,6 +21,25 @@ var ax;
 let squaresize = 1
 var inputReady = true;
 let map;
+let player_position;
+
+function Flat_Coord(x, y){
+    let _this = this;
+    this.x = x;
+    this.y = y;
+    this.move_up = function (amount) {
+        _this.y += amount;
+    };
+    this.move_down = function (amount) {
+        _this.y -= amount;
+    };
+    this.move_left = function (amount) {
+        _this.x -= amount;
+    };
+    this.move_right = function (amount) {
+        _this.x += amount;
+    }
+}
 
 // Set up the loadingScreen / path on line 18 doesn't exist anymore needs to be changed
 var loadingScreen = {
