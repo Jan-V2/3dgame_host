@@ -29,7 +29,12 @@ var inputReady = true;
 var loadingScreen = {
     scene: new THREE.Scene(),
     camera: new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 100),
-    box: new THREE.Mesh(new THREE.PlaneGeometry(5, 5, 0), new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load("textures/models/misctextures/rmportal.png"), side: THREE.DoubleSide, transparent: true, opacity: 1.0 })
+    box: new THREE.Mesh(new THREE.PlaneGeometry(5, 5, 0), new THREE.MeshBasicMaterial(
+        {
+            map: new THREE.TextureLoader().load("textures/models/misctextures/rmportal.png"),
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 1.0 })
     )
 };
 
@@ -59,16 +64,31 @@ THREE.Object3D.prototype.rotateAroundWorldAxis = function () {
 
 }();
 
-// Once the window has opened this function springs to life
-window.onload = function () {
-    startUp();
-};
 
 // Sets up all the stuff we need
 function init_3d() {
     // For debugging / performance stats, could be handy dandy when trying it on a mobile device
-    (function () { var script = document.createElement('script'); script.onload = function () { var stats = new Stats(); document.body.appendChild(stats.dom); requestAnimationFrame(function loop() { stats.update(); requestAnimationFrame(loop); }); }; script.src = '//rawgit.com/mrdoob/stats.js/master/build/stats.min.js'; document.head.appendChild(script); })();
+
+/*    (function () { var script = document.createElement('script'); script.onload = function () {
+            var stats = new Stats();
+            $("#game")[0].appendChild(stats.dom);
+            requestAnimationFrame(function loop() {
+                stats.update();
+                requestAnimationFrame(loop)
+            });
+        };
+            script.src = '//rawgit.com/mrdoob/stats.js/master/build/stats.min.js'; document.head.appendChild(script);
+        }
+    )();*/
     
+    // Setup camera
+    camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
+    cameraControls = new THREE.OrbitControls(camera);
+    camera.position.z = 15;
+    camera.position.y = 5;
+    camera.position.x = 15;
+    cameraControls.update();
+
     // Create Scene
     scene = new THREE.Scene();
 
@@ -103,6 +123,8 @@ function init_3d() {
     renderer.shadowMapEnabled = true;
     renderer.shadowMapType = THREE.PCFSoftShadowMap; // options are THREE.BasicShadowMap | THREE.PCFShadowMap | THREE.PCFSoftShadowMap
     document.body.appendChild(renderer.domElement);
+
+    renderer.domElement.setAttribute("id", "three_renderer");
 
     // Continuesly check if the window gets resized
     window.addEventListener('resize', onWindowResize, false);
@@ -153,6 +175,7 @@ function init_3d() {
 }
 
 function init_input() {
+    // todo handelt wasd inpu door het over de websocket niet meer bestaat te sturen die
     document.addEventListener('keydown', function(event) {
         if (inputReady === true) {
             if (event.key === "w" || event.key === "W") {
@@ -179,7 +202,7 @@ function init_input() {
     console.log("input initted");
 }
 
-// Adjusts the scene to the correct window size whenever the window gets resized 
+// Adjusts the scene to the correct window size whenever the window gets resized
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
@@ -563,6 +586,7 @@ function moveBlock(axis, dir) {
 }
 
 // Changes the scene as per updated model so we see the models change   
+
 function animate() {
     /* Implements the LoadingScreen
     if (RESOURCES_LOADED == false) {
@@ -572,14 +596,13 @@ function animate() {
         return;
     }
     */
-
     requestAnimationFrame(animate);
     cameraControls.update();
     renderer.render(scene, camera);
 }
 
 // Sets up a connection with the server and handles the server commands
-function startUp() {
+window.onload = function startUp() {
     init_3d();
     init_input();
     animate();
@@ -610,5 +633,6 @@ function toggleFlat(axis) {
         }
     }
 }
+
 
 
