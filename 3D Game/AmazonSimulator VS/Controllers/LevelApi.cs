@@ -12,12 +12,22 @@ namespace Controllers
         [HttpGet("{id}")]
         public string Get(int id)
         {
-            Levels.Level level = new Level(new[,]{
-                {'l','l','l','l','l'},
-                {'l','s','v','e','l'},
-                {'l','l','l','l','l'}
-            });
-            return level.get_json();
+            switch (id)
+            {
+                case 1:
+                    Levels.Level level_1 = new Level(AllLevels.level_1);
+                    return level_1.get_json();
+                case 2:
+                    Levels.Level level_2 = new Level(AllLevels.level_2);
+                    return level_2.get_json();
+                case 3:
+                    Levels.Level level_3 = new Level(AllLevels.level_3);
+                    return level_3.get_json();
+                case 4:
+                    Levels.Level level_4 = new Level(AllLevels.level_4);
+                    return level_4.get_json();
+            }
+            return null;
         }
     }
 }
