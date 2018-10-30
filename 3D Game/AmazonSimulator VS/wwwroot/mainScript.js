@@ -250,6 +250,8 @@ function moveBlock(axis, dir, type) {
 
     if (axis === 'x') {
         sRot = cube.rotation.x;
+        yOffsetZ = 0;
+        xOffset = 0;
         ax = new THREE.Vector3(1, 0, 0);
 
         if (flatZ) {
@@ -263,19 +265,17 @@ function moveBlock(axis, dir, type) {
             r = -Math.PI / 20;
             zOffset = -0.5;
             yOffsetX = yOffset * -1;
-            yOffsetZ = 0;
-            xOffset = 0;
         }
         else if (dir === "dec") {
             r = Math.PI / 20;
             zOffset = 0.5;
             yOffsetX = yOffset;
-            yOffsetZ = 0;
-            xOffset = 0;
         }
     }
     else if (axis === 'z') {
         sRot = cube.rotation.z;
+        yOffsetX = 0;
+        zOffset = 0;
         ax = new THREE.Vector3(0, 0, 1);
 
         if (flatX) {
@@ -289,15 +289,11 @@ function moveBlock(axis, dir, type) {
             r = Math.PI / 20;
             xOffset = -0.5;
             yOffsetZ = yOffset * -1;
-            yOffsetX = 0;
-            zOffset = 0;
         }
         else if (dir === "dec") {
             r = -Math.PI / 20;
             xOffset = 0.5;
             yOffsetZ = yOffset;
-            yOffsetX = 0;
-            zOffset = 0;
         }
     }
 
