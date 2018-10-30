@@ -424,7 +424,7 @@ function setP(sRot) {
         p = new THREE.Vector3(cubeX + xOffset, cubeY - yOffset, cubeZ + zOffset);
     }
     else if (sRot === Math.PI / 2) {
-        p = new THREE.Vector3(cubeX + yOffsetX, cubeY - 0.5, cubeZ + yOffsetZ);
+        p = new THREE.Vector3(cubeX + yOffsetZ, cubeY - 0.5, cubeZ + yOffsetX);
     }
     else if (sRot === Math.PI) {
         p = new THREE.Vector3(cubeX + xOffset, cubeY - yOffset, cubeZ + zOffset);
