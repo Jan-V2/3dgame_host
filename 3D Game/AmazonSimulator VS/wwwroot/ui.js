@@ -6,30 +6,54 @@ r_async.parallel([
     () => {main_menu_template = parser.parse( utils.syncAjax('ui_components/main_menu.vueable'))}
 ]);
 
-
+/*todo
+* start scherm
+* level select scherm
+* options?
+*/
 
 Vue.component('main_menu', {
     template:  main_menu_template,
     data: function () {
         return {
-            is_visible: true,
-            test3:[""]
+            top_padding: 0,
+            levels: 33,
+            padding_top:0,
+            game_started: false,
         }
     },
     mounted: function(){
+        window.addEventListener('resize', this.recalculate_padding, false);
+        this.recalculate_padding();
     },
     computed:{
-    
+
     },
     methods: {
-        toggle_visibility: function() {
-            this.is_visible = !this.is_visible;
+        select_level: function (level_num) {
+            console.log(level_num);
+            this.game_started = true;
+            start_game(JSON.parse(utils.syncAjax("api/levels/3")));
         },
-        add_one: function () {
-            this.test3.push("");
+        recalculate_padding: function () {
+            let padding = (window.innerHeight - this.$refs.level_selector.clientHeight) / 2;
+            if (padding > 0){
+                this.padding_top = padding;
+            }else{
+                this.padding_top = 0;
+            }
         }
     }
 });
+
+function resize_main_menu() {
+    let div  = $("#main_menu")[0];
+    div.style.width = window.innerWidth + "px";
+    div.style.height = window.innerHeight + "px";
+}
+
+window.addEventListener('resize', resize_main_menu, false);
+resize_main_menu();
 
 
 let main_menu = new Vue({

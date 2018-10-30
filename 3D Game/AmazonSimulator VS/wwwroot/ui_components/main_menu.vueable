@@ -1,14 +1,11 @@
-<div>
-    % @click="toggle_visibility()" =>
-    <button>toggle visible</button>
-    % @click="add_one()" =>
-    <button>add one</button>
-    % v-if="is_visible" =>
-    <div>
-        % v-for="i in _.range(test3.length)" =>
-        <h1 style="background-color: aquamarine">
-            some text {{i + 1}}
-        </h1>
+<div >
+    % v-if="!game_started" =>
+    <div class="wrapper" ref="level_selector" v-bind:style="{paddingTop: padding_top + 'px'}">
+        % v-for="level_num in _.range(levels)" @click="select_level(level_num)" =>
+        <button type="button" class="btn btn-primary" >{{"level " + (level_num + 1)}}</button>
     </div>
-
+    % v-else =>
+    <div>
+        <h1>game started</h1>
+    </div>
 </div>

@@ -66,7 +66,7 @@ THREE.Object3D.prototype.rotateAroundWorldAxis = function () {
 
 
 // Sets up all the stuff we need
-function init_3d() {
+function init_3d(map) {
     // For debugging / performance stats, could be handy dandy when trying it on a mobile device
 
 /*    (function () { var script = document.createElement('script'); script.onload = function () {
@@ -120,16 +120,17 @@ function init_3d() {
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight + 5);
+    
+    $("#game")[0].appendChild(renderer.domElement);
     renderer.shadowMapEnabled = true;
     renderer.shadowMapType = THREE.PCFSoftShadowMap; // options are THREE.BasicShadowMap | THREE.PCFShadowMap | THREE.PCFSoftShadowMap
-    document.body.appendChild(renderer.domElement);
 
     renderer.domElement.setAttribute("id", "three_renderer");
 
     // Continuesly check if the window gets resized
-    window.addEventListener('resize', onWindowResize, false);
 
     // Setup our 1st test map
+
     var geometry = new THREE.PlaneGeometry(31, 31);
     var material = new THREE.MeshPhongMaterial({ color: 0xffffff, side: THREE.DoubleSide });
     var plane = new THREE.Mesh(geometry, material);
@@ -159,6 +160,17 @@ function init_3d() {
     camera.position.x = 15;
     cameraControls.update();
 
+    for (let i = 0; i < map.layout.length; i++) {
+        for (let j = 0; j < map.layout[0].length; j++) {
+            if (map.layout[i][j]){
+                let plane = new THREE.Mesh(geometry, material);
+                plane.rotation.x = Math.PI / 2.0;
+                plane.position.x = 5*i;
+                plane.position.z = 5*j;
+                scene.add(plane);
+            }
+        }
+    }
     // Add lighting to the scene
     var light = new THREE.PointLight(0x404040);
     light.position.y = 30;
