@@ -13,7 +13,7 @@ namespace Levels
             {'l','l','l','l','l'}
         };
 
-        public static char[,] level_1 = 
+        public static char[,] level_1 =
         {
                 {'v','v','v','l','l','l','l','l','l','l'},
                 {'v','b','v','v','v','v','l','l','l','l'},
@@ -23,7 +23,7 @@ namespace Levels
                 {'l','l','l','l','l','l','v','v','v','l'}
         };
 
-        public static char[,] level_2 = 
+        public static char[,] level_2 =
         {
                 {'l','l','l','l','l','l','v','v','v','v','v','v','v','l','l'},
                 {'v','v','v','v','l','l','v','v','v','l','l','v','v','l','l'},
@@ -32,7 +32,7 @@ namespace Levels
                 {'v','v','v','v','l','l','l','l','l','l','l','l','v','v','v'}
         };
 
-        public static char[,] level_3 =  
+        public static char[,] level_3 =
         {
                 {'l','l','l','l','l','v','v','v','v','v','v','l','l','l','l'},
                 {'l','l','l','l','l','v','l','l','v','v','v','l','l','l','l'},
@@ -46,7 +46,7 @@ namespace Levels
                 {'l','l','l','l','l','l','l','v','v','v','l','l','l','l','l'}
         };
 
-        public static char[,] level_4 = 
+        public static char[,] level_4 =
         {
                 {'l','l','v','v','l','l','v','v','l','l','l'},
                 {'l','v','v','v','v','v','v','v','l','l','v'},
@@ -58,7 +58,7 @@ namespace Levels
                 {'v','v','b','v','v','v','v','v','v','v','v'}
         };
 
-        public static char[,] level_5 = 
+        public static char[,] level_5 =
         {
                 {'v','v','v','v','v','v','v','v','v','v','v','v','v','l'},
                 {'v','v','l','l','l','l','l','l','l','l','v','v','v','l'},
@@ -70,6 +70,15 @@ namespace Levels
                 {'l','l','v','v','v','v','v','v','v','v','v','v','l','l'},
                 {'l','l','l','v','v','v','v','v','v','v','v','l','l','l'},
                 {'l','l','l','v','v','v','l','l','v','v','l','l','l','l'}
+        };
+
+        public static char[,] level_6 =
+        {
+                {'v','v','v','v','v','v','l'},
+                {'v','l','v','v','l','v','l'},
+                {'v','l','v','v','v','v','v'},
+                {'b','l','l','l','v','e','v'},
+                {'l','l','l','l','v','v','v'}
         };
     }
 }
