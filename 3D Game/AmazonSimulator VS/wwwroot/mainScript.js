@@ -1,4 +1,4 @@
-﻿// Declare variables that are needed here so it's all grouped nicely
+﻿// inclare variables that are needed here so it's all grouped nicely
 var camera, scene, renderer;
 var cameraControls;
 // Path needs to be changed for both or we keep them doesn't really matter
@@ -82,7 +82,7 @@ THREE.Object3D.prototype.rotateAroundWorldAxis = function () {
 
 
 // Sets up all the stuff we need
-function init_3d(map) {
+function init_3d() {
     // For debugging / performance stats, could be handy dandy when trying it on a mobile device
 
 
@@ -143,9 +143,9 @@ function init_3d(map) {
         }
     }
 
-    console.log(map);
     cubeX = map.starts[0].x;
     cubeZ = map.starts[0].y;
+    player_position = new Flat_Coord(map.starts[0].x, map.starts[0].y);
 
 
     cube.position.x = cubeX;
@@ -187,27 +187,24 @@ function init_input() {
     document.addEventListener('keydown', function(event) {
         if (inputReady === true) {
             if (event.key === "w" || event.key === "W") {
-                moveBlock('x', "inc", "move");
-            } else if (event.key === "a" || event.key === "A") {
-                moveBlock('z', "inc", "move");
-            } else if (event.key === "s" || event.key === "S") {
                 moveBlock('x', "dec", "move");
-            } else if (event.key === "d" || event.key === "D") {
+            } else if (event.key === "a" || event.key === "A") {
                 moveBlock('z', "dec", "move");
+            } else if (event.key === "s" || event.key === "S") {
+                moveBlock('x', "inc", "move");
+            } else if (event.key === "d" || event.key === "D") {
+                moveBlock('z', "inc", "move");
             } else if (event.key === "t" || event.key === "T") {
-                moveBlock('x', "inc", "fall");
-            } else if (event.key === "f" || event.key === "F") {
-                moveBlock('z', "inc", "fall");
-            } else if (event.key === "g" || event.key === "G") {
                 moveBlock('x', "dec", "fall");
-            } else if (event.key === "h" || event.key === "H") {
+            } else if (event.key === "f" || event.key === "F") {
                 moveBlock('z', "dec", "fall");
+            } else if (event.key === "g" || event.key === "G") {
+                moveBlock('x', "inc", "fall");
+            } else if (event.key === "h" || event.key === "H") {
+                moveBlock('z', "inc", "fall");
             }
-            console.log("input send");
         }
-            console.log("posX: " + cube.position.x);
     });
-    console.log("input initted");
 }
 
 // Adjusts the scene to the correct window size whenever the window gets resized
@@ -246,10 +243,11 @@ function moveBlock(axis, dir, type) {
     cubeY = cube.position.y;
     cubeZ = cube.position.z;
 
-    console.log(cube.position.y);
 
     if (axis === 'x') {
         sRot = cube.rotation.x;
+        yOffsetZ = 0;
+        xOffset = 0;
         ax = new THREE.Vector3(1, 0, 0);
 
         if (flatZ) {
@@ -259,23 +257,21 @@ function moveBlock(axis, dir, type) {
             yOffset = 1;
         }
 
-        if (dir === "inc") {
+        if (dir === "dec") {
             r = -Math.PI / 20;
             zOffset = -0.5;
             yOffsetX = yOffset * -1;
-            yOffsetZ = 0;
-            xOffset = 0;
         }
-        else if (dir === "dec") {
+        else if (dir === "inc") {
             r = Math.PI / 20;
             zOffset = 0.5;
             yOffsetX = yOffset;
-            yOffsetZ = 0;
-            xOffset = 0;
         }
     }
     else if (axis === 'z') {
         sRot = cube.rotation.z;
+        yOffsetX = 0;
+        zOffset = 0;
         ax = new THREE.Vector3(0, 0, 1);
 
         if (flatX) {
@@ -285,47 +281,117 @@ function moveBlock(axis, dir, type) {
             yOffset = 1;
         }
 
-        if (dir === "inc") {
+        if (dir === "dec") {
             r = Math.PI / 20;
             xOffset = -0.5;
             yOffsetZ = yOffset * -1;
-            yOffsetX = 0;
-            zOffset = 0;
         }
-        else if (dir === "dec") {
+        else if (dir === "inc") {
             r = -Math.PI / 20;
             xOffset = 0.5;
             yOffsetZ = yOffset;
-            yOffsetX = 0;
-            zOffset = 0;
         }
     }
 
     if (type === "move") {
-        var blockMoveInterval = setInterval(function () {
-            setP(sRot);
+        /*
+        * todo bebaal eindbestemming
+        * todo check of de eindbestemming in het speelveld ligt
+        * todo recursive call met fall
+        */
 
-            counter++;
-            cube.rotateAroundWorldAxis(p, ax, r);
-
-            dummy.position.x = cube.position.x;
-            dummy.position.z = cube.position.z;
-
-            if (counter >= 10) {
-                cube.rotation.x = correctRot(cube.rotation.x);
-                cube.rotation.z = correctRot(cube.rotation.z);
-
-                toggleFlat(axis);
-
-                console.log("zflat: " + flatZ);
-                console.log("xflat: " + flatX);
-                console.log(cube.position.y);
-                console.log(cube.rotation.z);
-
-                inputReady = true;
-                clearInterval(blockMoveInterval);
+        function quant_num(num) {
+            let integer_comp = Math.floor(num);
+            let remainder = num - integer_comp;
+            if  (0.25 > remainder < 0.75){
+                return integer_comp + 0.5;
+            }else if(remainder > 0.75){
+                return integer_comp + 1;
+            }else{
+                return integer_comp;
             }
-        }, animInterval);
+        }
+
+        function bepaal_eindbestemming() {
+
+            if (flatX && axis === "x" || flatZ && axis === "z" || !flatX && !flatZ){
+                if (axis === "z"){
+                    if (dir === "inc"){
+                        return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z) + 1.5);
+                    }else if (dir === "dec"){
+                        return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z)- 1.5);
+                    }
+                }else if (axis === "x"){
+                    if (dir === "inc"){
+                        return new Flat_Coord(quant_num(cube.position.x) + 1.5, quant_num(cube.position.z));
+                    }else if (dir === "dec"){
+                        return new Flat_Coord(quant_num(cube.position.x) - 1.5, quant_num(cube.position.z));
+                    }
+                }
+            }else {
+                if (axis === "z"){
+                    if (dir === "inc"){
+                        return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z) + 1);
+                    }else if (dir === "dec"){
+                        return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z) - 1);
+                    }
+                }else if (axis === "x"){
+                    if (dir === "inc"){
+                        return new Flat_Coord(quant_num(cube.position.x)+ 1, quant_num(cube.position.z));
+                    }else if (dir === "dec"){
+                        return new Flat_Coord(quant_num(cube.position.x) -1, quant_num(cube.position.z));
+                    }
+                }
+            }
+        }
+
+        function save_map_get(x, y) {
+            let result;
+            try {
+                result = map.layout[Math.floor(y)][Math.floor(x)];
+            }catch {
+                result = false;
+            }
+            return !!result;
+        }
+
+        let eindbestemming = bepaal_eindbestemming();
+        console.log(eindbestemming);
+        let op_speelveld;
+        if (eindbestemming.x % 1 === 0 && eindbestemming.y % 1 === 0){
+            op_speelveld = save_map_get(eindbestemming.x, eindbestemming.y)
+        } else if (eindbestemming.x % 1 !== 0 && eindbestemming.y % 1 === 0){
+            op_speelveld = save_map_get(eindbestemming.x, eindbestemming.y)
+                && save_map_get(eindbestemming.x -1, eindbestemming.y);
+        } else if (eindbestemming.x % 1 === 0 && eindbestemming.y % 1 !== 0){
+            op_speelveld = save_map_get(eindbestemming.x, eindbestemming.y)
+                && save_map_get(eindbestemming.x, eindbestemming.y -1);
+
+        }
+
+        console.log(map.layout)
+        console.log(op_speelveld);
+
+            var blockMoveInterval = setInterval(function () {
+                setP(sRot);
+
+                counter++;
+                cube.rotateAroundWorldAxis(p, ax, r);
+
+                dummy.position.x = cube.position.x;
+                dummy.position.z = cube.position.z;
+
+                if (counter >= 10) {
+                    cube.rotation.x = correctRot(cube.rotation.x);
+                    cube.rotation.z = correctRot(cube.rotation.z);
+
+                    toggleFlat(axis);
+
+                    inputReady = true;
+                    clearInterval(blockMoveInterval);
+                }
+            }, animInterval);
+
     }
     else if (type === "fall") {
         var blockFallInterval = setInterval(function () {
@@ -335,21 +401,21 @@ function moveBlock(axis, dir, type) {
                 cube.position.y -= 0.2;
                 cubeY = cube.position.y;
                 if (axis === 'x') {
-                    if (dir === "inc") {
+                    if (dir === "dec") {
                         cube.position.z -= 0.1;
                         cubeZ -= 0.1;
                     }
-                    else if (dir === "dec") {
+                    else if (dir === "inc") {
                         cube.position.z += 0.1;
                         cubeZ += 0.1;
                     }
                 }
                 else if (axis === 'z') {
-                    if (dir === "inc") {
+                    if (dir === "dec") {
                         cube.position.x -= 0.1;
                         cubeX -= 0.1;
                     }
-                    else if (dir === "dec") {
+                    else if (dir === "inc") {
                         cube.position.x += 0.1;
                         cubeX += 0.1;
                     }
@@ -373,14 +439,7 @@ function moveBlock(axis, dir, type) {
 // Changes the scene as per updated model so we see the models change   
 
 function animate() {
-    /* Implements the LoadingScreen
-    if (RESOURCES_LOADED == false) {
-        requestAnimationFrame(animate);
 
-        renderer.render(loadingScreen.scene, loadingScreen.camera);
-        return;
-    }
-    */
     requestAnimationFrame(animate);
     cameraControls.update();
     renderer.render(scene, camera);
@@ -388,12 +447,11 @@ function animate() {
 
 // Sets up a connection with the server and handles the server commands
 function startUp(level) {
+    map = level;
     init_3d(level);
     init_input();
     animate();
 
-    console.log("zflat: " + flatZ);
-    console.log("xflat: " + flatX);
 }
 
 function toggleFlat(axis) {
@@ -424,7 +482,7 @@ function setP(sRot) {
         p = new THREE.Vector3(cubeX + xOffset, cubeY - yOffset, cubeZ + zOffset);
     }
     else if (sRot === Math.PI / 2) {
-        p = new THREE.Vector3(cubeX + yOffsetX, cubeY - 0.5, cubeZ + yOffsetZ);
+        p = new THREE.Vector3(cubeX + yOffsetZ, cubeY - 0.5, cubeZ + yOffsetX);
     }
     else if (sRot === Math.PI) {
         p = new THREE.Vector3(cubeX + xOffset, cubeY - yOffset, cubeZ + zOffset);
