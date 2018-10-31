@@ -292,17 +292,21 @@ function moveBlock(axis, dir, type) {
                 if (axis === "x"){
                     console.log("z as")
                     if (dir === "inc"){
-                        return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z) + 2);
+                        return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z) + 1.5);
                     }else if (dir === "dec"){
-                        return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z)- 2);
+                        return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z)- 1.5);
                     }
                 }else if (axis === "z"){
                     console.log("x as")
 
                     if (dir === "inc"){
-                        return new Flat_Coord(quant_num(cube.position.x) + 2, quant_num(cube.position.z));
+                        console.log("inc")
+
+                        return new Flat_Coord(quant_num(cube.position.x) + 1.5, quant_num(cube.position.z));
                     }else if (dir === "dec"){
-                        return new Flat_Coord(quant_num(cube.position.x) - 2, quant_num(cube.position.z));
+                        console.log("dec")
+
+                        return new Flat_Coord(quant_num(cube.position.x) - 1.5, quant_num(cube.position.z));
                     }
                 }
             }else {
@@ -324,6 +328,7 @@ function moveBlock(axis, dir, type) {
 
         function save_map_get(x, y) {
             let result;
+            console.log("x " + Math.floor(y) + " y " +Math.floor(x));
             try {
                 result = map.layout[Math.floor(y)][Math.floor(x)];
             }catch {
@@ -340,11 +345,11 @@ function moveBlock(axis, dir, type) {
         if (eindbestemming.x % 1 === 0 && eindbestemming.y % 1 === 0){
             op_speelveld = save_map_get(eindbestemming.x, eindbestemming.y)
         } else if (eindbestemming.x % 1 !== 0 && eindbestemming.y % 1 === 0){
-            op_speelveld = save_map_get(eindbestemming.x, eindbestemming.y)
-                && save_map_get(eindbestemming.x -1, eindbestemming.y);
+            op_speelveld = save_map_get(eindbestemming.x+0.5, eindbestemming.y)
+                && save_map_get(eindbestemming.x -0.5, eindbestemming.y);
         } else if (eindbestemming.x % 1 === 0 && eindbestemming.y % 1 !== 0){
-            op_speelveld = save_map_get(eindbestemming.x, eindbestemming.y)
-                && save_map_get(eindbestemming.x, eindbestemming.y -1);
+            op_speelveld = save_map_get(eindbestemming.x, eindbestemming.y+0.5)
+                && save_map_get(eindbestemming.x, eindbestemming.y -0.5);
         }else{
             console.log("niet afgevangen");
             console.log(cube.position)
