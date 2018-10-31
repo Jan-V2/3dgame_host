@@ -27,7 +27,7 @@ namespace Levels
                     }else if (square == 'v'){
                         layout[i, j] = true;
                     }else if (square == 'e'){
-                        ends.Add(new Coord(i,j));
+                        ends.Add(new Coord(j,i));
                         layout[i, j] = true;
                     }
                 }

@@ -44,14 +44,6 @@ function Flat_Coord(x, y){
     };
 }
 
-// Changes the command from the server which is send as a JavaScript Object Notation to a readable string
-function parseCommand(input) {
-    if (input === undefined){
-        input = "";
-    }
-    return JSON.parse(input);
-}
-
 THREE.Object3D.prototype.rotateAroundWorldAxis = function () {
     var q1 = new THREE.Quaternion();
     return function (point, axis, angle) {
@@ -74,26 +66,26 @@ function init_3d() {
     // For debugging / performance stats, could be handy dandy when trying it on a mobile device
 
 
-/*    (function () { var script = document.createElement('script'); script.onload = function () {
-            var stats = new Stats();
-            $("#game")[0].appendChild(stats.dom);
-            requestAnimationFrame(function loop() {
-                stats.update();
-                requestAnimationFrame(loop)
-            });
-        };
-            script.src = '//rawgit.com/mrdoob/stats.js/master/build/stats.min.js'; document.head.appendChild(script);
-        }
-    )();*/
+    /*    (function () { var script = document.createElement('script'); script.onload = function () {
+                var stats = new Stats();
+                $("#game")[0].appendChild(stats.dom);
+                requestAnimationFrame(function loop() {
+                    stats.update();
+                    requestAnimationFrame(loop)
+                });
+            };
+                script.src = '//rawgit.com/mrdoob/stats.js/master/build/stats.min.js'; document.head.appendChild(script);
+            }
+        )();*/
 
     // Create Scene
     scene = new THREE.Scene();
-    
+
     // Setup the WebGL renderer / alpha should help with loading in images with transparent parts <p.s. also makes background white for some reason>
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight + 5);
-    
+
     $("#game")[0].appendChild(renderer.domElement);
     renderer.shadowMapEnabled = true;
     renderer.shadowMapType = THREE.PCFSoftShadowMap; // options are THREE.BasicShadowMap | THREE.PCFShadowMap | THREE.PCFSoftShadowMap
@@ -123,7 +115,7 @@ function init_3d() {
     cubeX = map.starts[0].x;
     cubeZ = map.starts[0].y;
     player_position = new Flat_Coord(map.starts[0].x, map.starts[0].y);
-    
+
     cube.position.x = cubeX;
     cube.position.y = cubeY;
     cube.position.z = cubeZ;
@@ -142,7 +134,7 @@ function init_3d() {
     camera.position.y = 15;
     camera.position.x = -10;
     cameraControls.update();
-    
+
     // Add lighting to the scene
     var light = new THREE.PointLight(0x404040);
     light.position.y = 30;
@@ -209,6 +201,15 @@ function correctRot(rotation) {
     }
 }
 
+function eindcheck(coord) {
+    console.log("checking");
+    console.log(coord)
+
+    if (map.ends[0].x === coord.x && map.ends[0].y === coord.y ){
+        console.log("gewonnen")
+    }
+}
+
 function moveBlock(axis, dir, type) {
     var counter = 0;
     var sRot = 0;
@@ -217,7 +218,7 @@ function moveBlock(axis, dir, type) {
     cubeX = cube.position.x;
     cubeY = cube.position.y;
     cubeZ = cube.position.z;
-    
+
     if (axis === 'x') {
         sRot = cube.rotation.x;
         yOffsetZ = 0;
@@ -278,7 +279,7 @@ function moveBlock(axis, dir, type) {
             let integer_comp = Math.floor(num);
             let remainder = num - integer_comp;
             if  (0.25 < remainder && remainder < 0.75){
-                return integer_comp;
+                return integer_comp + 0.5;
             }else if(remainder > 0.75){
                 return integer_comp + 1;
             }else{
@@ -374,6 +375,7 @@ function moveBlock(axis, dir, type) {
                     cube.rotation.z = correctRot(cube.rotation.z);
 
                     toggleFlat(axis);
+                    eindcheck(eindbestemming);
 
                     inputReady = true;
                     clearInterval(blockMoveInterval);
