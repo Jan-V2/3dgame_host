@@ -138,9 +138,9 @@ function init_3d() {
     dummy.position.y = 3;
     dummy.position.z = cube.position.z;
     cameraControls.target = dummy.position;
-    camera.position.z = 25;
+    camera.position.z = 0;
     camera.position.y = 15;
-    camera.position.x = 10;
+    camera.position.x = -10;
     cameraControls.update();
     
     // Add lighting to the scene
@@ -162,11 +162,11 @@ function init_input() {
     document.addEventListener('keydown', function(event) {
         if (inputReady === true) {
             if (event.key === "w" || event.key === "W") {
-                moveBlock('z', "dec", "move");
+                moveBlock('z', "inc", "move");
             } else if (event.key === "a" || event.key === "A") {
                 moveBlock('x', "dec", "move");
             } else if (event.key === "s" || event.key === "S") {
-                moveBlock('z', "inc", "move");
+                moveBlock('z', "dec", "move");
             } else if (event.key === "d" || event.key === "D") {
                 moveBlock('x', "inc", "move");
             } else if (event.key === "t" || event.key === "T") {
@@ -278,7 +278,7 @@ function moveBlock(axis, dir, type) {
             let integer_comp = Math.floor(num);
             let remainder = num - integer_comp;
             if  (0.25 < remainder && remainder < 0.75){
-                return integer_comp + 0.5;
+                return integer_comp;
             }else if(remainder > 0.75){
                 return integer_comp + 1;
             }else{
@@ -288,31 +288,31 @@ function moveBlock(axis, dir, type) {
 
         function bepaal_eindbestemming() {
 
-            if (flatX && axis === "x" || flatZ && axis === "z" || !flatX && !flatZ){
+            if (!flatX && !flatZ){
                 if (axis === "x"){
                     console.log("z as")
                     if (dir === "inc"){
-                        return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z) + 1.5);
+                        return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z) + 2);
                     }else if (dir === "dec"){
-                        return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z)- 1.5);
+                        return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z)- 2);
                     }
                 }else if (axis === "z"){
                     console.log("x as")
 
                     if (dir === "inc"){
-                        return new Flat_Coord(quant_num(cube.position.x) + 1.5, quant_num(cube.position.z));
+                        return new Flat_Coord(quant_num(cube.position.x) + 2, quant_num(cube.position.z));
                     }else if (dir === "dec"){
-                        return new Flat_Coord(quant_num(cube.position.x) - 1.5, quant_num(cube.position.z));
+                        return new Flat_Coord(quant_num(cube.position.x) - 2, quant_num(cube.position.z));
                     }
                 }
             }else {
-                if (axis === "x"){
+                if (flatX && axis === "x" || flatZ && axis === "x"){
                     if (dir === "inc"){
                         return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z) + 1);
                     }else if (dir === "dec"){
                         return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z) - 1);
                     }
-                }else if (axis === "z"){
+                }else if (flatZ && axis === "z" || flatX && axis === "z"){
                     if (dir === "inc"){
                         return new Flat_Coord(quant_num(cube.position.x)+ 1, quant_num(cube.position.z));
                     }else if (dir === "dec"){
@@ -448,6 +448,8 @@ function toggleFlat(axis) {
             flatZ = !flatZ;
         }
     }
+    console.log("flatX: " + flatX);
+    console.log("flatZ: " + flatZ);
 }
 
 function setP(sRot) {
