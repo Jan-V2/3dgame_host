@@ -391,7 +391,7 @@ function moveBlock(axis, dir, type) {
             if (counter >= 9) {
                 cube.position.y -= 0.2;
                 cubeY = cube.position.y;
-                if (axis === 'z') {
+                if (axis === 'x') {
                     if (dir === "dec") {
                         cube.position.z -= 0.1;
                         cubeZ -= 0.1;
@@ -401,7 +401,7 @@ function moveBlock(axis, dir, type) {
                         cubeZ += 0.1;
                     }
                 }
-                else if (axis === 'x') {
+                else if (axis === 'z') {
                     if (dir === "dec") {
                         cube.position.x -= 0.1;
                         cubeX -= 0.1;
