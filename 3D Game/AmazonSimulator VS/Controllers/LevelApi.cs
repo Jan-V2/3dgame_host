@@ -35,6 +35,9 @@ namespace Controllers
                 case 7:
                     Levels.Level level_7 = new Level(AllLevels.level_7);
                     return level_7.get_json();
+                case 8:
+                    Levels.Level test_level = new Level(AllLevels.test_level);
+                    return test_level.get_json();
             }
             return null;
         }
