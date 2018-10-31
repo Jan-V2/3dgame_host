@@ -12,8 +12,28 @@ namespace Controllers
         [HttpGet("{id}")]
         public string Get(int id)
         {
-            Levels.Level level = new Level(new[,] { { 'l', 'l', 'l', 'l', 'l', 'e', 'l', 'l', 'l', 'l', 'l', 'l' }, { 'l', 'l', 'l', 'l', 'l', 'v', 'l', 'l', 'l', 'l', 'l', 'l' }, { 'l', 'l', 'v', 'v', 'v', 'v', 'l', 'l', 'l', 'l', 'l', 'l' }, { 'l', 'l', 's', 'l', 'l', 'v', 'v', 'v', 'v', 'v', 'v', 'v' }, { 'l', 'l', 'v', 'l', 'l', 'v', 'l', 'l', 'l', 'l', 'v', 'v' }, { 'v', 'v', 'v', 'l', 'l', 'v', 'v', 'v', 'l', 'v', 'v', 'v' }, { 'v', 'v', 'v', 'l', 'l', 'l', 'v', 'v', 'v', 'v', 'v', 'l' }, { 'l', 'l', 'l', 'l', 'l', 'l', 'l', 'l', 'l', 'l', 'v', 'l' }, { 'l', 'l', 'l', 'l', 'l', 'l', 'l', 'l', 'v', 'v', 'v', 'l' }, { 'l', 'l', 'l', 'l', 'l', 'l', 'l', 'l', 'v', 'v', 'v', 'l' } });
-            return level.get_json();
+            switch (id)
+            {
+                case 1:
+                    Levels.Level level_1 = new Level(AllLevels.level_1);
+                    return level_1.get_json();
+                case 2:
+                    Levels.Level level_2 = new Level(AllLevels.level_2);
+                    return level_2.get_json();
+                case 3:
+                    Levels.Level level_3 = new Level(AllLevels.level_3);
+                    return level_3.get_json();
+                case 4:
+                    Levels.Level level_4 = new Level(AllLevels.level_4);
+                    return level_4.get_json();
+                case 5:
+                    Levels.Level level_5 = new Level(AllLevels.level_5);
+                    return level_5.get_json();
+                case 6:
+                    Levels.Level level_6 = new Level(AllLevels.level_6);
+                    return level_6.get_json();
+            }
+            return null;
         }
     }
 }
