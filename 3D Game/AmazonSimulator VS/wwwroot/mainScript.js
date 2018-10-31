@@ -19,7 +19,7 @@ var changeR = false;
 var flatX = false;
 var flatZ = false;
 var counter = 0;
-var animInterval = 25;
+var animInterval = 150;
 var p;
 var ax;
 let squaresize = 1;
@@ -131,9 +131,9 @@ function init_3d() {
     dummy.position.y = 3;
     dummy.position.z = cube.position.z;
     cameraControls.target = dummy.position;
-    camera.position.z = -15;
+    camera.position.z = 0;
     camera.position.y = 15;
-    camera.position.x = 0;
+    camera.position.x = -15;
     camera.zoom = 2.5;
     camera.updateProjectionMatrix();
     cameraControls.update();
@@ -730,5 +730,13 @@ function setP(sRot) {
     }
     else if (sRot === Math.PI) {
         p = new THREE.Vector3(cubeX + xOffset, cubeY - yOffset, cubeZ + zOffset);
+    }
+}
+
+function eindcheck(coord) {
+    console.log("checking");
+    console.log(coord)
+     if (map.ends[0].x === coord.x && map.ends[0].y === coord.y ){
+        console.log("gewonnen")
     }
 }
