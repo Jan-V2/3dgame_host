@@ -132,7 +132,7 @@ function init_3d() {
     scene.add(cube);
 
     // Setup camera
-    camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
+    camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 1000);
     cameraControls = new THREE.OrbitControls(camera);
     dummy.position.x = cube.position.x;
     dummy.position.y = 3;
@@ -140,7 +140,9 @@ function init_3d() {
     cameraControls.target = dummy.position;
     camera.position.z = 0;
     camera.position.y = 15;
-    camera.position.x = -10;
+    camera.position.x = -15;
+    camera.zoom = 2.5;
+    camera.updateProjectionMatrix();
     cameraControls.update();
     
     // Add lighting to the scene
@@ -278,7 +280,7 @@ function moveBlock(axis, dir, type) {
             let integer_comp = Math.floor(num);
             let remainder = num - integer_comp;
             if  (0.25 < remainder && remainder < 0.75){
-                return integer_comp;
+                return integer_comp + 0.5;
             }else if(remainder > 0.75){
                 return integer_comp + 1;
             }else{
