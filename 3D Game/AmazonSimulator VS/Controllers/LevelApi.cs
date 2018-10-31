@@ -12,11 +12,7 @@ namespace Controllers
         [HttpGet("{id}")]
         public string Get(int id)
         {
-            Levels.Level level = new Level(new[,]{
-                {'l','l','l','l','l'},
-                {'l','s','v','e','l'},
-                {'l','l','l','l','l'}
-            });
+            Levels.Level level = new Level(new[,] { { 'l', 'l', 'l', 'l', 'l', 'e', 'l', 'l', 'l', 'l', 'l', 'l' }, { 'l', 'l', 'l', 'l', 'l', 'v', 'l', 'l', 'l', 'l', 'l', 'l' }, { 'l', 'l', 'v', 'v', 'v', 'v', 'l', 'l', 'l', 'l', 'l', 'l' }, { 'l', 'l', 's', 'l', 'l', 'v', 'v', 'v', 'v', 'v', 'v', 'v' }, { 'l', 'l', 'v', 'l', 'l', 'v', 'l', 'l', 'l', 'l', 'v', 'v' }, { 'v', 'v', 'v', 'l', 'l', 'v', 'v', 'v', 'l', 'v', 'v', 'v' }, { 'v', 'v', 'v', 'l', 'l', 'l', 'v', 'v', 'v', 'v', 'v', 'l' }, { 'l', 'l', 'l', 'l', 'l', 'l', 'l', 'l', 'l', 'l', 'v', 'l' }, { 'l', 'l', 'l', 'l', 'l', 'l', 'l', 'l', 'v', 'v', 'v', 'l' }, { 'l', 'l', 'l', 'l', 'l', 'l', 'l', 'l', 'v', 'v', 'v', 'l' } });
             return level.get_json();
         }
     }

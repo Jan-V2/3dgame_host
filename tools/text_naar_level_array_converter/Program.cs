@@ -35,6 +35,7 @@ namespace text_naar_level_array_converter
             output = output.Remove(output.Length - 1);
             output += "};";
             Console.WriteLine(output);
+            Console.ReadLine();
         }
     }
 }
