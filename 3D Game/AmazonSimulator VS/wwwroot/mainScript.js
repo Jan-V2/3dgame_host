@@ -111,8 +111,8 @@ function init_3d() {
             if (map.layout[i][j]){
                 let plane = new THREE.Mesh(geometry, material);
                 plane.rotation.x = Math.PI / 2.0;
-                plane.position.x = squaresize*i;
-                plane.position.z = squaresize*j;
+                plane.position.z = squaresize*i;
+                plane.position.x = squaresize*j;
                 plane.receiveShadow = true;
                 plane.castShadow = false;
                 scene.add(plane);
@@ -162,21 +162,21 @@ function init_input() {
     document.addEventListener('keydown', function(event) {
         if (inputReady === true) {
             if (event.key === "w" || event.key === "W") {
-                moveBlock('x', "dec", "move");
-            } else if (event.key === "a" || event.key === "A") {
                 moveBlock('z', "dec", "move");
+            } else if (event.key === "a" || event.key === "A") {
+                moveBlock('x', "dec", "move");
             } else if (event.key === "s" || event.key === "S") {
-                moveBlock('x', "inc", "move");
-            } else if (event.key === "d" || event.key === "D") {
                 moveBlock('z', "inc", "move");
+            } else if (event.key === "d" || event.key === "D") {
+                moveBlock('x', "inc", "move");
             } else if (event.key === "t" || event.key === "T") {
-                moveBlock('x', "dec", "fall");
-            } else if (event.key === "f" || event.key === "F") {
                 moveBlock('z', "dec", "fall");
+            } else if (event.key === "f" || event.key === "F") {
+                moveBlock('x', "dec", "fall");
             } else if (event.key === "g" || event.key === "G") {
-                moveBlock('x', "inc", "fall");
-            } else if (event.key === "h" || event.key === "H") {
                 moveBlock('z', "inc", "fall");
+            } else if (event.key === "h" || event.key === "H") {
+                moveBlock('x', "inc", "fall");
             }
         }
     });
@@ -277,7 +277,7 @@ function moveBlock(axis, dir, type) {
         function quant_num(num) {
             let integer_comp = Math.floor(num);
             let remainder = num - integer_comp;
-            if  (0.25 > remainder < 0.75){
+            if  (0.25 < remainder && remainder < 0.75){
                 return integer_comp + 0.5;
             }else if(remainder > 0.75){
                 return integer_comp + 1;
@@ -289,13 +289,16 @@ function moveBlock(axis, dir, type) {
         function bepaal_eindbestemming() {
 
             if (flatX && axis === "x" || flatZ && axis === "z" || !flatX && !flatZ){
-                if (axis === "z"){
+                if (axis === "x"){
+                    console.log("z as")
                     if (dir === "inc"){
                         return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z) + 1.5);
                     }else if (dir === "dec"){
                         return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z)- 1.5);
                     }
-                }else if (axis === "x"){
+                }else if (axis === "z"){
+                    console.log("x as")
+
                     if (dir === "inc"){
                         return new Flat_Coord(quant_num(cube.position.x) + 1.5, quant_num(cube.position.z));
                     }else if (dir === "dec"){
@@ -303,13 +306,13 @@ function moveBlock(axis, dir, type) {
                     }
                 }
             }else {
-                if (axis === "z"){
+                if (axis === "x"){
                     if (dir === "inc"){
                         return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z) + 1);
                     }else if (dir === "dec"){
                         return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z) - 1);
                     }
-                }else if (axis === "x"){
+                }else if (axis === "z"){
                     if (dir === "inc"){
                         return new Flat_Coord(quant_num(cube.position.x)+ 1, quant_num(cube.position.z));
                     }else if (dir === "dec"){
@@ -326,7 +329,9 @@ function moveBlock(axis, dir, type) {
             }catch {
                 result = false;
             }
-            return !!result;
+            result = !!result;
+            console.log(result);
+            return result;
         }
 
         let eindbestemming = bepaal_eindbestemming();
@@ -340,12 +345,16 @@ function moveBlock(axis, dir, type) {
         } else if (eindbestemming.x % 1 === 0 && eindbestemming.y % 1 !== 0){
             op_speelveld = save_map_get(eindbestemming.x, eindbestemming.y)
                 && save_map_get(eindbestemming.x, eindbestemming.y -1);
-
+        }else{
+            console.log("niet afgevangen");
+            console.log(cube.position)
         }
 
-        console.log(map.layout)
+        console.log(map.layout);
         console.log(op_speelveld);
-
+        if (!op_speelveld) {
+            fall();
+        }else{
             var blockMoveInterval = setInterval(function () {
                 setP(sRot);
 
@@ -365,9 +374,12 @@ function moveBlock(axis, dir, type) {
                     clearInterval(blockMoveInterval);
                 }
             }, animInterval);
-
+        }
     }
     else if (type === "fall") {
+        fall();
+    }
+    function fall() {
         var blockFallInterval = setInterval(function () {
             setP(sRot);
 
@@ -428,22 +440,12 @@ function startUp(level) {
 function toggleFlat(axis) {
     if (axis === 'x') {
         if (!flatZ) {
-            if (flatX) {
-                flatX = false;
-            }
-            else {
-                flatX = true;
-            }
+            flatX = !flatX;
         }
     }
     else if (axis === 'z') {
         if (!flatX) {
-            if (flatZ) {
-                flatZ = false;
-            }
-            else {
-                flatZ = true;
-            }
+            flatZ = !flatZ;
         }
     }
 }
