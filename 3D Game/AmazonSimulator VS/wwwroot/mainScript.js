@@ -121,10 +121,6 @@ function init_3d() {
 
     renderer.domElement.setAttribute("id", "three_renderer");
 
-    // Continuesly check if the window gets resized
-
-    // Setup our 1st test map
-
     var geometry = new THREE.PlaneGeometry(squaresize, squaresize);
     var material = new THREE.MeshPhongMaterial({ color: 0xffffff, side: THREE.DoubleSide });
 
