@@ -4,21 +4,24 @@ var cameraControls;
 // Path needs to be changed for both or we keep them doesn't really matter
 var modelPath = "/3dmodels/";
 var texturesPath = "/textures/models/";
-var LoadingManager = null;
-// Chack for the Loading Screen which will follow in a sec
 var dummy = new THREE.Mesh(new THREE.CubeGeometry(1, 1, 1), new THREE.MeshPhysicalMaterial({ color: 0x000000 }));
 var cube = new THREE.Mesh(new THREE.CubeGeometry(1, 2, 1), new THREE.MeshPhysicalMaterial({color: 0xFF0000}));
 var r = 0;
-var cubeX = 15;
+var cubeX;
 var cubeY = 1;
-var cubeZ = 15;
+var cubeZ;
+var xOffset;
+var yOffset;
+var zOffset;
+var yOffsetX;
+var yOffsetZ;
 var flatX = false;
 var flatZ = false;
 var counter = 0;
 var animInterval = 20;
 var p;
 var ax;
-let squaresize = 1
+let squaresize = 1;
 var inputReady = true;
 let map;
 let player_position;
@@ -38,21 +41,8 @@ function Flat_Coord(x, y){
     };
     this.move_right = function (amount) {
         _this.x += amount;
-    }
+    };
 }
-
-// Set up the loadingScreen / path on line 18 doesn't exist anymore needs to be changed
-var loadingScreen = {
-    scene: new THREE.Scene(),
-    camera: new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 100),
-    box: new THREE.Mesh(new THREE.PlaneGeometry(5, 5, 0), new THREE.MeshBasicMaterial(
-        {
-            map: new THREE.TextureLoader().load("textures/models/misctextures/rmportal.png"),
-            side: THREE.DoubleSide,
-            transparent: true,
-            opacity: 1.0 })
-    )
-};
 
 // Changes the command from the server which is send as a JavaScript Object Notation to a readable string
 function parseCommand(input) {
@@ -63,7 +53,6 @@ function parseCommand(input) {
 }
 
 THREE.Object3D.prototype.rotateAroundWorldAxis = function () {
-
     var q1 = new THREE.Quaternion();
     return function (point, axis, angle) {
 
@@ -77,7 +66,6 @@ THREE.Object3D.prototype.rotateAroundWorldAxis = function () {
 
         return this;
     };
-
 }();
 
 
@@ -97,19 +85,10 @@ function init_3d() {
             script.src = '//rawgit.com/mrdoob/stats.js/master/build/stats.min.js'; document.head.appendChild(script);
         }
     )();*/
-    
-    // Setup camera
-    camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
-    cameraControls = new THREE.OrbitControls(camera);
-    camera.position.z = 15;
-    camera.position.y = 5;
-    camera.position.x = 15;
-    cameraControls.update();
 
     // Create Scene
     scene = new THREE.Scene();
-
-
+    
     // Setup the WebGL renderer / alpha should help with loading in images with transparent parts <p.s. also makes background white for some reason>
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio);
@@ -124,10 +103,8 @@ function init_3d() {
     // Continuesly check if the window gets resized
 
     // Setup our 1st test map
-
     var geometry = new THREE.PlaneGeometry(squaresize, squaresize);
     var material = new THREE.MeshPhongMaterial({ color: 0xffffff, side: THREE.DoubleSide });
-
 
     for (let i = 0; i < map.layout.length; i++) {
         for (let j = 0; j < map.layout[0].length; j++) {
@@ -146,8 +123,7 @@ function init_3d() {
     cubeX = map.starts[0].x;
     cubeZ = map.starts[0].y;
     player_position = new Flat_Coord(map.starts[0].x, map.starts[0].y);
-
-
+    
     cube.position.x = cubeX;
     cube.position.y = cubeY;
     cube.position.z = cubeZ;
@@ -162,12 +138,11 @@ function init_3d() {
     dummy.position.y = 3;
     dummy.position.z = cube.position.z;
     cameraControls.target = dummy.position;
-    camera.position.z = 35;
+    camera.position.z = 25;
     camera.position.y = 15;
-    camera.position.x = 15;
+    camera.position.x = 10;
     cameraControls.update();
-
-
+    
     // Add lighting to the scene
     var light = new THREE.PointLight(0x404040);
     light.position.y = 30;
@@ -242,8 +217,7 @@ function moveBlock(axis, dir, type) {
     cubeX = cube.position.x;
     cubeY = cube.position.y;
     cubeZ = cube.position.z;
-
-
+    
     if (axis === 'x') {
         sRot = cube.rotation.x;
         yOffsetZ = 0;
@@ -449,9 +423,7 @@ function moveBlock(axis, dir, type) {
 }
 
 // Changes the scene as per updated model so we see the models change   
-
 function animate() {
-
     requestAnimationFrame(animate);
     cameraControls.update();
     renderer.render(scene, camera);
@@ -463,7 +435,6 @@ function startUp(level) {
     init_3d(level);
     init_input();
     animate();
-
 }
 
 function toggleFlat(axis) {
