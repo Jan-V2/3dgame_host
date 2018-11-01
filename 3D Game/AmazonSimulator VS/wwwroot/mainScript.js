@@ -55,7 +55,6 @@ function Flat_Coord(x, y){
 THREE.Object3D.prototype.rotateAroundWorldAxis = function () {
     let q1 = new THREE.Quaternion();
     return function (point, axis, angle) {
-        if (!animations_blocked) {
 
             q1.setFromAxisAngle(axis, angle);
 
@@ -64,7 +63,7 @@ THREE.Object3D.prototype.rotateAroundWorldAxis = function () {
             this.position.sub(point);
             this.position.applyQuaternion(q1);
             this.position.add(point);
-        }
+
         return this;
     };
 }();
@@ -751,7 +750,6 @@ function load_level() {
     light.intensity = 1;
     scene.add(light);
 
-    //animations_blocked = false;
 }
 
 // Sets up a connection with the server and handles the server commands
@@ -793,6 +791,7 @@ function eindcheck(coord) {
     console.log("checking");
     console.log(coord)
     if (map.ends[0].x === coord.x && map.ends[0].y === coord.y ){
-        console.log("gewonnen")
+        console.log("gewonnen");
+        store.commit("load_main_menu");
     }
 }
