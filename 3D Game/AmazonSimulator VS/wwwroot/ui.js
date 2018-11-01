@@ -13,6 +13,19 @@ r_async.parallel([
 * options?
 */
 
+
+
+const store = new Vuex.Store({
+    state: {
+        menu: "main_menu"
+    },
+    mutations: {
+        load_main_menu: state => state.menu = "main_menu",
+        load_game_ui: state => state.menu = "game_ui"
+    }
+})
+
+
 Vue.component('main_menu', {
     template:  main_menu_template,
     data: function () {
@@ -20,7 +33,7 @@ Vue.component('main_menu', {
             top_padding: 0,
             levels: 33,
             padding_top:0,
-            game_started: false,
+            game_started: false
         }
     },
     mounted: function(){
@@ -28,12 +41,16 @@ Vue.component('main_menu', {
         this.recalculate_padding();
     },
     computed:{
-
+        current_menu: function () {
+            return store.state.menu;
+        }
     },
     methods: {
         select_level: function (level_num) {
             console.log(level_num);
-            this.game_started = true;
+            //this.game_started = true;
+            store.commit("load_game_ui");
+            console.log(store.state.menu);
             startUp(JSON.parse(utils.syncAjax("api/levels/" +level_num)));
         },
         recalculate_padding: function () {
@@ -43,6 +60,13 @@ Vue.component('main_menu', {
             }else{
                 this.padding_top = 0;
             }
+        },
+        restart_level: function () {
+            restart();
+        },
+        terug_naar_main_menu: function () {
+            store.commit("load_main_menu")
+
         }
     }
 });

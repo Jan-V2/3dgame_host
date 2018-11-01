@@ -4,29 +4,31 @@ let cameraControls;
 // Path needs to be changed for both or we keep them doesn't really matter
 let modelPath = "/3dmodels/";
 let texturesPath = "/textures/models/";
-let dummy = new THREE.Object3D;
-let cube = new THREE.Mesh(new THREE.CubeGeometry(1, 2, 1), new THREE.MeshPhysicalMaterial({color: 0xFF0000}));
-let r = 0;
+let dummy;
+let cube;
+let r;
 let cubeX;
-let cubeY = 1;
+let cubeY;
 let cubeZ;
 let xOffset;
 let yOffset;
 let zOffset;
 let yOffsetX;
 let yOffsetZ;
-let changeR = false;
-let flatX = false;
-let flatZ = false;
-let counter = 0;
-let animInterval = 22;
+let changeR;
+let flatX;
+let flatZ;
+let counter;
 let p;
 let ax;
-let squareSize = 1;
-let inputReady = true;
+let inputReady;
+let blockMoveInterval;
 let map;
 let playerPosition;
-let animations_blocked = false;
+
+let squareSize = 1;
+let animInterval = 22;
+
 const colors = Object.freeze({
     start_square: "",
     end_square: "",
@@ -36,7 +38,6 @@ const colors = Object.freeze({
 THREE.Object3D.prototype.rotateAroundWorldAxis = function () {
     let q1 = new THREE.Quaternion();
     return function (point, axis, angle) {
-
         q1.setFromAxisAngle(axis, angle);
 
         this.quaternion.multiplyQuaternions(q1, this.quaternion);
@@ -60,7 +61,7 @@ function startUp(level) {
 // Sets up all the stuff we need
 function init3d() {
     // For debugging / performance stats, could be handy dandy when trying it on a mobile device
-    
+
     /*    (function () { var script = document.createElement('script'); script.onload = function () {
                 var stats = new Stats();
                 $("#game")[0].appendChild(stats.dom);
@@ -90,18 +91,30 @@ function init3d() {
     // Continuesly check if the window gets resized
     window.addEventListener('resize', onWindowResize, false);
 
-    // Setup the materials for the groundplanes
+    loadLevel();
+}
+
+function loadLevel() {
+    dummy = new THREE.Object3D;
+    cube = new THREE.Mesh(new THREE.CubeGeometry(1, 2, 1), new THREE.MeshPhysicalMaterial({ color: 0xFF0000 }));
+    cubeY = 1;
+    changeR = false;
+    flatX = false;
+    flatZ = false;
+    inputReady = true;
+
+    // Setup our 1st test map
     let geometry = new THREE.PlaneGeometry(squareSize, squareSize);
     let material = new THREE.MeshPhongMaterial({ color: 0xffffff, side: THREE.DoubleSide });
 
     // Create the groundplanes
     for (let i = 0; i < map.layout.length; i++) {
         for (let j = 0; j < map.layout[0].length; j++) {
-            if (map.layout[i][j]){
+            if (map.layout[i][j]) {
                 let plane = new THREE.Mesh(geometry, material);
                 plane.rotation.x = Math.PI / 2.0;
-                plane.position.z = squareSize*i;
-                plane.position.x = squareSize*j;
+                plane.position.z = squareSize * i;
+                plane.position.x = squareSize * j;
                 plane.receiveShadow = true;
                 plane.castShadow = false;
                 scene.add(plane);
@@ -148,12 +161,26 @@ function init3d() {
     light = new THREE.AmbientLight(0x404040);
     light.intensity = 2;
     scene.add(light);
+}
 
-    load_level();
+function restart() {
+    while (scene.children.length > 0) {
+        scene.remove(scene.children[0]);
+    }
+
+    try {
+        clearInterval(blockMoveInterval);
+        clearInterval(blockMoveInterval);
+    }
+    catch{
+        console.log("interval undefined");
+    }
+
+    loadLevel();
 }
 
 function initInput() {
-    document.addEventListener('keydown', function(event) {
+    document.addEventListener('keydown', function (event) {
         if (inputReady === true) {
             if (event.key === "w" || event.key === "W") {
                 moveBlock('z', "inc", "move");
@@ -194,7 +221,7 @@ function moveBlock(axis, dir, type) {
     let counter = 0;
     let startRot = 0;
     inputReady = false;
-    
+
     cubeX = cube.position.x;
     cubeY = cube.position.y;
     cubeZ = cube.position.z;
@@ -262,21 +289,21 @@ function moveBlock(axis, dir, type) {
 
         if (endpoint.x % 1 === 0 && endpoint.y % 1 === 0) {
             validSpace = validSpace2 = saveMapGet(endpoint.x, endpoint.y)
-        } else if (endpoint.x % 1 !== 0 && endpoint.y % 1 === 0){
-            validSpace = saveMapGet(endpoint.x+0.5, endpoint.y)
+        } else if (endpoint.x % 1 !== 0 && endpoint.y % 1 === 0) {
+            validSpace = saveMapGet(endpoint.x + 0.5, endpoint.y)
             validSpace2 = saveMapGet(endpoint.x - 0.5, endpoint.y);
             if (axis === "x") {
                 changeR = true;
             }
             else changeR = false;
-        } else if (endpoint.x % 1 === 0 && endpoint.y % 1 !== 0){
-            validSpace = saveMapGet(endpoint.x, endpoint.y+0.5)
+        } else if (endpoint.x % 1 === 0 && endpoint.y % 1 !== 0) {
+            validSpace = saveMapGet(endpoint.x, endpoint.y + 0.5)
             validSpace2 = saveMapGet(endpoint.x, endpoint.y - 0.5);
             if (axis === "z") {
                 changeR = true;
             }
             else changeR = false;
-        }else{
+        } else {
             console.log("niet afgevangen");
             console.log(cube.position)
         }
@@ -310,7 +337,7 @@ function moveBlock(axis, dir, type) {
     }
 
     function move(givenEndpoint) {
-        let blockMoveInterval = setInterval(function () {
+        blockMoveInterval = setInterval(function () {
             setRotPoint(startRot);
 
             counter++;
@@ -337,7 +364,7 @@ function moveBlock(axis, dir, type) {
     }
 
     function fall() {
-        let blockFallInterval = setInterval(function () {
+        blockMoveInterval = setInterval(function () {
             setRotPoint(startRot);
 
             if (counter >= 10) {
@@ -374,13 +401,13 @@ function moveBlock(axis, dir, type) {
 
                 inputReady = true;
                 changeR = false;
-                clearInterval(blockFallInterval);
+                clearInterval(blockMoveInterval);
             }
         }, animInterval);
     }
 
     function fall1() {
-        let blockFallInterval = setInterval(function () {
+        blockMoveInterval = setInterval(function () {
             if (counter >= 10 && counter < 20) {
                 if (axis === "x") {
                     ax = new THREE.Vector3(0, 0, 1);
@@ -457,13 +484,13 @@ function moveBlock(axis, dir, type) {
 
                 inputReady = true;
                 changeR = false;
-                clearInterval(blockFallInterval);
+                clearInterval(blockMoveInterval);
             }
         }, animInterval);
     }
 
     function fall2() {
-        let blockFallInterval = setInterval(function () {
+        blockMoveInterval = setInterval(function () {
             if (counter >= 10 && counter < 20) {
                 if (axis === "x") {
                     ax = new THREE.Vector3(0, 0, 1);
@@ -481,7 +508,7 @@ function moveBlock(axis, dir, type) {
 
                     console.log("x as");
                     console.log("dir: " + dir);
-                    
+
                 }
                 else if (axis === "z") {
                     ax = new THREE.Vector3(1, 0, 0);
@@ -542,13 +569,13 @@ function moveBlock(axis, dir, type) {
 
                 inputReady = true;
                 changeR = false;
-                clearInterval(blockFallInterval);
+                clearInterval(blockMoveInterval);
             }
         }, animInterval);
     }
 
     function fall3() {
-        let blockFallInterval = setInterval(function () {
+        blockMoveInterval = setInterval(function () {
             if (counter >= 10 && counter < 20) {
                 if (axis === "x") {
                     if (counter === 10) {
@@ -600,7 +627,7 @@ function moveBlock(axis, dir, type) {
 
                 inputReady = true;
                 changeR = false;
-                clearInterval(blockFallInterval);
+                clearInterval(blockMoveInterval);
             }
         }, animInterval);
     }
@@ -667,21 +694,21 @@ function moveBlock(axis, dir, type) {
     function calcEndpoint() {
         if (!flatX && !flatZ) {
             if (axis === "x") {
-                console.log("z as")
+                console.log("z as");
                 if (dir === "inc") {
                     return new flatCoord(quantNum(cube.position.x), quantNum(cube.position.z) + 1.5);
                 } else if (dir === "dec") {
                     return new flatCoord(quantNum(cube.position.x), quantNum(cube.position.z) - 1.5);
                 }
             } else if (axis === "z") {
-                console.log("x as")
+                console.log("x as");
 
                 if (dir === "inc") {
-                    console.log("inc")
+                    console.log("inc");
 
                     return new flatCoord(quantNum(cube.position.x) + 1.5, quantNum(cube.position.z));
                 } else if (dir === "dec") {
-                    console.log("dec")
+                    console.log("dec");
 
                     return new flatCoord(quantNum(cube.position.x) - 1.5, quantNum(cube.position.z));
                 }
@@ -755,12 +782,4 @@ function flatCoord(x, y) {
     this.move_right = function (amount) {
         _this.x += amount;
     };
-}
-
-function restart() {
-    animations_blocked = true;
-    while (scene.children.length > 0) {
-        scene.remove(scene.children[0]);
-    }
-    startUp();
 }
