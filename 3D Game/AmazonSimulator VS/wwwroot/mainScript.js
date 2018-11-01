@@ -1,34 +1,40 @@
 ﻿// inclare variables that are needed here so it's all grouped nicely
-var camera, scene, renderer;
-var cameraControls;
+let camera, scene, renderer;
+let cameraControls;
 // Path needs to be changed for both or we keep them doesn't really matter
-var modelPath = "/3dmodels/";
-var texturesPath = "/textures/models/";
-var dummy = new THREE.Object3D;
-var cube = new THREE.Mesh(new THREE.CubeGeometry(1, 2, 1), new THREE.MeshPhysicalMaterial({color: 0xFF0000}));
-var r = 0;
-var cubeX;
-var cubeY = 1;
-var cubeZ;
-var xOffset;
-var yOffset;
-var zOffset;
-var yOffsetX;
-var yOffsetZ;
-var changeR = false;
-var flatX = false;
-var flatZ = false;
-var counter = 0;
-var animInterval = 22;
-var p;
-var ax;
+let modelPath = "/3dmodels/";
+let texturesPath = "/textures/models/";
+let dummy = new THREE.Object3D;
+let cube = new THREE.Mesh(new THREE.CubeGeometry(1, 2, 1), new THREE.MeshPhysicalMaterial({color: 0xFF0000}));
+let r = 0;
+let cubeX;
+let cubeY = 1;
+let cubeZ;
+let xOffset;
+let yOffset;
+let zOffset;
+let yOffsetX;
+let yOffsetZ;
+let changeR = false;
+let flatX = false;
+let flatZ = false;
+let counter = 0;
+let animInterval = 22;
+let p;
+let ax;
 let squareSize = 1;
-var inputReady = true;
+let inputReady = true;
 let map;
 let playerPosition;
+let animations_blocked = false;
+const colors = Object.freeze({
+    start_square: "",
+    end_square: "",
+    normal_square: "#333333"
+});
 
 THREE.Object3D.prototype.rotateAroundWorldAxis = function () {
-    var q1 = new THREE.Quaternion();
+    let q1 = new THREE.Quaternion();
     return function (point, axis, angle) {
 
         q1.setFromAxisAngle(axis, angle);
@@ -85,8 +91,8 @@ function init3d() {
     window.addEventListener('resize', onWindowResize, false);
 
     // Setup the materials for the groundplanes
-    var geometry = new THREE.PlaneGeometry(squareSize, squareSize);
-    var material = new THREE.MeshPhongMaterial({ color: 0xffffff, side: THREE.DoubleSide });
+    let geometry = new THREE.PlaneGeometry(squareSize, squareSize);
+    let material = new THREE.MeshPhongMaterial({ color: 0xffffff, side: THREE.DoubleSide });
 
     // Create the groundplanes
     for (let i = 0; i < map.layout.length; i++) {
@@ -129,7 +135,7 @@ function init3d() {
     cameraControls.update();
 
     // Add lighting to the scene
-    var light = new THREE.PointLight(0x404040);
+    let light = new THREE.PointLight(0x404040);
     light.position.x = -40;
     light.position.z = -40;
     light.position.y = 60;
@@ -142,6 +148,8 @@ function init3d() {
     light = new THREE.AmbientLight(0x404040);
     light.intensity = 2;
     scene.add(light);
+
+    load_level();
 }
 
 function initInput() {
@@ -302,7 +310,7 @@ function moveBlock(axis, dir, type) {
     }
 
     function move(givenEndpoint) {
-        var blockMoveInterval = setInterval(function () {
+        let blockMoveInterval = setInterval(function () {
             setRotPoint(startRot);
 
             counter++;
@@ -329,7 +337,7 @@ function moveBlock(axis, dir, type) {
     }
 
     function fall() {
-        var blockFallInterval = setInterval(function () {
+        let blockFallInterval = setInterval(function () {
             setRotPoint(startRot);
 
             if (counter >= 10) {
@@ -372,7 +380,7 @@ function moveBlock(axis, dir, type) {
     }
 
     function fall1() {
-        var blockFallInterval = setInterval(function () {
+        let blockFallInterval = setInterval(function () {
             if (counter >= 10 && counter < 20) {
                 if (axis === "x") {
                     ax = new THREE.Vector3(0, 0, 1);
@@ -455,7 +463,7 @@ function moveBlock(axis, dir, type) {
     }
 
     function fall2() {
-        var blockFallInterval = setInterval(function () {
+        let blockFallInterval = setInterval(function () {
             if (counter >= 10 && counter < 20) {
                 if (axis === "x") {
                     ax = new THREE.Vector3(0, 0, 1);
@@ -540,7 +548,7 @@ function moveBlock(axis, dir, type) {
     }
 
     function fall3() {
-        var blockFallInterval = setInterval(function () {
+        let blockFallInterval = setInterval(function () {
             if (counter >= 10 && counter < 20) {
                 if (axis === "x") {
                     if (counter === 10) {
@@ -722,10 +730,11 @@ function moveBlock(axis, dir, type) {
 
     function winCheck(coord) {
         console.log("checking");
-        console.log(coord)
+        console.log(coord);
 
         if (map.ends[0].x === coord.x && map.ends[0].y === coord.y) {
-            console.log("gewonnen")
+            console.log("gewonnen");
+            store.commit("load_main_menu");
         }
     }
 }
@@ -746,4 +755,12 @@ function flatCoord(x, y) {
     this.move_right = function (amount) {
         _this.x += amount;
     };
+}
+
+function restart() {
+    animations_blocked = true;
+    while (scene.children.length > 0) {
+        scene.remove(scene.children[0]);
+    }
+    startUp();
 }
