@@ -1,7 +1,14 @@
 <div >
-    % v-if="!game_started" =>
+    % v-if="current_menu === 'main_menu'" =>
     <div class="wrapper" ref="level_selector" v-bind:style="{paddingTop: padding_top + 'px'}">
         % v-for="level_num in _.range(levels)" @click="select_level(level_num + 1)" =>
         <button type="button" class="btn btn-primary" >{{"level " + (level_num + 1)}}</button>
+    </div>
+    % v-if="current_menu === 'game_ui'" =>
+    <div>
+        % @click="restart_level()" =>
+        <button>restart</button>
+        % @click="terug_naar_main_menu()" =>
+        <button>terug naar hoofdmenu</button>
     </div>
 </div>

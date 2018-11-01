@@ -1,31 +1,38 @@
 ﻿// inclare variables that are needed here so it's all grouped nicely
-var camera, scene, renderer;
-var cameraControls;
+let camera, scene, renderer;
+let cameraControls;
 // Path needs to be changed for both or we keep them doesn't really matter
-var modelPath = "/3dmodels/";
-var texturesPath = "/textures/models/";
-var dummy = new THREE.Mesh(new THREE.CubeGeometry(1, 1, 1), new THREE.MeshPhysicalMaterial({ color: 0x000000 }));
-var cube = new THREE.Mesh(new THREE.CubeGeometry(1, 2, 1), new THREE.MeshPhysicalMaterial({color: 0xFF0000}));
-var r = 0;
-var cubeX;
-var cubeY = 1;
-var cubeZ;
-var xOffset;
-var yOffset;
-var zOffset;
-var yOffsetX;
-var yOffsetZ;
-var changeR = false;
-var flatX = false;
-var flatZ = false;
-var counter = 0;
-var animInterval = 25;
-var p;
-var ax;
+let modelPath = "/3dmodels/";
+let texturesPath = "/textures/models/";
+let dummy = new THREE.Mesh(new THREE.CubeGeometry(1, 1, 1), new THREE.MeshPhysicalMaterial({ color: 0x000000 }));
+let cube = new THREE.Mesh(new THREE.CubeGeometry(1, 2, 1), new THREE.MeshPhysicalMaterial({color: 0xFF0000}));
+let r = 0;
+let cubeX;
+let cubeY = 1;
+let cubeZ;
+let xOffset;
+let yOffset;
+let zOffset;
+let yOffsetX;
+let yOffsetZ;
+let changeR = false;
+let flatX = false;
+let flatZ = false;
+let counter = 0;
+let animInterval = 25;
+let p;
+let ax;
 let squaresize = 1;
-var inputReady = true;
+let inputReady = true;
 let map;
 let player_position;
+let animations_blocked =false;
+
+const colors = Object.freeze({
+    start_square:"",
+    end_square:"",
+    normal_square: "#333333"
+});
 
 function Flat_Coord(x, y){
     let _this = this;
@@ -46,17 +53,18 @@ function Flat_Coord(x, y){
 }
 
 THREE.Object3D.prototype.rotateAroundWorldAxis = function () {
-    var q1 = new THREE.Quaternion();
+    let q1 = new THREE.Quaternion();
     return function (point, axis, angle) {
+        if (!animations_blocked) {
 
-        q1.setFromAxisAngle(axis, angle);
+            q1.setFromAxisAngle(axis, angle);
 
-        this.quaternion.multiplyQuaternions(q1, this.quaternion);
+            this.quaternion.multiplyQuaternions(q1, this.quaternion);
 
-        this.position.sub(point);
-        this.position.applyQuaternion(q1);
-        this.position.add(point);
-
+            this.position.sub(point);
+            this.position.applyQuaternion(q1);
+            this.position.add(point);
+        }
         return this;
     };
 }();
@@ -67,8 +75,8 @@ function init_3d() {
     // For debugging / performance stats, could be handy dandy when trying it on a mobile device
 
 
-    /*    (function () { var script = document.createElement('script'); script.onload = function () {
-                var stats = new Stats();
+    /*    (function () { let script = document.createElement('script'); script.onload = function () {
+                let stats = new Stats();
                 $("#game")[0].appendChild(stats.dom);
                 requestAnimationFrame(function loop() {
                     stats.update();
@@ -93,64 +101,8 @@ function init_3d() {
 
     renderer.domElement.setAttribute("id", "three_renderer");
 
-    // Continuesly check if the window gets resized
+    load_level();
 
-    // Setup our 1st test map
-    var geometry = new THREE.PlaneGeometry(squaresize, squaresize);
-    var material = new THREE.MeshPhongMaterial({ color: 0xffffff, side: THREE.DoubleSide });
-
-    for (let i = 0; i < map.layout.length; i++) {
-        for (let j = 0; j < map.layout[0].length; j++) {
-            if (map.layout[i][j]){
-                let plane = new THREE.Mesh(geometry, material);
-                plane.rotation.x = Math.PI / 2.0;
-                plane.position.z = squaresize*i;
-                plane.position.x = squaresize*j;
-                plane.receiveShadow = true;
-                plane.castShadow = false;
-                scene.add(plane);
-            }
-        }
-    }
-
-    cubeX = map.starts[0].x;
-    cubeZ = map.starts[0].y;
-    player_position = new Flat_Coord(map.starts[0].x, map.starts[0].y);
-
-    cube.position.x = cubeX;
-    cube.position.y = cubeY;
-    cube.position.z = cubeZ;
-    cube.castShadow = true;
-    cube.receiveShadow = false;
-    scene.add(cube);
-
-    // Setup camera
-    camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 1000);
-    cameraControls = new THREE.OrbitControls(camera);
-    dummy.position.x = cube.position.x;
-    dummy.position.y = 3;
-    dummy.position.z = cube.position.z;
-    cameraControls.target = dummy.position;
-    camera.position.z = 0;
-    camera.position.y = 15;
-    camera.position.x = -15;
-    camera.zoom = 2.5;
-    camera.updateProjectionMatrix();
-    cameraControls.update();
-
-    // Add lighting to the scene
-    var light = new THREE.PointLight(0x404040);
-    light.position.y = 30;
-    light.castShadow = true;
-    light.shadowDarkness = 0.5;
-    light.shadowMapWidth = 1024; // default is 512
-    light.shadowMapHeight = 1024; // default is 512
-    light.intensity = 3;
-    scene.add(light);
-
-    light = new THREE.AmbientLight(0x404040);
-    light.intensity = 1;
-    scene.add(light);
 }
 
 function init_input() {
@@ -204,18 +156,9 @@ function correctRot(rotation) {
     }
 }
 
-function eindcheck(coord) {
-    console.log("checking");
-    console.log(coord)
-
-    if (map.ends[0].x === coord.x && map.ends[0].y === coord.y ){
-        console.log("gewonnen")
-    }
-}
-
 function moveBlock(axis, dir, type) {
-    var counter = 0;
-    var sRot = 0;
+    let counter = 0;
+    let sRot = 0;
     inputReady = false;
 
     cubeX = cube.position.x;
@@ -281,11 +224,11 @@ function moveBlock(axis, dir, type) {
         function quant_num(num) {
             let integer_comp = Math.floor(num);
             let remainder = num - integer_comp;
-            if  (0.25 < remainder && remainder <= 0.75){
+            if (0.25 < remainder && remainder <= 0.75) {
                 return integer_comp + 0.5;
-            }else if(remainder > 0.75){
+            } else if (remainder > 0.75) {
                 return integer_comp + 1;
-            }else{
+            } else {
                 return integer_comp;
             }
         }
@@ -293,44 +236,38 @@ function moveBlock(axis, dir, type) {
         function bepaal_eindbestemming() {
 
             if (!flatX && !flatZ) {
-                if (axis === "x"){
-                    console.log("z as")
-                    if (dir === "inc"){
-                        return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z) + 1.5);
-                    }else if (dir === "dec"){
-                        return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z)- 1.5);
-                    }
-                }else if (axis === "z"){
-                    console.log("x as")
-
-                    if (dir === "inc"){
-                        console.log("inc")
-
-                        return new Flat_Coord(quant_num(cube.position.x) + 1.5, quant_num(cube.position.z));
-                    }else if (dir === "dec"){
-                        console.log("dec")
-
-                        return new Flat_Coord(quant_num(cube.position.x) - 1.5, quant_num(cube.position.z));
-                    }
-                }
-            } else {
-                if (flatZ && axis === "x"){
-                    if (dir === "inc"){
-                        return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z) + 1);
-                    }else if (dir === "dec"){
-                        return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z) - 1);
-                    }
-                } if (flatX && axis === "x") {
+                if (axis === "x") {
                     if (dir === "inc") {
                         return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z) + 1.5);
                     } else if (dir === "dec") {
                         return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z) - 1.5);
                     }
-                }else if (flatX && axis === "z"){
-                    if (dir === "inc"){
-                        return new Flat_Coord(quant_num(cube.position.x)+ 1, quant_num(cube.position.z));
-                    }else if (dir === "dec"){
-                        return new Flat_Coord(quant_num(cube.position.x) -1, quant_num(cube.position.z));
+                } else if (axis === "z") {
+                    if (dir === "inc") {
+                        return new Flat_Coord(quant_num(cube.position.x) + 1.5, quant_num(cube.position.z));
+                    } else if (dir === "dec") {
+                        return new Flat_Coord(quant_num(cube.position.x) - 1.5, quant_num(cube.position.z));
+                    }
+                }
+            } else {
+                if (flatZ && axis === "x") {
+                    if (dir === "inc") {
+                        return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z) + 1);
+                    } else if (dir === "dec") {
+                        return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z) - 1);
+                    }
+                }
+                if (flatX && axis === "x") {
+                    if (dir === "inc") {
+                        return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z) + 1.5);
+                    } else if (dir === "dec") {
+                        return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z) - 1.5);
+                    }
+                } else if (flatX && axis === "z") {
+                    if (dir === "inc") {
+                        return new Flat_Coord(quant_num(cube.position.x) + 1, quant_num(cube.position.z));
+                    } else if (dir === "dec") {
+                        return new Flat_Coord(quant_num(cube.position.x) - 1, quant_num(cube.position.z));
                     }
                 } else if (flatZ && axis === "z") {
                     if (dir === "inc") {
@@ -344,38 +281,35 @@ function moveBlock(axis, dir, type) {
 
         function save_map_get(x, y) {
             let result;
-            console.log("x " + Math.floor(y) + " y " +Math.floor(x));
             try {
                 result = map.layout[Math.floor(y)][Math.floor(x)];
-            }catch {
+            } catch {
                 result = false;
             }
             result = !!result;
-            console.log(result);
             return result;
         }
 
         let eindbestemming = bepaal_eindbestemming();
-        console.log(eindbestemming);
         let op_speelveld;
         let op_speelveld2;
         if (eindbestemming.x % 1 === 0 && eindbestemming.y % 1 === 0) {
             op_speelveld = op_speelveld2 = save_map_get(eindbestemming.x, eindbestemming.y)
-        } else if (eindbestemming.x % 1 !== 0 && eindbestemming.y % 1 === 0){
-            op_speelveld = save_map_get(eindbestemming.x+0.5, eindbestemming.y)
+        } else if (eindbestemming.x % 1 !== 0 && eindbestemming.y % 1 === 0) {
+            op_speelveld = save_map_get(eindbestemming.x + 0.5, eindbestemming.y)
             op_speelveld2 = save_map_get(eindbestemming.x - 0.5, eindbestemming.y);
             if (axis === "x") {
                 changeR = true;
             }
             else changeR = false;
-        } else if (eindbestemming.x % 1 === 0 && eindbestemming.y % 1 !== 0){
-            op_speelveld = save_map_get(eindbestemming.x, eindbestemming.y+0.5)
+        } else if (eindbestemming.x % 1 === 0 && eindbestemming.y % 1 !== 0) {
+            op_speelveld = save_map_get(eindbestemming.x, eindbestemming.y + 0.5)
             op_speelveld2 = save_map_get(eindbestemming.x, eindbestemming.y - 0.5);
             if (axis === "z") {
                 changeR = true;
             }
             else changeR = false;
-        }else{
+        } else {
             console.log("niet afgevangen");
             console.log(cube.position)
         }
@@ -400,293 +334,322 @@ function moveBlock(axis, dir, type) {
             console.log("fall1");
         }
         else {
-        var blockMoveInterval = setInterval(function () {
-            setP(sRot);
+            let blockMoveInterval = setInterval(function () {
+                setP(sRot);
 
-            counter++;
-            cube.rotateAroundWorldAxis(p, ax, r);
+                counter++;
+                cube.rotateAroundWorldAxis(p, ax, r);
 
-            dummy.position.x = cube.position.x;
-            dummy.position.z = cube.position.z;
+                dummy.position.x = cube.position.x;
+                dummy.position.z = cube.position.z;
 
-            if (counter >= 10) {
-                cube.rotation.x = correctRot(cube.rotation.x);
-                cube.rotation.z = correctRot(cube.rotation.z);
+                if (counter >= 10) {
+                    cube.rotation.x = correctRot(cube.rotation.x);
+                    cube.rotation.z = correctRot(cube.rotation.z);
 
-                toggleFlat(axis);
-                eindcheck(eindbestemming);
-                console.log(cube.position);
+                    toggleFlat(axis);
+                    eindcheck(eindbestemming);
+                    console.log(cube.position);
 
-                inputReady = true;
-                clearInterval(blockMoveInterval);
-            }
-        }, animInterval);
+                    inputReady = true;
+                    clearInterval(blockMoveInterval);
+                }
+            }, animInterval);
         }
     }
     else if (type === "fall") {
         fall();
     }
+
     function fall() {
-        var blockFallInterval = setInterval(function () {
-            setP(sRot);
 
-            if (counter >= 10) {
-                cube.position.y -= 0.2;
-                cubeY = cube.position.y;
-                if (axis === 'x') {
-                    if (dir === "dec") {
-                        cube.position.z -= 0.1;
-                        cubeZ -= 0.1;
-                    }
-                    else if (dir === "inc") {
-                        cube.position.z += 0.1;
-                        cubeZ += 0.1;
-                    }
-                }
-                else if (axis === 'z') {
-                    if (dir === "dec") {
-                        cube.position.x -= 0.1;
-                        cubeX -= 0.1;
-                    }
-                    else if (dir === "inc") {
-                        cube.position.x += 0.1;
-                        cubeX += 0.1;
-                    }
-                }
-            }
-
-            counter++;
-            cube.rotateAroundWorldAxis(p, ax, r);
-
-            if (counter >= 100) {
-                cube.rotation.x = correctRot(cube.rotation.x);
-                cube.rotation.z = correctRot(cube.rotation.z);
-
-                inputReady = true;
-                changeR = false;
+        let blockFallInterval = setInterval(function () {
+            if (animations_blocked) {
                 clearInterval(blockFallInterval);
+                animations_blocked = false;
+            } else {
+                setP(sRot);
+
+                if (counter >= 10) {
+                    cube.position.y -= 0.2;
+                    cubeY = cube.position.y;
+                    if (axis === 'x') {
+                        if (dir === "dec") {
+                            cube.position.z -= 0.1;
+                            cubeZ -= 0.1;
+                        }
+                        else if (dir === "inc") {
+                            cube.position.z += 0.1;
+                            cubeZ += 0.1;
+                        }
+                    }
+                    else if (axis === 'z') {
+                        if (dir === "dec") {
+                            cube.position.x -= 0.1;
+                            cubeX -= 0.1;
+                        }
+                        else if (dir === "inc") {
+                            cube.position.x += 0.1;
+                            cubeX += 0.1;
+                        }
+                    }
+                }
+
+                counter++;
+                cube.rotateAroundWorldAxis(p, ax, r);
+
+
+                if (counter >= 100) {
+                    cube.rotation.x = correctRot(cube.rotation.x);
+                    cube.rotation.z = correctRot(cube.rotation.z);
+
+                    inputReady = true;
+                    changeR = false;
+                    clearInterval(blockFallInterval);
+                }
             }
         }, animInterval);
     }
+
     function fall1() {
-        var blockFallInterval = setInterval(function () {
-            if (counter >= 10 && counter < 20) {
-                if (axis === "x") {
-                    ax = new THREE.Vector3(0, 0, 1);
-
-                    console.log(changeR);
-
-                    if (counter === 10 && changeR && dir === "dec") {
-                        r *= -1;
-
-                        console.log("R changed");
-                    }
-                    else {
-                        dir = "dec";
-                    }
-                    console.log("x as");
-                    console.log("dir: " + dir);
-                }
-                else if (axis === "z") {
-                    ax = new THREE.Vector3(1, 0, 0);
-
-                    console.log(changeR);
-
-                    if (counter === 10 && changeR && dir === "dec") {
-                        r *= -1;
-
-                        console.log("R changed");
-                    }
-                    else {
-                        dir = "dec";
-                    }
-
-                    console.log("z as");
-                    console.log("dir: " + dir);
-                }
-            }
-
-            setP(sRot);
-
-            if (counter >= 20 && counter < 30) {
-                cubeY = cube.position.y -= 0.1;
-            }
-            else if (counter >= 30) {
-                cube.position.y -= 0.1;
-                cubeY = cube.position.y;
-                if (axis === 'z') {
-                    if (dir === "dec") {
-                        cube.position.z -= 0.1;
-                        cubeZ -= 0.1;
-                    }
-                    else if (dir === "inc") {
-                        cube.position.z += 0.1;
-                        cubeZ += 0.1;
-                    }
-                }
-                else if (axis === 'x') {
-                    if (dir === "dec") {
-                        cube.position.x -= 0.1;
-                        cubeX -= 0.1;
-                    }
-                    else if (dir === "inc") {
-                        cube.position.x += 0.1;
-                        cubeX += 0.1;
-                    }
-                }
-            }
-
-            counter++;
-            cube.rotateAroundWorldAxis(p, ax, r);
-
-            if (counter >= 100) {
-                cube.rotation.x = correctRot(cube.rotation.x);
-                cube.rotation.z = correctRot(cube.rotation.z);
-
-                inputReady = true;
-                changeR = false;
+        let blockFallInterval = setInterval(function () {
+            if (animations_blocked) {
                 clearInterval(blockFallInterval);
+                animations_blocked = false;
+
+            } else {
+                if (counter >= 10 && counter < 20) {
+                    if (axis === "x") {
+                        ax = new THREE.Vector3(0, 0, 1);
+
+                        console.log(changeR);
+
+                        if (counter === 10 && changeR && dir === "dec") {
+                            r *= -1;
+
+                            console.log("R changed");
+                        }
+                        else {
+                            dir = "dec";
+                        }
+                        console.log("x as");
+                        console.log("dir: " + dir);
+                    }
+                    else if (axis === "z") {
+                        ax = new THREE.Vector3(1, 0, 0);
+
+                        console.log(changeR);
+
+                        if (counter === 10 && changeR && dir === "dec") {
+                            r *= -1;
+
+                            console.log("R changed");
+                        }
+                        else {
+                            dir = "dec";
+                        }
+
+                        console.log("z as");
+                        console.log("dir: " + dir);
+                    }
+                }
+
+                setP(sRot);
+
+                if (counter >= 20 && counter < 30) {
+                    cubeY = cube.position.y -= 0.1;
+                }
+                else if (counter >= 30) {
+                    cube.position.y -= 0.1;
+                    cubeY = cube.position.y;
+                    if (axis === 'z') {
+                        if (dir === "dec") {
+                            cube.position.z -= 0.1;
+                            cubeZ -= 0.1;
+                        }
+                        else if (dir === "inc") {
+                            cube.position.z += 0.1;
+                            cubeZ += 0.1;
+                        }
+                    }
+                    else if (axis === 'x') {
+                        if (dir === "dec") {
+                            cube.position.x -= 0.1;
+                            cubeX -= 0.1;
+                        }
+                        else if (dir === "inc") {
+                            cube.position.x += 0.1;
+                            cubeX += 0.1;
+                        }
+                    }
+                }
+
+                counter++;
+                cube.rotateAroundWorldAxis(p, ax, r);
+
+                if (counter >= 100) {
+                    cube.rotation.x = correctRot(cube.rotation.x);
+                    cube.rotation.z = correctRot(cube.rotation.z);
+
+                    inputReady = true;
+                    changeR = false;
+                    clearInterval(blockFallInterval);
+                }
             }
         }, animInterval);
     }
+
     function fall2() {
-        var blockFallInterval = setInterval(function () {
-            if (counter >= 10 && counter < 20) {
-                if (axis === "x") {
-                    ax = new THREE.Vector3(0, 0, 1);
-
-                    console.log(changeR);
-
-                    if (counter === 10 && changeR && dir === "inc") {
-                        r *= -1;
-
-                        console.log("R changed");
-                    }
-                    else {
-                        dir = "inc";
-                    }
-
-                    console.log("x as");
-                    console.log("dir: " + dir);
-                    
-                }
-                else if (axis === "z") {
-                    ax = new THREE.Vector3(1, 0, 0);
-
-                    console.log(changeR);
-
-                    if (counter === 10 && changeR && dir === "inc") {
-                        r *= -1;
-
-                        console.log("R changed");
-                    }
-                    else {
-                        dir = "inc";
-                    }
-
-                    console.log("z as");
-                    console.log("dir: " + dir);
-                }
-            }
-
-            setP(sRot);
-
-            if (counter >= 20 && counter < 30) {
-                cubeY = cube.position.y -= 0.1;
-            }
-            else if (counter >= 30) {
-                cube.position.y -= 0.1;
-                cubeY = cube.position.y;
-                if (axis === 'z') {
-                    if (dir === "dec") {
-                        cube.position.z -= 0.1;
-                        cubeZ -= 0.1;
-                    }
-                    else if (dir === "inc") {
-                        cube.position.z += 0.1;
-                        cubeZ += 0.1;
-                    }
-                }
-                else if (axis === 'x') {
-                    if (dir === "dec") {
-                        cube.position.x -= 0.1;
-                        cubeX -= 0.1;
-                    }
-                    else if (dir === "inc") {
-                        cube.position.x += 0.1;
-                        cubeX += 0.1;
-                    }
-                }
-            }
-
-            counter++;
-            cube.rotateAroundWorldAxis(p, ax, r);
-
-            if (counter >= 100) {
-                cube.rotation.x = correctRot(cube.rotation.x);
-                cube.rotation.z = correctRot(cube.rotation.z);
-
-                inputReady = true;
-                changeR = false;
+        let blockFallInterval = setInterval(function () {
+            if (animations_blocked) {
                 clearInterval(blockFallInterval);
+                animations_blocked = false;
+            } else {
+                if (counter >= 10 && counter < 20) {
+                    if (axis === "x") {
+                        ax = new THREE.Vector3(0, 0, 1);
+
+                        console.log(changeR);
+
+                        if (counter === 10 && changeR && dir === "inc") {
+                            r *= -1;
+
+                            console.log("R changed");
+                        }
+                        else {
+                            dir = "inc";
+                        }
+
+                        console.log("x as");
+                        console.log("dir: " + dir);
+
+                    }
+                    else if (axis === "z") {
+                        ax = new THREE.Vector3(1, 0, 0);
+
+                        console.log(changeR);
+
+                        if (counter === 10 && changeR && dir === "inc") {
+                            r *= -1;
+
+                            console.log("R changed");
+                        }
+                        else {
+                            dir = "inc";
+                        }
+
+                        console.log("z as");
+                        console.log("dir: " + dir);
+                    }
+                }
+
+                setP(sRot);
+
+                if (counter >= 20 && counter < 30) {
+                    cubeY = cube.position.y -= 0.1;
+                }
+                else if (counter >= 30) {
+                    cube.position.y -= 0.1;
+                    cubeY = cube.position.y;
+                    if (axis === 'z') {
+                        if (dir === "dec") {
+                            cube.position.z -= 0.1;
+                            cubeZ -= 0.1;
+                        }
+                        else if (dir === "inc") {
+                            cube.position.z += 0.1;
+                            cubeZ += 0.1;
+                        }
+                    }
+                    else if (axis === 'x') {
+                        if (dir === "dec") {
+                            cube.position.x -= 0.1;
+                            cubeX -= 0.1;
+                        }
+                        else if (dir === "inc") {
+                            cube.position.x += 0.1;
+                            cubeX += 0.1;
+                        }
+                    }
+                }
+
+                counter++;
+                cube.rotateAroundWorldAxis(p, ax, r);
+
+                if (counter >= 100) {
+                    cube.rotation.x = correctRot(cube.rotation.x);
+                    cube.rotation.z = correctRot(cube.rotation.z);
+
+                    inputReady = true;
+                    changeR = false;
+                    clearInterval(blockFallInterval);
+                }
             }
         }, animInterval);
     }
+
     function fall3() {
-        var blockFallInterval = setInterval(function () {
-            if (counter >= 10 && counter < 20) {
-                if (axis === "x") {
-                    if (counter === 10) {
-                        cubeX = cube.position.x;
-                        cubeZ = cube.position.z;
-                    }
-                    cubeY = cube.position.y -= 0.12;
-                }
-                else if (axis === "z") {
-                    if (counter === 10) {
-                        cubeX = cube.position.x;
-                        cubeZ = cube.position.z;
-                    }
-                    cubeY = cube.position.y -= 0.12;
-                }
-            }
-            setP(sRot);
-            if (counter >= 20) {
-                cube.position.y -= 0.1;
-                cubeY = cube.position.y;
-                if (axis === 'x') {
-                    if (dir === "dec") {
-                        cube.position.z -= 0.05;
-                        cubeZ -= 0.05;
-                    }
-                    else if (dir === "inc") {
-                        cube.position.z += 0.05;
-                        cubeZ += 0.05;
-                    }
-                }
-                else if (axis === 'z') {
-                    if (dir === "dec") {
-                        cube.position.x -= 0.05;
-                        cubeX -= 0.05;
-                    }
-                    else if (dir === "inc") {
-                        cube.position.x += 0.05;
-                        cubeX += 0.05;
-                    }
-                }
-            }
-
-            counter++;
-            cube.rotateAroundWorldAxis(p, ax, r);
-
-            if (counter >= 100) {
-                cube.rotation.x = correctRot(cube.rotation.x);
-                cube.rotation.z = correctRot(cube.rotation.z);
-
-                inputReady = true;
-                changeR = false;
+        let blockFallInterval = setInterval(function () {
+            if (animations_blocked) {
                 clearInterval(blockFallInterval);
+                animations_blocked = false;
+            } else {
+
+                if (counter >= 10 && counter < 20) {
+                    if (axis === "x") {
+                        if (counter === 10) {
+                            cubeX = cube.position.x;
+                            cubeZ = cube.position.z;
+                        }
+                        cubeY = cube.position.y -= 0.12;
+                    }
+                    else if (axis === "z") {
+                        if (counter === 10) {
+                            cubeX = cube.position.x;
+                            cubeZ = cube.position.z;
+                        }
+                        cubeY = cube.position.y -= 0.12;
+                    }
+                }
+                setP(sRot);
+                if (counter >= 20) {
+                    cube.position.y -= 0.1;
+                    cubeY = cube.position.y;
+                    if (axis === 'x') {
+                        if (dir === "dec") {
+                            cube.position.z -= 0.05;
+                            cubeZ -= 0.05;
+                        }
+                        else if (dir === "inc") {
+                            cube.position.z += 0.05;
+                            cubeZ += 0.05;
+                        }
+                    }
+                    else if (axis === 'z') {
+                        if (dir === "dec") {
+                            cube.position.x -= 0.05;
+                            cubeX -= 0.05;
+                        }
+                        else if (dir === "inc") {
+                            cube.position.x += 0.05;
+                            cubeX += 0.05;
+                        }
+                    }
+                }
+
+                counter++;
+                cube.rotateAroundWorldAxis(p, ax, r);
+
+                if (counter >= 100) {
+                    cube.rotation.x = correctRot(cube.rotation.x);
+                    cube.rotation.z = correctRot(cube.rotation.z);
+
+                    inputReady = true;
+                    changeR = false;
+                    clearInterval(blockFallInterval);
+                }
             }
+
         }, animInterval);
     }
 }
@@ -696,6 +659,99 @@ function animate() {
     requestAnimationFrame(animate);
     cameraControls.update();
     renderer.render(scene, camera);
+}
+
+function restart() {
+    animations_blocked = true;
+    while(scene.children.length > 0){
+        scene.remove(scene.children[0]);
+    }
+
+    dummy = new THREE.Mesh(new THREE.CubeGeometry(1, 1, 1), new THREE.MeshPhysicalMaterial({ color: 0x000000 }));
+    cube = new THREE.Mesh(new THREE.CubeGeometry(1, 2, 1), new THREE.MeshPhysicalMaterial({color: 0xFF0000}));
+    r = 0;
+    cubeX = undefined;
+    cubeY = 1;
+    cubeZ = undefined;
+    xOffset = undefined;
+    yOffset = undefined;
+    zOffset = undefined;
+    yOffsetX = undefined;
+    yOffsetZ = undefined;
+    changeR = false;
+    flatX = false;
+    flatZ = false;
+    counter = 0;
+    animInterval = 25;
+    p = undefined;
+    ax = undefined;
+    squaresize = 1;
+    inputReady = true;
+    player_position = undefined;
+
+    load_level();
+}
+
+function load_level() {
+
+    // Setup our 1st test map
+    let geometry = new THREE.PlaneGeometry(squaresize, squaresize);
+    let material = new THREE.MeshPhongMaterial({ color: colors.normal_square, side: THREE.DoubleSide });
+
+    for (let i = 0; i < map.layout.length; i++) {
+        for (let j = 0; j < map.layout[0].length; j++) {
+            if (map.layout[i][j]){
+                let plane = new THREE.Mesh(geometry, material);
+                plane.rotation.x = Math.PI / 2.0;
+                plane.position.z = squaresize*i;
+                plane.position.x = squaresize*j;
+                plane.receiveShadow = true;
+                plane.castShadow = false;
+                scene.add(plane);
+            }
+        }
+    }
+
+    cubeX = map.starts[0].x;
+    cubeZ = map.starts[0].y;
+    player_position = new Flat_Coord(map.starts[0].x, map.starts[0].y);
+
+    cube.position.x = cubeX;
+    cube.position.y = cubeY;
+    cube.position.z = cubeZ;
+    cube.castShadow = true;
+    cube.receiveShadow = false;
+    scene.add(cube);
+
+    // Setup camera
+    camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 1000);
+    cameraControls = new THREE.OrbitControls(camera);
+    dummy.position.x = cube.position.x;
+    dummy.position.y = 3;
+    dummy.position.z = cube.position.z;
+    cameraControls.target = dummy.position;
+    camera.position.z = 0;
+    camera.position.y = 15;
+    camera.position.x = -15;
+    camera.zoom = 2.5;
+    camera.updateProjectionMatrix();
+    cameraControls.update();
+
+    // Add lighting to the scene
+    let light = new THREE.PointLight(0x404040);
+    light.position.y = 30;
+    light.castShadow = true;
+    light.shadowDarkness = 0.5;
+    light.shadowMapWidth = 1024; // default is 512
+    light.shadowMapHeight = 1024; // default is 512
+    light.intensity = 3;
+    scene.add(light);
+
+    light = new THREE.AmbientLight(0x404040);
+    light.intensity = 1;
+    scene.add(light);
+
+    //animations_blocked = false;
 }
 
 // Sets up a connection with the server and handles the server commands
@@ -736,7 +792,7 @@ function setP(sRot) {
 function eindcheck(coord) {
     console.log("checking");
     console.log(coord)
-     if (map.ends[0].x === coord.x && map.ends[0].y === coord.y ){
+    if (map.ends[0].x === coord.x && map.ends[0].y === coord.y ){
         console.log("gewonnen")
     }
 }
