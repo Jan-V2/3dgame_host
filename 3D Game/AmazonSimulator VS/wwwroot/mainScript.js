@@ -19,7 +19,7 @@ var changeR = false;
 var flatX = false;
 var flatZ = false;
 var counter = 0;
-var animInterval = 150;
+var animInterval = 25;
 var p;
 var ax;
 let squaresize = 1;
@@ -730,13 +730,5 @@ function setP(sRot) {
     }
     else if (sRot === Math.PI) {
         p = new THREE.Vector3(cubeX + xOffset, cubeY - yOffset, cubeZ + zOffset);
-    }
-}
-
-function eindcheck(coord) {
-    console.log("checking");
-    console.log(coord)
-     if (map.ends[0].x === coord.x && map.ends[0].y === coord.y ){
-        console.log("gewonnen")
     }
 }
