@@ -1,7 +1,8 @@
 <div >
-    % v-if="game_ended" =>
+    % v-if="!LEVEL_COMPLETED" =>
     <div class="wrapper" ref="game_over_options" v-bind:style="{paddingTop: padding_top + 'px'}">
+      <head ref="game_over_title" fontSize="20px" style="center">Game Over</head>
         <button type="button" class="btn btn-primary" @click="return_menu()">Return to main menu</button>
-      <button type="button" class="btn btn-primary" @click="restart(1)">Restart</button>
+      <button type="button" class="btn btn-primary" @click="restart(map)">Restart</button>
     </div>
 </div>

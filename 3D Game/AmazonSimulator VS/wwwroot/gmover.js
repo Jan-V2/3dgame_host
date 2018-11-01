@@ -1,12 +1,14 @@
-﻿
+﻿//Initialize game over template variable
 let game_over_template;
-
+// initialize parser variable
 let parsergm = new Vueable();
 
+// load the template from the server
 r_async.parallel([
     () => { game_over_template = parsergm.parse(utils.syncAjax('ui_components/game_over.vueable')) }
 ]);
 
+// setup 'game over' component and set variables used in the template
 Vue.component('game_over', {
     template: game_over_template,
     data: function () {
@@ -26,7 +28,7 @@ Vue.component('game_over', {
     methods: {
         return_menu: function () {
             console.log("button clicked");
-            window.location.href("ui");
+            window.location.href("main_menu");
         },
         restart: function (level_num) {
             this.game_started = false;
@@ -48,8 +50,6 @@ function resize_game_over() {
     div.style.width = window.innerWidth + "px";
     div.style.height = window.innerHeight + "px";
 }
-
-
 
 let game_over = new Vue({
     el: '#game_over'

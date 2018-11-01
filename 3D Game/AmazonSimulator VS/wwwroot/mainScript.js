@@ -1,31 +1,32 @@
-﻿// inclare variables that are needed here so it's all grouped nicely
-var camera, scene, renderer;
-var cameraControls;
+﻿// inclare letiables that are needed here so it's all grouped nicely
+let camera, scene, renderer;
+let cameraControls;
 // Path needs to be changed for both or we keep them doesn't really matter
-var modelPath = "/3dmodels/";
-var texturesPath = "/textures/models/";
-var dummy = new THREE.Mesh(new THREE.CubeGeometry(1, 1, 1), new THREE.MeshPhysicalMaterial({ color: 0x000000 }));
-var cube = new THREE.Mesh(new THREE.CubeGeometry(1, 2, 1), new THREE.MeshPhysicalMaterial({color: 0xFF0000}));
-var r = 0;
-var cubeX;
-var cubeY = 1;
-var cubeZ;
-var xOffset;
-var yOffset;
-var zOffset;
-var yOffsetX;
-var yOffsetZ;
-var changeR = false;
-var flatX = false;
-var flatZ = false;
-var counter = 0;
-var animInterval = 25;
-var p;
-var ax;
+let modelPath = "/3dmodels/";
+let texturesPath = "/textures/models/";
+let dummy = new THREE.Mesh(new THREE.CubeGeometry(1, 1, 1), new THREE.MeshPhysicalMaterial({ color: 0x000000 }));
+let cube = new THREE.Mesh(new THREE.CubeGeometry(1, 2, 1), new THREE.MeshPhysicalMaterial({color: 0xFF0000}));
+let r = 0;
+let cubeX;
+let cubeY = 1;
+let cubeZ;
+let xOffset;
+let yOffset;
+let zOffset;
+let yOffsetX;
+let yOffsetZ;
+let changeR = false;
+let flatX = false;
+let flatZ = false;
+let counter = 0;
+let animInterval = 25;
+let p;
+let ax;
 let squaresize = 1;
-var inputReady = true;
+let inputReady = true;
 let map;
 let player_position;
+let LEVEL_COMPLETED;
 
 function Flat_Coord(x, y){
     let _this = this;
@@ -46,7 +47,7 @@ function Flat_Coord(x, y){
 }
 
 THREE.Object3D.prototype.rotateAroundWorldAxis = function () {
-    var q1 = new THREE.Quaternion();
+    let q1 = new THREE.Quaternion();
     return function (point, axis, angle) {
 
         q1.setFromAxisAngle(axis, angle);
@@ -67,8 +68,8 @@ function init_3d() {
     // For debugging / performance stats, could be handy dandy when trying it on a mobile device
 
 
-    /*    (function () { var script = document.createElement('script'); script.onload = function () {
-                var stats = new Stats();
+    /*    (function () { let script = document.createElement('script'); script.onload = function () {
+                let stats = new Stats();
                 $("#game")[0].appendChild(stats.dom);
                 requestAnimationFrame(function loop() {
                     stats.update();
@@ -96,8 +97,8 @@ function init_3d() {
     // Continuesly check if the window gets resized
 
     // Setup our 1st test map
-    var geometry = new THREE.PlaneGeometry(squaresize, squaresize);
-    var material = new THREE.MeshPhongMaterial({ color: 0xffffff, side: THREE.DoubleSide });
+    let geometry = new THREE.PlaneGeometry(squaresize, squaresize);
+    let material = new THREE.MeshPhongMaterial({ color: 0xffffff, side: THREE.DoubleSide });
 
     for (let i = 0; i < map.layout.length; i++) {
         for (let j = 0; j < map.layout[0].length; j++) {
@@ -139,7 +140,7 @@ function init_3d() {
     cameraControls.update();
 
     // Add lighting to the scene
-    var light = new THREE.PointLight(0x404040);
+    let light = new THREE.PointLight(0x404040);
     light.position.y = 30;
     light.castShadow = true;
     light.shadowDarkness = 0.5;
@@ -151,6 +152,8 @@ function init_3d() {
     light = new THREE.AmbientLight(0x404040);
     light.intensity = 1;
     scene.add(light);
+
+    LEVEL_COMPLETED = false;
 }
 
 function init_input() {
@@ -210,12 +213,13 @@ function eindcheck(coord) {
 
     if (map.ends[0].x === coord.x && map.ends[0].y === coord.y ){
         console.log("gewonnen")
+        LEVEL_COMPLETED = true;
     }
 }
 
 function moveBlock(axis, dir, type) {
-    var counter = 0;
-    var sRot = 0;
+    let counter = 0;
+    let sRot = 0;
     inputReady = false;
 
     cubeX = cube.position.x;
@@ -400,7 +404,7 @@ function moveBlock(axis, dir, type) {
             console.log("fall1");
         }
         else {
-        var blockMoveInterval = setInterval(function () {
+        let blockMoveInterval = setInterval(function () {
             setP(sRot);
 
             counter++;
@@ -427,7 +431,7 @@ function moveBlock(axis, dir, type) {
         fall();
     }
     function fall() {
-        var blockFallInterval = setInterval(function () {
+        let blockFallInterval = setInterval(function () {
             setP(sRot);
 
             if (counter >= 10) {
@@ -469,7 +473,7 @@ function moveBlock(axis, dir, type) {
         }, animInterval);
     }
     function fall1() {
-        var blockFallInterval = setInterval(function () {
+        let blockFallInterval = setInterval(function () {
             if (counter >= 10 && counter < 20) {
                 if (axis === "x") {
                     ax = new THREE.Vector3(0, 0, 1);
@@ -550,7 +554,7 @@ function moveBlock(axis, dir, type) {
         }, animInterval);
     }
     function fall2() {
-        var blockFallInterval = setInterval(function () {
+        let blockFallInterval = setInterval(function () {
             if (counter >= 10 && counter < 20) {
                 if (axis === "x") {
                     ax = new THREE.Vector3(0, 0, 1);
@@ -633,7 +637,7 @@ function moveBlock(axis, dir, type) {
         }, animInterval);
     }
     function fall3() {
-        var blockFallInterval = setInterval(function () {
+        let blockFallInterval = setInterval(function () {
             if (counter >= 10 && counter < 20) {
                 if (axis === "x") {
                     if (counter === 10) {
@@ -737,6 +741,7 @@ function eindcheck(coord) {
     console.log("checking");
     console.log(coord)
      if (map.ends[0].x === coord.x && map.ends[0].y === coord.y ){
-        console.log("gewonnen")
+         console.log("gewonnen")
+         LEVEL_COMPLETED = true;
     }
 }
