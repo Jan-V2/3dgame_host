@@ -27,7 +27,7 @@ let map;
 let playerPosition;
 
 let squareSize = 1;
-let animInterval = 22;
+let animInterval = 20;
 
 const colors = Object.freeze({
     start_square: "",
@@ -91,18 +91,6 @@ function init3d() {
     // Continuesly check if the window gets resized
     window.addEventListener('resize', onWindowResize, false);
 
-    loadLevel();
-}
-
-function loadLevel() {
-    dummy = new THREE.Object3D;
-    cube = new THREE.Mesh(new THREE.CubeGeometry(1, 2, 1), new THREE.MeshPhysicalMaterial({ color: 0xFF0000 }));
-    cubeY = 1;
-    changeR = false;
-    flatX = false;
-    flatZ = false;
-    inputReady = true;
-
     // Setup our 1st test map
     let geometry = new THREE.PlaneGeometry(squareSize, squareSize);
     let material = new THREE.MeshPhongMaterial({ color: 0xffffff, side: THREE.DoubleSide });
@@ -122,23 +110,12 @@ function loadLevel() {
         }
     }
 
-    cubeX = map.starts[0].x;
-    cubeZ = map.starts[0].y;
-    playerPosition = new flatCoord(map.starts[0].x, map.starts[0].y);
-
-    cube.position.x = cubeX;
-    cube.position.y = cubeY;
-    cube.position.z = cubeZ;
-    cube.castShadow = true;
-    cube.receiveShadow = false;
-    scene.add(cube);
+    dummy = new THREE.Object3D;
+    loadLevel();
 
     // Setup camera
     camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 1000);
     cameraControls = new THREE.OrbitControls(camera);
-    dummy.position.x = cube.position.x;
-    dummy.position.y = 3;
-    dummy.position.z = cube.position.z;
     cameraControls.target = dummy.position;
     camera.position.z = dummy.position.z - 3;
     camera.position.y = 15;
@@ -163,10 +140,37 @@ function loadLevel() {
     scene.add(light);
 }
 
+function loadLevel() {
+    cube = new THREE.Mesh(new THREE.CubeGeometry(1, 2, 1), new THREE.MeshPhysicalMaterial({ color: 0xFF0000 }));
+
+    cubeY = 1;
+    changeR = false;
+    flatX = false;
+    flatZ = false;
+    inputReady = true;
+
+    cubeX = map.starts[0].x;
+    cubeZ = map.starts[0].y;
+    playerPosition = new flatCoord(map.starts[0].x, map.starts[0].y);
+
+    cube.name = "cube";
+    cube.position.x = cubeX;
+    cube.position.y = cubeY;
+    cube.position.z = cubeZ;
+    cube.castShadow = true;
+    cube.receiveShadow = false;
+    scene.add(cube);
+    
+    dummy.position.x = cube.position.x;
+    dummy.position.y = 3;
+    dummy.position.z = cube.position.z;
+}
+
 function restart() {
-    while (scene.children.length > 0) {
-        scene.remove(scene.children[0]);
-    }
+    var selectedObject = scene.getObjectByName("cube");
+    selectedObject.geometry.dispose();
+    selectedObject.material.dispose();
+    scene.remove(selectedObject);
 
     try {
         clearInterval(blockMoveInterval);
@@ -177,6 +181,11 @@ function restart() {
     }
 
     loadLevel();
+
+    camera.position.z = dummy.position.z - 3;
+    camera.position.y = 15;
+    camera.position.x = dummy.position.x - 20;
+    cameraControls.update();
 }
 
 function initInput() {
