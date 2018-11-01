@@ -386,10 +386,11 @@ function moveBlock(axis, dir, type) {
         console.log("changeR" + changeR);
         if ((!op_speelveld ^ !op_speelveld2) && !changeR) {
             fall3();
-            console.log("implement plz")
+            console.log("fall3");
         }
         else if (!op_speelveld && !op_speelveld2) {
             fall();
+            console.log("fall");
         }
         else if (!op_speelveld && op_speelveld2) {
             fall2();
@@ -435,22 +436,22 @@ function moveBlock(axis, dir, type) {
                 cubeY = cube.position.y;
                 if (axis === 'x') {
                     if (dir === "dec") {
-                        cube.position.z -= 0.1;
-                        cubeZ -= 0.1;
+                        cube.position.z -= 0.05;
+                        cubeZ -= 0.05;
                     }
                     else if (dir === "inc") {
-                        cube.position.z += 0.1;
-                        cubeZ += 0.1;
+                        cube.position.z += 0.05;
+                        cubeZ += 0.05;
                     }
                 }
                 else if (axis === 'z') {
                     if (dir === "dec") {
-                        cube.position.x -= 0.1;
-                        cubeX -= 0.1;
+                        cube.position.x -= 0.05;
+                        cubeX -= 0.05;
                     }
                     else if (dir === "inc") {
-                        cube.position.x += 0.1;
-                        cubeX += 0.1;
+                        cube.position.x += 0.05;
+                        cubeX += 0.05;
                     }
                 }
             }
@@ -509,29 +510,30 @@ function moveBlock(axis, dir, type) {
             setP(sRot);
 
             if (counter >= 20 && counter < 30) {
-                cubeY = cube.position.y -= 0.1;
+                cube.position.y -= 0.1;
+                cubeY = cube.position.y;
             }
             else if (counter >= 30) {
                 cube.position.y -= 0.1;
                 cubeY = cube.position.y;
                 if (axis === 'z') {
                     if (dir === "dec") {
-                        cube.position.z -= 0.1;
-                        cubeZ -= 0.1;
+                        cube.position.z -= 0.05;
+                        cubeZ -= 0.05;
                     }
                     else if (dir === "inc") {
-                        cube.position.z += 0.1;
-                        cubeZ += 0.1;
+                        cube.position.z += 0.05;
+                        cubeZ += 0.05;
                     }
                 }
                 else if (axis === 'x') {
                     if (dir === "dec") {
-                        cube.position.x -= 0.1;
-                        cubeX -= 0.1;
+                        cube.position.x -= 0.05;
+                        cubeX -= 0.05;
                     }
                     else if (dir === "inc") {
-                        cube.position.x += 0.1;
-                        cubeX += 0.1;
+                        cube.position.x += 0.05;
+                        cubeX += 0.05;
                     }
                 }
             }
@@ -592,29 +594,30 @@ function moveBlock(axis, dir, type) {
             setP(sRot);
 
             if (counter >= 20 && counter < 30) {
-                cubeY = cube.position.y -= 0.1;
+                cube.position.y -= 0.1;
+                cubeY = cube.position.y;
             }
             else if (counter >= 30) {
                 cube.position.y -= 0.1;
                 cubeY = cube.position.y;
                 if (axis === 'z') {
                     if (dir === "dec") {
-                        cube.position.z -= 0.1;
-                        cubeZ -= 0.1;
+                        cube.position.z -= 0.05;
+                        cubeZ -= 0.05;
                     }
                     else if (dir === "inc") {
-                        cube.position.z += 0.1;
-                        cubeZ += 0.1;
+                        cube.position.z += 0.05;
+                        cubeZ += 0.05;
                     }
                 }
                 else if (axis === 'x') {
                     if (dir === "dec") {
-                        cube.position.x -= 0.1;
-                        cubeX -= 0.1;
+                        cube.position.x -= 0.05;
+                        cubeX -= 0.05;
                     }
                     else if (dir === "inc") {
-                        cube.position.x += 0.1;
-                        cubeX += 0.1;
+                        cube.position.x += 0.05;
+                        cubeX += 0.05;
                     }
                 }
             }
