@@ -19,7 +19,7 @@ var changeR = false;
 var flatX = false;
 var flatZ = false;
 var counter = 0;
-var animInterval = 150;
+var animInterval = 25;
 var p;
 var ax;
 let squaresize = 1;
