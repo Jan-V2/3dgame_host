@@ -54,11 +54,13 @@ Vue.component('main_menu', {
             startUp(JSON.parse(utils.syncAjax("api/levels/" +level_num)));
         },
         recalculate_padding: function () {
-            let padding = (window.innerHeight - this.$refs.level_selector.clientHeight) / 2;
-            if (padding > 0){
-                this.padding_top = padding;
-            }else{
-                this.padding_top = 0;
+            if (this.$refs.level_selector !== undefined){
+                let padding = (window.innerHeight - this.$refs.level_selector.clientHeight) / 2;
+                if (padding > 0){
+                    this.padding_top = padding;
+                }else{
+                    this.padding_top = 0;
+                }
             }
         },
         restart_level: function () {

@@ -107,6 +107,7 @@ function init_3d() {
 function init_input() {
     document.addEventListener('keydown', function(event) {
         if (inputReady === true) {
+            console.log("input event");
             if (event.key === "w" || event.key === "W") {
                 moveBlock('z', "inc", "move");
             } else if (event.key === "a" || event.key === "A") {
@@ -159,6 +160,7 @@ function moveBlock(axis, dir, type) {
     let counter = 0;
     let sRot = 0;
     inputReady = false;
+    animations_blocked = false;
 
     cubeX = cube.position.x;
     cubeY = cube.position.y;
@@ -319,18 +321,15 @@ function moveBlock(axis, dir, type) {
         console.log("changeR" + changeR);
         if ((!op_speelveld ^ !op_speelveld2) && !changeR) {
             fall3();
-            console.log("implement plz")
         }
         else if (!op_speelveld && !op_speelveld2) {
             fall();
         }
         else if (!op_speelveld && op_speelveld2) {
             fall2();
-            console.log("fall2");
         }
         else if (op_speelveld && !op_speelveld2) {
             fall1();
-            console.log("fall1");
         }
         else {
             let blockMoveInterval = setInterval(function () {
@@ -366,6 +365,7 @@ function moveBlock(axis, dir, type) {
             if (animations_blocked) {
                 clearInterval(blockFallInterval);
                 animations_blocked = false;
+                inputReady = true;
             } else {
                 setP(sRot);
 
@@ -415,6 +415,7 @@ function moveBlock(axis, dir, type) {
             if (animations_blocked) {
                 clearInterval(blockFallInterval);
                 animations_blocked = false;
+                inputReady = true;
 
             } else {
                 if (counter >= 10 && counter < 20) {
@@ -503,6 +504,7 @@ function moveBlock(axis, dir, type) {
             if (animations_blocked) {
                 clearInterval(blockFallInterval);
                 animations_blocked = false;
+                inputReady = true;
             } else {
                 if (counter >= 10 && counter < 20) {
                     if (axis === "x") {
@@ -592,6 +594,7 @@ function moveBlock(axis, dir, type) {
             if (animations_blocked) {
                 clearInterval(blockFallInterval);
                 animations_blocked = false;
+                inputReady = true;
             } else {
 
                 if (counter >= 10 && counter < 20) {
@@ -640,6 +643,8 @@ function moveBlock(axis, dir, type) {
                 cube.rotateAroundWorldAxis(p, ax, r);
 
                 if (counter >= 100) {
+
+                    console.log("counter klaar")
                     cube.rotation.x = correctRot(cube.rotation.x);
                     cube.rotation.z = correctRot(cube.rotation.z);
 
@@ -689,6 +694,7 @@ function restart() {
     player_position = undefined;
 
     load_level();
+    animate();
 }
 
 function load_level() {
@@ -716,7 +722,7 @@ function load_level() {
     player_position = new Flat_Coord(map.starts[0].x, map.starts[0].y);
 
     cube.position.x = cubeX;
-    cube.position.y = cubeY;
+    cube.position.y = 1;
     cube.position.z = cubeZ;
     cube.castShadow = true;
     cube.receiveShadow = false;
@@ -749,6 +755,7 @@ function load_level() {
     light = new THREE.AmbientLight(0x404040);
     light.intensity = 1;
     scene.add(light);
+    inputReady = true;
 
 }
 
