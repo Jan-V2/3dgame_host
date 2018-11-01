@@ -19,7 +19,7 @@ var changeR = false;
 var flatX = false;
 var flatZ = false;
 var counter = 0;
-var animInterval = 20;
+var animInterval = 25;
 var p;
 var ax;
 let squaresize = 1;
@@ -156,12 +156,12 @@ function init_3d() {
 function init_input() {
     document.addEventListener('keydown', function(event) {
         if (inputReady === true) {
-            if (event.key === "s" || event.key === "S") {
-                moveBlock('z', "dec", "move");
+            if (event.key === "w" || event.key === "W") {
+                moveBlock('z', "inc", "move");
             } else if (event.key === "a" || event.key === "A") {
                 moveBlock('x', "dec", "move");
-            } else if (event.key === "w" || event.key === "W") {
-                moveBlock('z', "inc", "move");
+            } else if (event.key === "s" || event.key === "S") {
+                moveBlock('z', "dec", "move");
             } else if (event.key === "d" || event.key === "D") {
                 moveBlock('x', "inc", "move");
             } else if (event.key === "t" || event.key === "T") {
@@ -292,7 +292,7 @@ function moveBlock(axis, dir, type) {
 
         function bepaal_eindbestemming() {
 
-            if (flatX && axis === "x" || flatZ && axis === "z" || !flatX && !flatZ){
+            if (!flatX && !flatZ) {
                 if (axis === "x"){
                     console.log("z as")
                     if (dir === "inc"){
@@ -304,28 +304,43 @@ function moveBlock(axis, dir, type) {
                     console.log("x as")
 
                     if (dir === "inc"){
+                        console.log("inc")
+
                         return new Flat_Coord(quant_num(cube.position.x) + 1.5, quant_num(cube.position.z));
                     }else if (dir === "dec"){
+                        console.log("dec")
+
                         return new Flat_Coord(quant_num(cube.position.x) - 1.5, quant_num(cube.position.z));
                     }
                 }
-            }else {
-                if (axis === "x"){
+            } else {
+                if (flatZ && axis === "x"){
                     if (dir === "inc"){
                         return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z) + 1);
                     }else if (dir === "dec"){
                         return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z) - 1);
                     }
-                }else if (axis === "z"){
+                } if (flatX && axis === "x") {
+                    if (dir === "inc") {
+                        return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z) + 1.5);
+                    } else if (dir === "dec") {
+                        return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z) - 1.5);
+                    }
+                }else if (flatX && axis === "z"){
                     if (dir === "inc"){
                         return new Flat_Coord(quant_num(cube.position.x)+ 1, quant_num(cube.position.z));
                     }else if (dir === "dec"){
                         return new Flat_Coord(quant_num(cube.position.x) -1, quant_num(cube.position.z));
                     }
+                } else if (flatZ && axis === "z") {
+                    if (dir === "inc") {
+                        return new Flat_Coord(quant_num(cube.position.x) + 1.5, quant_num(cube.position.z));
+                    } else if (dir === "dec") {
+                        return new Flat_Coord(quant_num(cube.position.x) - 1.5, quant_num(cube.position.z));
+                    }
                 }
             }
         }
-
 
         function save_map_get(x, y) {
             let result;
