@@ -7,7 +7,7 @@ let texturesPath = "/textures/models/";
 // Setup the size, tickrate, geometry & materials
 let squareSize = 1;
 let animInterval = 20;
-let cubeGeometry = new THREE.CubeGeometry(squareSize, (squareSize*2), squareSize);
+let cubeGeometry = new THREE.CubeGeometry(squareSize, squareSize*2, squareSize);
 let cubeMaterial = new THREE.MeshPhysicalMaterial({ color: 0xFF0000 });
 let planeGeometry = new THREE.PlaneGeometry(squareSize, squareSize);
 let planeMaterial = new THREE.MeshPhongMaterial({ color: 0x808080, side: THREE.DoubleSide });
@@ -60,18 +60,10 @@ THREE.Object3D.prototype.rotateAroundWorldAxis = function () {
     };
 }();
 
-// Sets up a connection with the server and handles the server commands
-function startUp(level) {
-    levelData = level;
-    init3d(level);
-    initInput();
-    animate();
-}
-
 // Sets up all the stuff we need
 function init3d() {
     // For debugging / performance stats, could be handy dandy when trying it on a mobile device
-    /* (function () { var script = document.createElement('script'); script.onload = function () {
+    (function () { var script = document.createElement('script'); script.onload = function () {
                 var stats = new Stats();
                 $("#game")[0].appendChild(stats.dom);
                 requestAnimationFrame(function loop() {
@@ -81,7 +73,7 @@ function init3d() {
             };
                 script.src = '//rawgit.com/mrdoob/stats.js/master/build/stats.min.js'; document.head.appendChild(script);
             }
-        )();*/
+        )();
 
     // Create Scene
     scene = new THREE.Scene();
@@ -153,7 +145,7 @@ function init3d() {
     loadCube();
 
     // Setup camera
-    camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 1000);
+    camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
     cameraControls = new THREE.OrbitControls(camera);
     cameraControls.target = dummy.position;
     camera.position.z = dummy.position.z - 3;
@@ -187,7 +179,6 @@ function loadCube() {
     flatX = false;
     flatZ = false;
     inputReady = true;
-    bridgesTriggered = false;
 
     cubeX = levelData.starts[0].x;
     cubeZ = levelData.starts[0].y;
@@ -265,7 +256,6 @@ function onWindowResize() {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
-
 
 function moveBlock(axis, dir, type) {
     let counter = 0;
@@ -844,29 +834,23 @@ function moveBlock(axis, dir, type) {
 
 function load_nieuw_level(level) {
     let old_game = $("#game")[0].firstChild;
-    if (old_game){
+    if (old_game) {
         old_game.remove();
+        if (renderer) {
+            renderer.context.getExtension('WEBGL_lose_context').loseContext();
+            console.log("i did it");
+        }
+    }
+
+    try {
+        clearInterval(blockMoveInterval);
+        clearInterval(blockMoveInterval);
+    }
+    catch{
+        console.log("interval undefined");
     }
 
     levelData = level;
-    scene = new THREE.Scene();
-
-    // Setup the WebGL renderer / alpha should help with loading in images with transparent parts <p.s. also makes background white for some reason>
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight + 5);
-
-    $("#game")[0].appendChild(renderer.domElement);
-    renderer.shadowMapEnabled = true;
-    renderer.shadowMapType = THREE.PCFSoftShadowMap; // options are THREE.BasicShadowMap | THREE.PCFShadowMap | THREE.PCFSoftShadowMap
-
-    renderer.domElement.setAttribute("id", "three_renderer");
-
-    initInput();
-    three_started = true;
-
-    dummy = new THREE.Object3D;
-    cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
     r = 0;
     cubeX = undefined;
     cubeY = 1;
@@ -886,6 +870,26 @@ function load_nieuw_level(level) {
     squaresize = 1;
     inputReady = true;
     player_position = undefined;
+
+    // Create Scene
+    scene = new THREE.Scene();
+
+    // Setup the WebGL renderer / alpha should help with loading in images with transparent parts <p.s. also makes background white for some reason>
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight + 5);
+
+    $("#game")[0].appendChild(renderer.domElement);
+    renderer.shadowMapEnabled = true;
+    renderer.shadowMapType = THREE.PCFShadowMap; // options are THREE.BasicShadowMap | THREE.PCFShadowMap | THREE.PCFSoftShadowMap
+
+    renderer.domElement.setAttribute("id", "three_renderer");
+
+    // Continuesly check if the window gets resized
+    window.addEventListener('resize', onWindowResize, false);
+
+    initInput();
+    three_started = true;
 
     // Create the groundplanes
     for (let i = 0; i < levelData.layout.length; i++) {
@@ -943,27 +947,28 @@ function load_nieuw_level(level) {
     camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 1000);
     cameraControls = new THREE.OrbitControls(camera);
     cameraControls.target = dummy.position;
-    camera.position.z = 0;
+    camera.position.z = dummy.position.z - 3;
     camera.position.y = 15;
-    camera.position.x = -15;
+    camera.position.x = dummy.position.x - 20;
     camera.zoom = 2.5;
     camera.updateProjectionMatrix();
     cameraControls.update();
 
     // Add lighting to the scene
     let light = new THREE.PointLight(0x404040);
-    light.position.y = 30;
+    light.position.x = -40;
+    light.position.z = -40;
+    light.position.y = 60;
     light.castShadow = true;
-    light.shadowDarkness = 0.5;
     light.shadowMapWidth = 1024; // default is 512
     light.shadowMapHeight = 1024; // default is 512
     light.intensity = 3;
     scene.add(light);
 
     light = new THREE.AmbientLight(0x404040);
-    light.intensity = 1;
+    light.intensity = 2;
     scene.add(light);
-    inputReady = true;
+
     animate();
 }
 
