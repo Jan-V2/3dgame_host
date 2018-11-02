@@ -65,24 +65,7 @@ function startUp(level) {
     animate();
 }
 
-// Sets up all the stuff we need
-function start_three(level) {
-    // For debugging / performance stats, could be handy dandy when trying it on a mobile device
-    /* (function () { var script = document.createElement('script'); script.onload = function () {
-                var stats = new Stats();
-                $("#game")[0].appendChild(stats.dom);
-                requestAnimationFrame(function loop() {
-                    stats.update();
-                    requestAnimationFrame(loop)
-                });
-            };
-                script.src = '//rawgit.com/mrdoob/stats.js/master/build/stats.min.js'; document.head.appendChild(script);
-            }
-        )();*/
 
-    // Create Scene
-
-}
 function restart() {
     var selectedObject = scene.getObjectByName("cube");
     selectedObject.geometry.dispose();
@@ -105,7 +88,7 @@ function restart() {
         console.log("interval undefined");
     }
 
-    loadLevel();
+    load_cube();
 
     camera.position.z = dummy.position.z - 3;
     camera.position.y = 15;
@@ -136,7 +119,7 @@ function initInput() {
                 for (let i = 0; i < level_data.triggers.length; i++) {
                     console.log("triggers = " + level_data.triggers[i].x + "  " + level_data.triggers[i].y);
                 }
-                v
+
                 for (let i = 0; i < level_data.starts.length; i++) {
                     console.log("starts = " + level_data.starts[i].x + "  " + level_data.starts[i].y);
                 }
@@ -742,13 +725,9 @@ function animate() {
 }
 
 
-function load_level(restart, level) {
+function load_nieuw_level(level) {
 
-    if (!three_started){
-        //start_three()
-    }
 
-    if (!restart){
         let old_game = $("#game")[0].firstChild;
         if (old_game){
             old_game.remove();
@@ -770,16 +749,6 @@ function load_level(restart, level) {
 
         initInput();
         three_started = true;
-    }else{
-
-        // cleart variables
-        animations_blocked = true;
-        console.log("clearing");
-        while(scene.children.length > 0){
-            scene.remove(scene.children[0]);
-        }
-    }
-
 
 
     dummy = new THREE.Mesh(new THREE.CubeGeometry(1, 1, 1), new THREE.MeshPhysicalMaterial({ color: 0x000000 }));
@@ -822,23 +791,10 @@ function load_level(restart, level) {
         }
     }
 
-    cubeX = level_data.starts[0].x;
-    cubeZ = level_data.starts[0].y;
-    player_position = new FlatCoord(level_data.starts[0].x, level_data.starts[0].y);
-
-    cube.position.x = cubeX;
-    cube.position.y = 1;
-    cube.position.z = cubeZ;
-    cube.castShadow = true;
-    cube.receiveShadow = false;
-    scene.add(cube);
-
+    load_cube();
     // Setup camera
     camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 1000);
     cameraControls = new THREE.OrbitControls(camera);
-    dummy.position.x = cube.position.x;
-    dummy.position.y = 3;
-    dummy.position.z = cube.position.z;
     cameraControls.target = dummy.position;
     camera.position.z = 0;
     camera.position.y = 15;
@@ -862,6 +818,34 @@ function load_level(restart, level) {
     scene.add(light);
     inputReady = true;
     animate();
+}
+
+function load_cube() {
+
+        cube = new THREE.Mesh(new THREE.CubeGeometry(1, 2, 1), new THREE.MeshPhysicalMaterial({ color: 0xFF0000 }));
+
+        cubeY = 1;
+        changeR = false;
+        flatX = false;
+        flatZ = false;
+        inputReady = true;
+        bridgesTriggered = false;
+
+        cubeX = level_data.starts[0].x;
+        cubeZ = level_data.starts[0].y;
+        playerPosition = new FlatCoord(level_data.starts[0].x, level_data.starts[0].y);
+
+        cube.name = "cube";
+        cube.position.x = cubeX;
+        cube.position.y = cubeY;
+        cube.position.z = cubeZ;
+        cube.castShadow = true;
+        cube.receiveShadow = false;
+        scene.add(cube);
+
+        dummy.position.x = cube.position.x;
+        dummy.position.y = 3;
+        dummy.position.z = cube.position.z;
 }
 
 
