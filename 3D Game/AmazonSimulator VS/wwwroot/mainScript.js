@@ -24,9 +24,10 @@ let p;
 let ax;
 let squaresize = 1;
 let inputReady = true;
-let map;
+let level_data;
 let player_position;
 let animations_blocked =false;
+let three_started = false;
 
 const colors = Object.freeze({
     start_square:"",
@@ -70,7 +71,7 @@ THREE.Object3D.prototype.rotateAroundWorldAxis = function () {
 
 
 // Sets up all the stuff we need
-function init_3d() {
+function start_three(level) {
     // For debugging / performance stats, could be handy dandy when trying it on a mobile device
 
 
@@ -87,20 +88,7 @@ function init_3d() {
         )();*/
 
     // Create Scene
-    scene = new THREE.Scene();
 
-    // Setup the WebGL renderer / alpha should help with loading in images with transparent parts <p.s. also makes background white for some reason>
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight + 5);
-
-    $("#game")[0].appendChild(renderer.domElement);
-    renderer.shadowMapEnabled = true;
-    renderer.shadowMapType = THREE.PCFSoftShadowMap; // options are THREE.BasicShadowMap | THREE.PCFShadowMap | THREE.PCFSoftShadowMap
-
-    renderer.domElement.setAttribute("id", "three_renderer");
-
-    load_level();
 
 }
 
@@ -283,7 +271,7 @@ function moveBlock(axis, dir, type) {
         function save_map_get(x, y) {
             let result;
             try {
-                result = map.layout[Math.floor(y)][Math.floor(x)];
+                result = level_data.layout[Math.floor(y)][Math.floor(x)];
             } catch {
                 result = false;
             }
@@ -315,7 +303,7 @@ function moveBlock(axis, dir, type) {
             console.log(cube.position)
         }
 
-        console.log(map.layout);
+        console.log(level_data.layout);
         console.log("opspeelveld " + op_speelveld);
         console.log("opspeelveld2 " + op_speelveld2);
         console.log("changeR" + changeR);
@@ -665,11 +653,46 @@ function animate() {
     renderer.render(scene, camera);
 }
 
-function restart() {
-    animations_blocked = true;
-    while(scene.children.length > 0){
-        scene.remove(scene.children[0]);
+
+function load_level(restart, level) {
+
+    if (!three_started){
+        //start_three()
     }
+
+    if (!restart){
+        let old_game = $("#game")[0].firstChild;
+        if (old_game){
+            old_game.remove();
+        }
+
+        level_data = level;
+        scene = new THREE.Scene();
+
+        // Setup the WebGL renderer / alpha should help with loading in images with transparent parts <p.s. also makes background white for some reason>
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight + 5);
+
+        $("#game")[0].appendChild(renderer.domElement);
+        renderer.shadowMapEnabled = true;
+        renderer.shadowMapType = THREE.PCFSoftShadowMap; // options are THREE.BasicShadowMap | THREE.PCFShadowMap | THREE.PCFSoftShadowMap
+
+        renderer.domElement.setAttribute("id", "three_renderer");
+
+        init_input();
+        three_started = true;
+    }else{
+
+        // cleart variables
+        animations_blocked = true;
+        console.log("clearing");
+        while(scene.children.length > 0){
+            scene.remove(scene.children[0]);
+        }
+    }
+
+
 
     dummy = new THREE.Mesh(new THREE.CubeGeometry(1, 1, 1), new THREE.MeshPhysicalMaterial({ color: 0x000000 }));
     cube = new THREE.Mesh(new THREE.CubeGeometry(1, 2, 1), new THREE.MeshPhysicalMaterial({color: 0xFF0000}));
@@ -693,19 +716,13 @@ function restart() {
     inputReady = true;
     player_position = undefined;
 
-    load_level();
-    animate();
-}
-
-function load_level() {
-
-    // Setup our 1st test map
+    //laad het level.
     let geometry = new THREE.PlaneGeometry(squaresize, squaresize);
     let material = new THREE.MeshPhongMaterial({ color: colors.normal_square, side: THREE.DoubleSide });
 
-    for (let i = 0; i < map.layout.length; i++) {
-        for (let j = 0; j < map.layout[0].length; j++) {
-            if (map.layout[i][j]){
+    for (let i = 0; i < level_data.layout.length; i++) {
+        for (let j = 0; j < level_data.layout[0].length; j++) {
+            if (level_data.layout[i][j]){
                 let plane = new THREE.Mesh(geometry, material);
                 plane.rotation.x = Math.PI / 2.0;
                 plane.position.z = squaresize*i;
@@ -717,9 +734,9 @@ function load_level() {
         }
     }
 
-    cubeX = map.starts[0].x;
-    cubeZ = map.starts[0].y;
-    player_position = new Flat_Coord(map.starts[0].x, map.starts[0].y);
+    cubeX = level_data.starts[0].x;
+    cubeZ = level_data.starts[0].y;
+    player_position = new Flat_Coord(level_data.starts[0].x, level_data.starts[0].y);
 
     cube.position.x = cubeX;
     cube.position.y = 1;
@@ -756,16 +773,10 @@ function load_level() {
     light.intensity = 1;
     scene.add(light);
     inputReady = true;
-
-}
-
-// Sets up a connection with the server and handles the server commands
-function startUp(level) {
-    map = level;
-    init_3d(level);
-    init_input();
     animate();
 }
+
+
 
 function toggleFlat(axis) {
     if (axis === 'x') {
@@ -797,7 +808,7 @@ function setP(sRot) {
 function eindcheck(coord) {
     console.log("checking");
     console.log(coord)
-    if (map.ends[0].x === coord.x && map.ends[0].y === coord.y ){
+    if (level_data.ends[0].x === coord.x && level_data.ends[0].y === coord.y ){
         console.log("gewonnen");
         store.commit("load_main_menu");
     }
