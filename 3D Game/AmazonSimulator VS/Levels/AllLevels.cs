@@ -56,7 +56,7 @@ namespace Levels
                 {'t','v','v','v','v','v','v','l','l','v','l'},
                 {'v','v','b','v','v','v','v','v','v','v','l'}
         };
-        
+
         public static char[,] level_5 =
         {
                 {'l','l','l','l','l','v','v','v','v','v','v','l','l','l','l'},

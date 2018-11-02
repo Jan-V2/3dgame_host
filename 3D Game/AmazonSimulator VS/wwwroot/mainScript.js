@@ -8,7 +8,7 @@ let texturesPath = "/textures/models/";
 let squareSize = 1;
 let animInterval = 20;
 let geometry = new THREE.PlaneGeometry(squareSize, squareSize);
-let material = new THREE.MeshPhongMaterial({ color: 0x808080, side: THREE.DoubleSide });
+let planeMaterial = new THREE.MeshPhongMaterial({ color: 0x808080, side: THREE.DoubleSide });
 let bridgeMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFF00, side: THREE.DoubleSide });
 let triggerMaterial = new THREE.MeshPhongMaterial({ color: 0x00FF00, side: THREE.DoubleSide });
 let endMaterial = new THREE.MeshPhongMaterial({ color: 0x0000FF, side: THREE.DoubleSide });
@@ -32,8 +32,10 @@ let p;
 let ax;
 let inputReady;
 let blockMoveInterval;
-let map;
+let levelData;
 let playerPosition;
+let animations_blocked =false;
+let three_started = false;
 
 const colors = Object.freeze({
     start_square: "",
@@ -58,7 +60,7 @@ THREE.Object3D.prototype.rotateAroundWorldAxis = function () {
 
 // Sets up a connection with the server and handles the server commands
 function startUp(level) {
-    map = level;
+    levelData = level;
     init3d(level);
     initInput();
     animate();
@@ -97,10 +99,10 @@ function init3d() {
     window.addEventListener('resize', onWindowResize, false);
 
     // Create the groundplanes
-    for (let i = 0; i < map.layout.length; i++) {
-        for (let j = 0; j < map.layout[0].length; j++) {
-            if (map.layout[i][j]) {
-                let plane = new THREE.Mesh(geometry, material);
+    for (let i = 0; i < levelData.layout.length; i++) {
+        for (let j = 0; j < levelData.layout[0].length; j++) {
+            if (levelData.layout[i][j]) {
+                let plane = new THREE.Mesh(geometry, planeMaterial);
                 plane.rotation.x = Math.PI / 2.0;
                 plane.position.z = squareSize * i;
                 plane.position.x = squareSize * j;
@@ -111,11 +113,11 @@ function init3d() {
         }
     }
 
-    for (let i = 0; i < map.triggers.length; i++) {
-        let triggerY = map.triggers[i].y;
-        let triggerX = map.triggers[i].x;
+    for (let i = 0; i < levelData.triggers.length; i++) {
+        let triggerY = levelData.triggers[i].y;
+        let triggerX = levelData.triggers[i].x;
 
-        if (!map.layout[triggerY][triggerX]) {
+        if (!levelData.layout[triggerY][triggerX]) {
             let plane = new THREE.Mesh(geometry, triggerMaterial);
             plane.rotation.x = Math.PI / 2.0;
             plane.position.z = squareSize * triggerY;
@@ -124,15 +126,15 @@ function init3d() {
             plane.castShadow = false;
             plane.name = "trigger";
             scene.add(plane);
-            map.layout[triggerY][triggerX] = true;
+            levelData.layout[triggerY][triggerX] = true;
         }
     }
 
-    for (let i = 0; i < map.ends.length; i++) {
-        let endY = map.ends[i].y;
-        let endX = map.ends[i].x;
+    for (let i = 0; i < levelData.ends.length; i++) {
+        let endY = levelData.ends[i].y;
+        let endX = levelData.ends[i].x;
 
-        if (!map.layout[endY][endX]) {
+        if (!levelData.layout[endY][endX]) {
             let plane = new THREE.Mesh(geometry, endMaterial);
             plane.rotation.x = Math.PI / 2.0;
             plane.position.z = squareSize * endY;
@@ -141,12 +143,12 @@ function init3d() {
             plane.castShadow = false;
             plane.name = "end";
             scene.add(plane);
-            map.layout[endY][endX] = true;
+            levelData.layout[endY][endX] = true;
         }
     }
 
     dummy = new THREE.Object3D;
-    loadLevel();
+    loadCube();
 
     // Setup camera
     camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 1000);
@@ -175,7 +177,7 @@ function init3d() {
     scene.add(light);
 }
 
-function loadLevel() {
+function loadCube() {
     cube = new THREE.Mesh(new THREE.CubeGeometry(1, 2, 1), new THREE.MeshPhysicalMaterial({ color: 0xFF0000 }));
 
     cubeY = 1;
@@ -185,9 +187,9 @@ function loadLevel() {
     inputReady = true;
     bridgesTriggered = false;
 
-    cubeX = map.starts[0].x;
-    cubeZ = map.starts[0].y;
-    playerPosition = new FlatCoord(map.starts[0].x, map.starts[0].y);
+    cubeX = levelData.starts[0].x;
+    cubeZ = levelData.starts[0].y;
+    playerPosition = new FlatCoord(levelData.starts[0].x, levelData.starts[0].y);
 
     cube.name = "cube";
     cube.position.x = cubeX;
@@ -210,7 +212,7 @@ function restart() {
 
     while (scene.getObjectByName("bridge")) {
         selectedObject = scene.getObjectByName("bridge");
-        map.layout[selectedObject.position.z][selectedObject.position.x] = false;
+        levelData.layout[selectedObject.position.z][selectedObject.position.x] = false;
         selectedObject.geometry.dispose();
         selectedObject.material.dispose();
         scene.remove(selectedObject);
@@ -224,7 +226,7 @@ function restart() {
         console.log("interval undefined");
     }
 
-    loadLevel();
+    loadCube();
 
     camera.position.z = dummy.position.z - 3;
     camera.position.y = 15;
@@ -248,7 +250,7 @@ function initInput() {
     });
 }
 
-// Changes the scene as per updated model so we see the models change   
+// Changes the scene as per updated model so we see the models change
 function animate() {
     requestAnimationFrame(animate);
     cameraControls.update();
@@ -261,6 +263,7 @@ function onWindowResize() {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
+
 
 function moveBlock(axis, dir, type) {
     let counter = 0;
@@ -353,7 +356,7 @@ function moveBlock(axis, dir, type) {
             console.log(cube.position);
         }
 
-        console.log(map.layout);
+        console.log(levelData.layout);
         console.log("opspeelveld " + validSpace);
         console.log("opspeelveld2 " + validSpace2);
         console.log("changeR" + changeR);
@@ -403,7 +406,7 @@ function moveBlock(axis, dir, type) {
                 inputReady = true;
 
                 clearInterval(blockMoveInterval);
-                
+
                 winCheck(givenEndpoint);
                 triggerCheck(givenEndpoint);
             }
@@ -793,7 +796,7 @@ function moveBlock(axis, dir, type) {
         let result;
         console.log("x " + Math.floor(y) + " y " + Math.floor(x));
         try {
-            result = map.layout[Math.floor(y)][Math.floor(x)];
+            result = levelData.layout[Math.floor(y)][Math.floor(x)];
         } catch {
             result = false;
         }
@@ -806,21 +809,21 @@ function moveBlock(axis, dir, type) {
         console.log("checking win");
         console.log(coord);
 
-        if (map.ends[0].x === coord.x && map.ends[0].y === coord.y) {
+        if (levelData.ends[0].x === coord.x && levelData.ends[0].y === coord.y) {
             console.log("gewonnen");
             store.commit("load_main_menu");
         }
     }
 
     function triggerCheck(coord) {
-        if (map.triggers.length > 0) {
-            if (map.triggers[0].x === coord.x && map.triggers[0].y === coord.y) {
-                for (let i = 0; i < map.bridges.length; i++) {
-                    console.log("bridges = " + map.bridges[i].x + "  " + map.bridges[i].y);
-                    let bridgeY = map.bridges[i].y;
-                    let bridgeX = map.bridges[i].x;
+        if (levelData.triggers.length > 0) {
+            if (levelData.triggers[0].x === coord.x && levelData.triggers[0].y === coord.y) {
+                for (let i = 0; i < levelData.bridges.length; i++) {
+                    console.log("bridges = " + levelData.bridges[i].x + "  " + levelData.bridges[i].y);
+                    let bridgeY = levelData.bridges[i].y;
+                    let bridgeX = levelData.bridges[i].x;
 
-                    if (!map.layout[bridgeY][bridgeX]) {
+                    if (!levelData.layout[bridgeY][bridgeX]) {
                         let plane = new THREE.Mesh(geometry, bridgeMaterial);
                         plane.rotation.x = Math.PI / 2.0;
                         plane.position.z = squareSize * bridgeY;
@@ -829,12 +832,137 @@ function moveBlock(axis, dir, type) {
                         plane.castShadow = false;
                         plane.name = "bridge";
                         scene.add(plane);
-                        map.layout[bridgeY][bridgeX] = true;
+                        levelData.layout[bridgeY][bridgeX] = true;
                     }
                 }
             }
         }
     }
+}
+
+function load_nieuw_level(level) {
+    let old_game = $("#game")[0].firstChild;
+    if (old_game){
+        old_game.remove();
+    }
+
+    levelData = level;
+    scene = new THREE.Scene();
+
+    // Setup the WebGL renderer / alpha should help with loading in images with transparent parts <p.s. also makes background white for some reason>
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight + 5);
+
+    $("#game")[0].appendChild(renderer.domElement);
+    renderer.shadowMapEnabled = true;
+    renderer.shadowMapType = THREE.PCFSoftShadowMap; // options are THREE.BasicShadowMap | THREE.PCFShadowMap | THREE.PCFSoftShadowMap
+
+    renderer.domElement.setAttribute("id", "three_renderer");
+
+    initInput();
+    three_started = true;
+
+    dummy = new THREE.Mesh(new THREE.CubeGeometry(1, 1, 1), new THREE.MeshPhysicalMaterial({ color: 0x000000 }));
+    cube = new THREE.Mesh(new THREE.CubeGeometry(1, 2, 1), new THREE.MeshPhysicalMaterial({color: 0xFF0000}));
+    r = 0;
+    cubeX = undefined;
+    cubeY = 1;
+    cubeZ = undefined;
+    xOffset = undefined;
+    yOffset = undefined;
+    zOffset = undefined;
+    yOffsetX = undefined;
+    yOffsetZ = undefined;
+    changeR = false;
+    flatX = false;
+    flatZ = false;
+    counter = 0;
+    animInterval = 25;
+    p = undefined;
+    ax = undefined;
+    squaresize = 1;
+    inputReady = true;
+    player_position = undefined;
+
+    // Create the groundplanes
+    for (let i = 0; i < levelData.layout.length; i++) {
+        for (let j = 0; j < levelData.layout[0].length; j++) {
+            if (levelData.layout[i][j]) {
+                let plane = new THREE.Mesh(geometry, planeMaterial);
+                plane.rotation.x = Math.PI / 2.0;
+                plane.position.z = squareSize * i;
+                plane.position.x = squareSize * j;
+                plane.receiveShadow = true;
+                plane.castShadow = false;
+                scene.add(plane);
+            }
+        }
+    }
+
+    for (let i = 0; i < levelData.triggers.length; i++) {
+        let triggerY = levelData.triggers[i].y;
+        let triggerX = levelData.triggers[i].x;
+
+        if (!levelData.layout[triggerY][triggerX]) {
+            let plane = new THREE.Mesh(geometry, triggerMaterial);
+            plane.rotation.x = Math.PI / 2.0;
+            plane.position.z = squareSize * triggerY;
+            plane.position.x = squareSize * triggerX;
+            plane.receiveShadow = true;
+            plane.castShadow = false;
+            plane.name = "trigger";
+            scene.add(plane);
+            levelData.layout[triggerY][triggerX] = true;
+        }
+    }
+
+    for (let i = 0; i < levelData.ends.length; i++) {
+        let endY = levelData.ends[i].y;
+        let endX = levelData.ends[i].x;
+
+        if (!levelData.layout[endY][endX]) {
+            let plane = new THREE.Mesh(geometry, endMaterial);
+            plane.rotation.x = Math.PI / 2.0;
+            plane.position.z = squareSize * endY;
+            plane.position.x = squareSize * endX;
+            plane.receiveShadow = true;
+            plane.castShadow = false;
+            plane.name = "end";
+            scene.add(plane);
+            levelData.layout[endY][endX] = true;
+        }
+    }
+
+    dummy = new THREE.Object3D;
+    loadCube();
+
+    // Setup camera
+    camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 1000);
+    cameraControls = new THREE.OrbitControls(camera);
+    cameraControls.target = dummy.position;
+    camera.position.z = 0;
+    camera.position.y = 15;
+    camera.position.x = -15;
+    camera.zoom = 2.5;
+    camera.updateProjectionMatrix();
+    cameraControls.update();
+
+    // Add lighting to the scene
+    let light = new THREE.PointLight(0x404040);
+    light.position.y = 30;
+    light.castShadow = true;
+    light.shadowDarkness = 0.5;
+    light.shadowMapWidth = 1024; // default is 512
+    light.shadowMapHeight = 1024; // default is 512
+    light.intensity = 3;
+    scene.add(light);
+
+    light = new THREE.AmbientLight(0x404040);
+    light.intensity = 1;
+    scene.add(light);
+    inputReady = true;
+    animate();
 }
 
 function FlatCoord(x, y) {
