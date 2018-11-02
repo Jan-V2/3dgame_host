@@ -1,4 +1,4 @@
-﻿// inclare variables that are needed here so it's all grouped nicely
+// inclare letiables that are needed here so it's all grouped nicely
 let camera, scene, renderer;
 let cameraControls;
 // Path needs to be changed for both or we keep them doesn't really matter
@@ -444,6 +444,7 @@ function moveBlock(axis, dir, type) {
                 inputReady = true;
                 changeR = false;
                 clearInterval(blockMoveInterval);
+                store.commit("load_game_over");
             }
         }, animInterval);
     }
@@ -527,6 +528,7 @@ function moveBlock(axis, dir, type) {
                 inputReady = true;
                 changeR = false;
                 clearInterval(blockMoveInterval);
+                store.commit("load_game_over");
             }
         }, animInterval);
     }
@@ -612,6 +614,7 @@ function moveBlock(axis, dir, type) {
                 inputReady = true;
                 changeR = false;
                 clearInterval(blockMoveInterval);
+                store.commit("load_game_over");
             }
         }, animInterval);
     }
@@ -670,6 +673,7 @@ function moveBlock(axis, dir, type) {
                 inputReady = true;
                 changeR = false;
                 clearInterval(blockMoveInterval);
+                store.commit("load_game_over");
             }
         }, animInterval);
     }

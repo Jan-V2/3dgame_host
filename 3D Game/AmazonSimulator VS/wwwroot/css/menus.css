@@ -6,3 +6,43 @@
     width: -moz-fit-content;
     grid-gap: 15px;
 }
+
+.game-over {
+    align-content: center;
+    position: absolute;
+    margin: auto;
+    background-color: red;
+    background: black;
+    min-height: 100vh;
+    width: fit-content;
+    width: -moz-fit-content;
+    min-width: 100vw;
+    text-align: center;
+    z-index: 10;
+}
+
+.btn-custom {
+    background-color: red !important;
+    border-color: red !important;
+    font-size: 10px !important;
+}
+
+.btn-game-over-menu {
+    background-color: red !important;
+    border-color: red !important;
+    font-size: 30px;
+    transition: .5s ease;
+    position: absolute;
+    top: 50% !important;
+    left: 55%
+}
+
+.btn-game-over-restart {
+    background-color: red !important;
+    border-color: red !important;
+    font-size: 30px;
+    transition: .5s ease;
+    position: absolute;
+    top: 50% !important;
+    left: 45%
+}
