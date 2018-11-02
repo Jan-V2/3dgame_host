@@ -12,7 +12,7 @@
         <button>terug naar hoofdmenu</button>
     </div>
     % v-if="current_menu === 'game_over'" =>
-    <div id="game_over_id" clas="game_over" ref="game_over" style="z-index: 1">
+    <div id="game_over_id" class="game-over" ref="game_over">
         % @click="restart_level()" =>
         <button type="button" class="btn btn-primary" style="backgroundColor: red">Restart</button>
         % @click="return_main_menu()" =>

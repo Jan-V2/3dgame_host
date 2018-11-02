@@ -5,13 +5,19 @@
     width: fit-content;
     width: -moz-fit-content;
     grid-gap: 15px;
+    background: black;
 }
 
 .game-over {
-    position: center, absolute;
+    align-content: center;
+    position: absolute;
+    margin: auto;
     background-color: red;
-    background: red;
-    height: 100vh;
+    background: black;
+    min-height: 100vh;
     width: fit-content;
     width: -moz-fit-content;
+    min-width: 100vw;
+    text-align: center;
+    z-index: 10;
 }

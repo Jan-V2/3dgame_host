@@ -65,6 +65,7 @@ Vue.component('main_menu', {
             }
         },
         restart_level: function () {
+            store.commit("load_game_ui");
             restart();
         },
         return_main_menu: function () {
