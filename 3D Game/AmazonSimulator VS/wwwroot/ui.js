@@ -21,7 +21,7 @@ const store = new Vuex.Store({
     },
     mutations: {
         load_main_menu: state => state.menu = "main_menu",
-        load_game_ui: state => state.menu = "game_ui",
+        load_game_ui: state => state.menu = "game_ui"
     }
 })
 
@@ -33,7 +33,7 @@ Vue.component('main_menu', {
             top_padding: 0,
             levels: 33,
             padding_top:0,
-            game_started: false,
+            game_started: false
         }
     },
     mounted: function(){

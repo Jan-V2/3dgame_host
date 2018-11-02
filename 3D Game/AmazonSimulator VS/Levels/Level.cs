@@ -10,6 +10,8 @@ namespace Levels
         private bool[,] layout;
         private List<Coord> starts = new List<Coord>();
         private List<Coord> ends = new List<Coord>();
+        private List<Coord> triggers = new List<Coord>();
+        private List<Coord> bridges = new List<Coord>();
 
         public Level(char[,] level_data)
         {
@@ -19,16 +21,27 @@ namespace Levels
                 for (int j = 0; j < level_data.GetLength(1); j++)
                 {
                     char square = level_data[i, j];
-                    if (square == 'l'){
+                    if (square == 'l') {
                         layout[i, j] = false;
-                    }else if (square == 'b'){
+                    }
+                    else if (square == 'b') {
                         layout[i, j] = true;
                         starts.Add(new Coord(j,i));
-                    }else if (square == 'v'){
+                    }
+                    else if (square == 'v') {
                         layout[i, j] = true;
-                    }else if (square == 'e'){
+                    }
+                    else if (square == 'e') {
                         ends.Add(new Coord(j,i));
                         layout[i, j] = true;
+                    }
+                    else if (square == 't') {
+                        triggers.Add(new Coord(j, i));
+                        layout[i, j] = true;
+                    }
+                    else if (square == 'a') {
+                        bridges.Add(new Coord(j, i));
+                        layout[i, j] = false;
                     }
                 }
             }
@@ -36,11 +49,12 @@ namespace Levels
       
         public string get_json()
         {
-
             return JsonConvert.SerializeObject(new {
                 layout,
                 starts,
-                ends
+                ends,
+                triggers,
+                bridges
             });
         }
     }
