@@ -4,6 +4,13 @@ let cameraControls;
 // Path needs to be changed for both or we keep them doesn't really matter
 let modelPath = "/3dmodels/";
 let texturesPath = "/textures/models/";
+// Setup the size, tickrate, geometry & materials
+let squareSize = 1;
+let animInterval = 20;
+let geometry = new THREE.PlaneGeometry(squareSize, squareSize);
+let material = new THREE.MeshPhongMaterial({ color: 0xFFFFFF, side: THREE.DoubleSide });
+let bridgeMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFF00, side: THREE.DoubleSide });
+// initiate the rest of the global variables
 let dummy;
 let cube;
 let r;
@@ -22,12 +29,10 @@ let counter;
 let p;
 let ax;
 let inputReady;
+let bridgesTriggered;
 let blockMoveInterval;
 let map;
 let playerPosition;
-
-let squareSize = 1;
-let animInterval = 20;
 
 const colors = Object.freeze({
     start_square: "",
@@ -61,8 +66,7 @@ function startUp(level) {
 // Sets up all the stuff we need
 function init3d() {
     // For debugging / performance stats, could be handy dandy when trying it on a mobile device
-
-    /*    (function () { var script = document.createElement('script'); script.onload = function () {
+    /* (function () { var script = document.createElement('script'); script.onload = function () {
                 var stats = new Stats();
                 $("#game")[0].appendChild(stats.dom);
                 requestAnimationFrame(function loop() {
@@ -90,10 +94,6 @@ function init3d() {
 
     // Continuesly check if the window gets resized
     window.addEventListener('resize', onWindowResize, false);
-
-    // Setup our 1st test map
-    let geometry = new THREE.PlaneGeometry(squareSize, squareSize);
-    let material = new THREE.MeshPhongMaterial({ color: 0xffffff, side: THREE.DoubleSide });
 
     // Create the groundplanes
     for (let i = 0; i < map.layout.length; i++) {
@@ -148,6 +148,7 @@ function loadLevel() {
     flatX = false;
     flatZ = false;
     inputReady = true;
+    bridgesTriggered = false;
 
     cubeX = map.starts[0].x;
     cubeZ = map.starts[0].y;
@@ -171,6 +172,14 @@ function restart() {
     selectedObject.geometry.dispose();
     selectedObject.material.dispose();
     scene.remove(selectedObject);
+
+    while (scene.getObjectByName("bridge")) {
+        selectedObject = scene.getObjectByName("bridge");
+        map.layout[selectedObject.position.z][selectedObject.position.x] = false;
+        selectedObject.geometry.dispose();
+        selectedObject.material.dispose();
+        scene.remove(selectedObject);
+    }
 
     try {
         clearInterval(blockMoveInterval);
@@ -207,6 +216,14 @@ function initInput() {
                 moveBlock('z', "inc", "fall");
             } else if (event.key === "h" || event.key === "H") {
                 moveBlock('x', "inc", "fall");
+            } else if (event.key === "k" || event.key === "K") {
+                for (let i = 0; i < map.triggers.length; i++) {
+                    console.log("triggers = " + map.triggers[i].x + "  " + map.triggers[i].y);
+                }
+                v
+                for (let i = 0; i < map.starts.length; i++) {
+                    console.log("starts = " + map.starts[i].x + "  " + map.starts[i].y);
+                }
             }
         }
     });
@@ -314,7 +331,7 @@ function moveBlock(axis, dir, type) {
             else changeR = false;
         } else {
             console.log("niet afgevangen");
-            console.log(cube.position)
+            console.log(cube.position);
         }
 
         console.log(map.layout);
@@ -362,12 +379,14 @@ function moveBlock(axis, dir, type) {
                 cube.rotation.z = correctRot(cube.rotation.z);
 
                 toggleFlat(axis);
-                winCheck(givenEndpoint);
                 console.log(cube.position);
 
                 inputReady = true;
 
                 clearInterval(blockMoveInterval);
+                
+                winCheck(givenEndpoint);
+                triggerCheck(givenEndpoint);
             }
         }, animInterval);
     }
@@ -765,12 +784,34 @@ function moveBlock(axis, dir, type) {
     }
 
     function winCheck(coord) {
-        console.log("checking");
+        console.log("checking win");
         console.log(coord);
 
         if (map.ends[0].x === coord.x && map.ends[0].y === coord.y) {
             console.log("gewonnen");
             store.commit("load_main_menu");
+        }
+    }
+
+    function triggerCheck(coord) {
+        if (map.triggers[0].x === coord.x && map.triggers[0].y === coord.y) {
+            for (let i = 0; i < map.bridges.length; i++) {
+                console.log("bridges = " + map.bridges[i].x + "  " + map.bridges[i].y);
+                let bridgeY = map.bridges[i].y;
+                let bridgeX = map.bridges[i].x;
+
+                if (!map.layout[bridgeX][bridgeY]) {
+                    let plane = new THREE.Mesh(geometry, bridgeMaterial);
+                    plane.rotation.x = Math.PI / 2.0;
+                    plane.position.z = squareSize * bridgeY;
+                    plane.position.x = squareSize * bridgeX;
+                    plane.receiveShadow = true;
+                    plane.castShadow = false;
+                    plane.name = "bridge";
+                    scene.add(plane);
+                    map.layout[bridgeY][bridgeX] = true;
+                }
+            }
         }
     }
 }
