@@ -33,11 +33,11 @@ namespace Levels
                     }
                     else if (square == 'e') {
                         ends.Add(new Coord(j,i));
-                        layout[i, j] = true;
+                        layout[i, j] = false;
                     }
                     else if (square == 't') {
                         triggers.Add(new Coord(j, i));
-                        layout[i, j] = true;
+                        layout[i, j] = false;
                     }
                     else if (square == 'a') {
                         bridges.Add(new Coord(j, i));
