@@ -3,8 +3,11 @@ let main_menu_template;
 
 let parser = new Vueable();
 // fetches the templates from the server.
+
+let levels;
 r_async.parallel([
-    () => {main_menu_template = parser.parse( utils.syncAjax('ui_components/main_menu.vueable'))}
+    () => {main_menu_template = parser.parse( utils.syncAjax('ui_components/main_menu.vueable'))},
+    () => {levels = JSON.parse(utils.syncAjax("api/levels")).n_levels}
 ]);
 
 /*todo
@@ -24,15 +27,17 @@ const store = new Vuex.Store({
         load_game_ui: state => state.menu = "game_ui",
         load_game_over: state => state.menu = "game_over"
     }
-})
+});
 
 
 Vue.component('main_menu', {
     template:  main_menu_template,
     data: function () {
+
+
         return {
             top_padding: 0,
-            levels: 33,
+            levels: levels,
             padding_top:0,
             game_started: false,
             font_size: 10
@@ -71,7 +76,6 @@ Vue.component('main_menu', {
         },
         return_main_menu: function () {
             store.commit("load_main_menu")
-
         }
     }
 });
