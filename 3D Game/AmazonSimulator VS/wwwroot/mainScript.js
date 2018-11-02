@@ -7,7 +7,9 @@ let texturesPath = "/textures/models/";
 // Setup the size, tickrate, geometry & materials
 let squareSize = 1;
 let animInterval = 20;
-let geometry = new THREE.PlaneGeometry(squareSize, squareSize);
+let cubeGeometry = new THREE.CubeGeometry(squareSize, (squareSize*2), squareSize);
+let cubeMaterial = new THREE.MeshPhysicalMaterial({ color: 0xFF0000 });
+let planeGeometry = new THREE.PlaneGeometry(squareSize, squareSize);
 let planeMaterial = new THREE.MeshPhongMaterial({ color: 0x808080, side: THREE.DoubleSide });
 let bridgeMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFF00, side: THREE.DoubleSide });
 let triggerMaterial = new THREE.MeshPhongMaterial({ color: 0x00FF00, side: THREE.DoubleSide });
@@ -102,7 +104,7 @@ function init3d() {
     for (let i = 0; i < levelData.layout.length; i++) {
         for (let j = 0; j < levelData.layout[0].length; j++) {
             if (levelData.layout[i][j]) {
-                let plane = new THREE.Mesh(geometry, planeMaterial);
+                let plane = new THREE.Mesh(planeGeometry, planeMaterial);
                 plane.rotation.x = Math.PI / 2.0;
                 plane.position.z = squareSize * i;
                 plane.position.x = squareSize * j;
@@ -118,7 +120,7 @@ function init3d() {
         let triggerX = levelData.triggers[i].x;
 
         if (!levelData.layout[triggerY][triggerX]) {
-            let plane = new THREE.Mesh(geometry, triggerMaterial);
+            let plane = new THREE.Mesh(planeGeometry, triggerMaterial);
             plane.rotation.x = Math.PI / 2.0;
             plane.position.z = squareSize * triggerY;
             plane.position.x = squareSize * triggerX;
@@ -135,7 +137,7 @@ function init3d() {
         let endX = levelData.ends[i].x;
 
         if (!levelData.layout[endY][endX]) {
-            let plane = new THREE.Mesh(geometry, endMaterial);
+            let plane = new THREE.Mesh(planeGeometry, endMaterial);
             plane.rotation.x = Math.PI / 2.0;
             plane.position.z = squareSize * endY;
             plane.position.x = squareSize * endX;
@@ -178,7 +180,7 @@ function init3d() {
 }
 
 function loadCube() {
-    cube = new THREE.Mesh(new THREE.CubeGeometry(1, 2, 1), new THREE.MeshPhysicalMaterial({ color: 0xFF0000 }));
+    cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
 
     cubeY = 1;
     changeR = false;
@@ -824,7 +826,7 @@ function moveBlock(axis, dir, type) {
                     let bridgeX = levelData.bridges[i].x;
 
                     if (!levelData.layout[bridgeY][bridgeX]) {
-                        let plane = new THREE.Mesh(geometry, bridgeMaterial);
+                        let plane = new THREE.Mesh(planeGeometry, bridgeMaterial);
                         plane.rotation.x = Math.PI / 2.0;
                         plane.position.z = squareSize * bridgeY;
                         plane.position.x = squareSize * bridgeX;
@@ -863,8 +865,8 @@ function load_nieuw_level(level) {
     initInput();
     three_started = true;
 
-    dummy = new THREE.Mesh(new THREE.CubeGeometry(1, 1, 1), new THREE.MeshPhysicalMaterial({ color: 0x000000 }));
-    cube = new THREE.Mesh(new THREE.CubeGeometry(1, 2, 1), new THREE.MeshPhysicalMaterial({color: 0xFF0000}));
+    dummy = new THREE.Object3D;
+    cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
     r = 0;
     cubeX = undefined;
     cubeY = 1;
@@ -889,7 +891,7 @@ function load_nieuw_level(level) {
     for (let i = 0; i < levelData.layout.length; i++) {
         for (let j = 0; j < levelData.layout[0].length; j++) {
             if (levelData.layout[i][j]) {
-                let plane = new THREE.Mesh(geometry, planeMaterial);
+                let plane = new THREE.Mesh(planeGeometry, planeMaterial);
                 plane.rotation.x = Math.PI / 2.0;
                 plane.position.z = squareSize * i;
                 plane.position.x = squareSize * j;
@@ -905,7 +907,7 @@ function load_nieuw_level(level) {
         let triggerX = levelData.triggers[i].x;
 
         if (!levelData.layout[triggerY][triggerX]) {
-            let plane = new THREE.Mesh(geometry, triggerMaterial);
+            let plane = new THREE.Mesh(planeGeometry, triggerMaterial);
             plane.rotation.x = Math.PI / 2.0;
             plane.position.z = squareSize * triggerY;
             plane.position.x = squareSize * triggerX;
@@ -922,7 +924,7 @@ function load_nieuw_level(level) {
         let endX = levelData.ends[i].x;
 
         if (!levelData.layout[endY][endX]) {
-            let plane = new THREE.Mesh(geometry, endMaterial);
+            let plane = new THREE.Mesh(planeGeometry, endMaterial);
             plane.rotation.x = Math.PI / 2.0;
             plane.position.z = squareSize * endY;
             plane.position.x = squareSize * endX;
