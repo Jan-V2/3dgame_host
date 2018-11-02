@@ -4,6 +4,13 @@ let cameraControls;
 // Path needs to be changed for both or we keep them doesn't really matter
 let modelPath = "/3dmodels/";
 let texturesPath = "/textures/models/";
+// Setup the size, tickrate, geometry & materials
+let squareSize = 1;
+let animInterval = 20;
+let geometry = new THREE.PlaneGeometry(squareSize, squareSize);
+let material = new THREE.MeshPhongMaterial({ color: 0xFFFFFF, side: THREE.DoubleSide });
+let bridgeMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFF00, side: THREE.DoubleSide });
+// initiate the rest of the global variables
 let dummy;
 let cube;
 let r;
@@ -22,12 +29,12 @@ let counter;
 let p;
 let ax;
 let inputReady;
+let bridgesTriggered;
 let blockMoveInterval;
-let map;
+let level_data;
 let playerPosition;
-
-let squareSize = 1;
-let animInterval = 20;
+let animations_blocked =false;
+let three_started = false;
 
 const colors = Object.freeze({
     start_square: "",
@@ -52,125 +59,26 @@ THREE.Object3D.prototype.rotateAroundWorldAxis = function () {
 
 // Sets up a connection with the server and handles the server commands
 function startUp(level) {
-    map = level;
+    level_data = level;
     init3d(level);
     initInput();
     animate();
 }
 
-// Sets up all the stuff we need
-function init3d() {
-    // For debugging / performance stats, could be handy dandy when trying it on a mobile device
-
-    /*    (function () { var script = document.createElement('script'); script.onload = function () {
-                var stats = new Stats();
-                $("#game")[0].appendChild(stats.dom);
-                requestAnimationFrame(function loop() {
-                    stats.update();
-                    requestAnimationFrame(loop)
-                });
-            };
-                script.src = '//rawgit.com/mrdoob/stats.js/master/build/stats.min.js'; document.head.appendChild(script);
-            }
-        )();*/
-
-    // Create Scene
-    scene = new THREE.Scene();
-
-    // Setup the WebGL renderer / alpha should help with loading in images with transparent parts <p.s. also makes background white for some reason>
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight + 5);
-
-    $("#game")[0].appendChild(renderer.domElement);
-    renderer.shadowMapEnabled = true;
-    renderer.shadowMapType = THREE.PCFSoftShadowMap; // options are THREE.BasicShadowMap | THREE.PCFShadowMap | THREE.PCFSoftShadowMap
-
-    renderer.domElement.setAttribute("id", "three_renderer");
-
-    // Continuesly check if the window gets resized
-    window.addEventListener('resize', onWindowResize, false);
-
-    // Setup our 1st test map
-    let geometry = new THREE.PlaneGeometry(squareSize, squareSize);
-    let material = new THREE.MeshPhongMaterial({ color: 0xffffff, side: THREE.DoubleSide });
-
-    // Create the groundplanes
-    for (let i = 0; i < map.layout.length; i++) {
-        for (let j = 0; j < map.layout[0].length; j++) {
-            if (map.layout[i][j]) {
-                let plane = new THREE.Mesh(geometry, material);
-                plane.rotation.x = Math.PI / 2.0;
-                plane.position.z = squareSize * i;
-                plane.position.x = squareSize * j;
-                plane.receiveShadow = true;
-                plane.castShadow = false;
-                scene.add(plane);
-            }
-        }
-    }
-
-    dummy = new THREE.Object3D;
-    loadLevel();
-
-    // Setup camera
-    camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 1000);
-    cameraControls = new THREE.OrbitControls(camera);
-    cameraControls.target = dummy.position;
-    camera.position.z = dummy.position.z - 3;
-    camera.position.y = 15;
-    camera.position.x = dummy.position.x - 20;
-    camera.zoom = 2.5;
-    camera.updateProjectionMatrix();
-    cameraControls.update();
-
-    // Add lighting to the scene
-    let light = new THREE.PointLight(0x404040);
-    light.position.x = -40;
-    light.position.z = -40;
-    light.position.y = 60;
-    light.castShadow = true;
-    light.shadowMapWidth = 2048; // default is 512
-    light.shadowMapHeight = 2048; // default is 512
-    light.intensity = 3;
-    scene.add(light);
-
-    light = new THREE.AmbientLight(0x404040);
-    light.intensity = 2;
-    scene.add(light);
-}
-
-function loadLevel() {
-    cube = new THREE.Mesh(new THREE.CubeGeometry(1, 2, 1), new THREE.MeshPhysicalMaterial({ color: 0xFF0000 }));
-
-    cubeY = 1;
-    changeR = false;
-    flatX = false;
-    flatZ = false;
-    inputReady = true;
-
-    cubeX = map.starts[0].x;
-    cubeZ = map.starts[0].y;
-    playerPosition = new flatCoord(map.starts[0].x, map.starts[0].y);
-
-    cube.name = "cube";
-    cube.position.x = cubeX;
-    cube.position.y = cubeY;
-    cube.position.z = cubeZ;
-    cube.castShadow = true;
-    cube.receiveShadow = false;
-    scene.add(cube);
-    
-    dummy.position.x = cube.position.x;
-    dummy.position.y = 3;
-    dummy.position.z = cube.position.z;
-}
 
 function restart() {
     var selectedObject = scene.getObjectByName("cube");
     selectedObject.geometry.dispose();
     selectedObject.material.dispose();
     scene.remove(selectedObject);
+
+    while (scene.getObjectByName("bridge")) {
+        selectedObject = scene.getObjectByName("bridge");
+        level_data.layout[selectedObject.position.z][selectedObject.position.x] = false;
+        selectedObject.geometry.dispose();
+        selectedObject.material.dispose();
+        scene.remove(selectedObject);
+    }
 
     try {
         clearInterval(blockMoveInterval);
@@ -180,7 +88,7 @@ function restart() {
         console.log("interval undefined");
     }
 
-    loadLevel();
+    load_cube();
 
     camera.position.z = dummy.position.z - 3;
     camera.position.y = 15;
@@ -207,12 +115,20 @@ function initInput() {
                 moveBlock('z', "inc", "fall");
             } else if (event.key === "h" || event.key === "H") {
                 moveBlock('x', "inc", "fall");
+            } else if (event.key === "k" || event.key === "K") {
+                for (let i = 0; i < level_data.triggers.length; i++) {
+                    console.log("triggers = " + level_data.triggers[i].x + "  " + level_data.triggers[i].y);
+                }
+
+                for (let i = 0; i < level_data.starts.length; i++) {
+                    console.log("starts = " + level_data.starts[i].x + "  " + level_data.starts[i].y);
+                }
             }
         }
     });
 }
 
-// Changes the scene as per updated model so we see the models change   
+// Changes the scene as per updated model so we see the models change
 function animate() {
     requestAnimationFrame(animate);
     cameraControls.update();
@@ -225,6 +141,7 @@ function onWindowResize() {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
+
 
 function moveBlock(axis, dir, type) {
     let counter = 0;
@@ -314,10 +231,10 @@ function moveBlock(axis, dir, type) {
             else changeR = false;
         } else {
             console.log("niet afgevangen");
-            console.log(cube.position)
+            console.log(cube.position);
         }
 
-        console.log(map.layout);
+        console.log(level_data.layout);
         console.log("opspeelveld " + validSpace);
         console.log("opspeelveld2 " + validSpace2);
         console.log("changeR" + changeR);
@@ -362,12 +279,14 @@ function moveBlock(axis, dir, type) {
                 cube.rotation.z = correctRot(cube.rotation.z);
 
                 toggleFlat(axis);
-                winCheck(givenEndpoint);
                 console.log(cube.position);
 
                 inputReady = true;
 
                 clearInterval(blockMoveInterval);
+
+                winCheck(givenEndpoint);
+                triggerCheck(givenEndpoint);
             }
         }, animInterval);
     }
@@ -709,9 +628,9 @@ function moveBlock(axis, dir, type) {
             if (axis === "x") {
                 console.log("z as");
                 if (dir === "inc") {
-                    return new flatCoord(quantNum(cube.position.x), quantNum(cube.position.z) + 1.5);
+                    return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) + 1.5);
                 } else if (dir === "dec") {
-                    return new flatCoord(quantNum(cube.position.x), quantNum(cube.position.z) - 1.5);
+                    return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) - 1.5);
                 }
             } else if (axis === "z") {
                 console.log("x as");
@@ -719,37 +638,37 @@ function moveBlock(axis, dir, type) {
                 if (dir === "inc") {
                     console.log("inc");
 
-                    return new flatCoord(quantNum(cube.position.x) + 1.5, quantNum(cube.position.z));
+                    return new FlatCoord(quantNum(cube.position.x) + 1.5, quantNum(cube.position.z));
                 } else if (dir === "dec") {
                     console.log("dec");
 
-                    return new flatCoord(quantNum(cube.position.x) - 1.5, quantNum(cube.position.z));
+                    return new FlatCoord(quantNum(cube.position.x) - 1.5, quantNum(cube.position.z));
                 }
             }
         } else {
             if (flatZ && axis === "x") {
                 if (dir === "inc") {
-                    return new flatCoord(quantNum(cube.position.x), quantNum(cube.position.z) + 1);
+                    return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) + 1);
                 } else if (dir === "dec") {
-                    return new flatCoord(quantNum(cube.position.x), quantNum(cube.position.z) - 1);
+                    return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) - 1);
                 }
             } if (flatX && axis === "x") {
                 if (dir === "inc") {
-                    return new flatCoord(quantNum(cube.position.x), quantNum(cube.position.z) + 1.5);
+                    return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) + 1.5);
                 } else if (dir === "dec") {
-                    return new flatCoord(quantNum(cube.position.x), quantNum(cube.position.z) - 1.5);
+                    return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) - 1.5);
                 }
             } else if (flatX && axis === "z") {
                 if (dir === "inc") {
-                    return new flatCoord(quantNum(cube.position.x) + 1, quantNum(cube.position.z));
+                    return new FlatCoord(quantNum(cube.position.x) + 1, quantNum(cube.position.z));
                 } else if (dir === "dec") {
-                    return new flatCoord(quantNum(cube.position.x) - 1, quantNum(cube.position.z));
+                    return new FlatCoord(quantNum(cube.position.x) - 1, quantNum(cube.position.z));
                 }
             } else if (flatZ && axis === "z") {
                 if (dir === "inc") {
-                    return new flatCoord(quantNum(cube.position.x) + 1.5, quantNum(cube.position.z));
+                    return new FlatCoord(quantNum(cube.position.x) + 1.5, quantNum(cube.position.z));
                 } else if (dir === "dec") {
-                    return new flatCoord(quantNum(cube.position.x) - 1.5, quantNum(cube.position.z));
+                    return new FlatCoord(quantNum(cube.position.x) - 1.5, quantNum(cube.position.z));
                 }
             }
         }
@@ -759,7 +678,7 @@ function moveBlock(axis, dir, type) {
         let result;
         console.log("x " + Math.floor(y) + " y " + Math.floor(x));
         try {
-            result = map.layout[Math.floor(y)][Math.floor(x)];
+            result = level_data.layout[Math.floor(y)][Math.floor(x)];
         } catch {
             result = false;
         }
@@ -769,17 +688,233 @@ function moveBlock(axis, dir, type) {
     }
 
     function winCheck(coord) {
-        console.log("checking");
+        console.log("checking win");
         console.log(coord);
 
-        if (map.ends[0].x === coord.x && map.ends[0].y === coord.y) {
+        if (level_data.ends[0].x === coord.x && level_data.ends[0].y === coord.y) {
             console.log("gewonnen");
             store.commit("load_main_menu");
         }
     }
+
+    function triggerCheck(coord) {
+        if (level_data.triggers[0].x === coord.x && level_data.triggers[0].y === coord.y) {
+            for (let i = 0; i < level_data.bridges.length; i++) {
+                console.log("bridges = " + level_data.bridges[i].x + "  " + level_data.bridges[i].y);
+                let bridgeY = level_data.bridges[i].y;
+                let bridgeX = level_data.bridges[i].x;
+
+                if (!level_data.layout[bridgeX][bridgeY]) {
+                    let plane = new THREE.Mesh(geometry, bridgeMaterial);
+                    plane.rotation.x = Math.PI / 2.0;
+                    plane.position.z = squareSize * bridgeY;
+                    plane.position.x = squareSize * bridgeX;
+                    plane.receiveShadow = true;
+                    plane.castShadow = false;
+                    plane.name = "bridge";
+                    scene.add(plane);
+                    level_data.layout[bridgeY][bridgeX] = true;
+                }
+            }
+        }
+    }
 }
 
-function flatCoord(x, y) {
+
+// Changes the scene as per updated model so we see the models change
+function animate() {
+    requestAnimationFrame(animate);
+    cameraControls.update();
+    renderer.render(scene, camera);
+}
+
+
+function load_nieuw_level(level) {
+
+
+        let old_game = $("#game")[0].firstChild;
+        if (old_game){
+            old_game.remove();
+        }
+
+        level_data = level;
+        scene = new THREE.Scene();
+
+        // Setup the WebGL renderer / alpha should help with loading in images with transparent parts <p.s. also makes background white for some reason>
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight + 5);
+
+        $("#game")[0].appendChild(renderer.domElement);
+        renderer.shadowMapEnabled = true;
+        renderer.shadowMapType = THREE.PCFSoftShadowMap; // options are THREE.BasicShadowMap | THREE.PCFShadowMap | THREE.PCFSoftShadowMap
+
+        renderer.domElement.setAttribute("id", "three_renderer");
+
+        initInput();
+        three_started = true;
+
+
+    dummy = new THREE.Mesh(new THREE.CubeGeometry(1, 1, 1), new THREE.MeshPhysicalMaterial({ color: 0x000000 }));
+    cube = new THREE.Mesh(new THREE.CubeGeometry(1, 2, 1), new THREE.MeshPhysicalMaterial({color: 0xFF0000}));
+    r = 0;
+    cubeX = undefined;
+    cubeY = 1;
+    cubeZ = undefined;
+    xOffset = undefined;
+    yOffset = undefined;
+    zOffset = undefined;
+    yOffsetX = undefined;
+    yOffsetZ = undefined;
+    changeR = false;
+    flatX = false;
+    flatZ = false;
+    counter = 0;
+    animInterval = 25;
+    p = undefined;
+    ax = undefined;
+    squaresize = 1;
+    inputReady = true;
+    player_position = undefined;
+
+    //laad het level.
+    let geometry = new THREE.PlaneGeometry(squaresize, squaresize);
+    let material = new THREE.MeshPhongMaterial({ color: colors.normal_square, side: THREE.DoubleSide });
+
+    for (let i = 0; i < level_data.layout.length; i++) {
+        for (let j = 0; j < level_data.layout[0].length; j++) {
+            if (level_data.layout[i][j]){
+                let plane = new THREE.Mesh(geometry, material);
+                plane.rotation.x = Math.PI / 2.0;
+                plane.position.z = squaresize*i;
+                plane.position.x = squaresize*j;
+                plane.receiveShadow = true;
+                plane.castShadow = false;
+                scene.add(plane);
+            }
+        }
+    }
+
+    load_cube();
+    // Setup camera
+    camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 1000);
+    cameraControls = new THREE.OrbitControls(camera);
+    cameraControls.target = dummy.position;
+    camera.position.z = 0;
+    camera.position.y = 15;
+    camera.position.x = -15;
+    camera.zoom = 2.5;
+    camera.updateProjectionMatrix();
+    cameraControls.update();
+
+    // Add lighting to the scene
+    let light = new THREE.PointLight(0x404040);
+    light.position.y = 30;
+    light.castShadow = true;
+    light.shadowDarkness = 0.5;
+    light.shadowMapWidth = 1024; // default is 512
+    light.shadowMapHeight = 1024; // default is 512
+    light.intensity = 3;
+    scene.add(light);
+
+    light = new THREE.AmbientLight(0x404040);
+    light.intensity = 1;
+    scene.add(light);
+    inputReady = true;
+    animate();
+}
+
+function load_cube() {
+
+        cube = new THREE.Mesh(new THREE.CubeGeometry(1, 2, 1), new THREE.MeshPhysicalMaterial({ color: 0xFF0000 }));
+
+        cubeY = 1;
+        changeR = false;
+        flatX = false;
+        flatZ = false;
+        inputReady = true;
+        bridgesTriggered = false;
+
+        cubeX = level_data.starts[0].x;
+        cubeZ = level_data.starts[0].y;
+        playerPosition = new FlatCoord(level_data.starts[0].x, level_data.starts[0].y);
+
+        cube.name = "cube";
+        cube.position.x = cubeX;
+        cube.position.y = cubeY;
+        cube.position.z = cubeZ;
+        cube.castShadow = true;
+        cube.receiveShadow = false;
+        scene.add(cube);
+
+        dummy.position.x = cube.position.x;
+        dummy.position.y = 3;
+        dummy.position.z = cube.position.z;
+}
+
+
+
+        function toggleFlat(axis) {
+    if (axis === 'x') {
+        if (!flatZ) {
+            flatX = !flatX;
+        }
+    }
+    else if (axis === 'z') {
+        if (!flatX) {
+            flatZ = !flatZ;
+        }
+    }
+    console.log("flatX: " + flatX);
+    console.log("flatZ: " + flatZ);
+}
+
+function setP(sRot) {
+    if (sRot === 0) {
+        p = new THREE.Vector3(cubeX + xOffset, cubeY - yOffset, cubeZ + zOffset);
+    }
+    else if (sRot === Math.PI / 2) {
+        p = new THREE.Vector3(cubeX + yOffsetZ, cubeY - 0.5, cubeZ + yOffsetX);
+    }
+    else if (sRot === Math.PI) {
+        p = new THREE.Vector3(cubeX + xOffset, cubeY - yOffset, cubeZ + zOffset);
+    }
+}
+
+    function winCheck(coord) {
+        console.log("checking win");
+        console.log(coord);
+
+        if (level_data.ends[0].x === coord.x && level_data.ends[0].y === coord.y) {
+            console.log("gewonnen");
+            store.commit("load_main_menu");
+        }
+    }
+
+    function triggerCheck(coord) {
+        if (level_data.triggers[0].x === coord.x && level_data.triggers[0].y === coord.y) {
+            for (let i = 0; i < level_data.bridges.length; i++) {
+                console.log("bridges = " + level_data.bridges[i].x + "  " + level_data.bridges[i].y);
+                let bridgeY = level_data.bridges[i].y;
+                let bridgeX = level_data.bridges[i].x;
+
+                if (!level_data.layout[bridgeX][bridgeY]) {
+                    let plane = new THREE.Mesh(geometry, bridgeMaterial);
+                    plane.rotation.x = Math.PI / 2.0;
+                    plane.position.z = squareSize * bridgeY;
+                    plane.position.x = squareSize * bridgeX;
+                    plane.receiveShadow = true;
+                    plane.castShadow = false;
+                    plane.name = "bridge";
+                    scene.add(plane);
+                    level_data.layout[bridgeY][bridgeX] = true;
+                }
+            }
+        }
+    }
+
+
+function FlatCoord(x, y) {
     let _this = this;
     this.x = x;
     this.y = y;

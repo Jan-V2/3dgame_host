@@ -52,7 +52,7 @@ Vue.component('main_menu', {
             //this.game_started = true;
             store.commit("load_game_ui");
             console.log(store.state.menu);
-            startUp(JSON.parse(utils.syncAjax("api/levels/" +level_num)));
+            load_nieuw_level(JSON.parse(utils.syncAjax("api/levels/" +level_num)));
         },
         recalculate_padding: function () {
             if (this.$refs.level_selector !== undefined){
