@@ -8,8 +8,10 @@ let texturesPath = "/textures/models/";
 let squareSize = 1;
 let animInterval = 20;
 let geometry = new THREE.PlaneGeometry(squareSize, squareSize);
-let material = new THREE.MeshPhongMaterial({ color: 0xFFFFFF, side: THREE.DoubleSide });
+let material = new THREE.MeshPhongMaterial({ color: 0x808080, side: THREE.DoubleSide });
 let bridgeMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFF00, side: THREE.DoubleSide });
+let triggerMaterial = new THREE.MeshPhongMaterial({ color: 0x00FF00, side: THREE.DoubleSide });
+let endMaterial = new THREE.MeshPhongMaterial({ color: 0x0000FF, side: THREE.DoubleSide });
 // initiate the rest of the global variables
 let dummy;
 let cube;
@@ -29,7 +31,6 @@ let counter;
 let p;
 let ax;
 let inputReady;
-let bridgesTriggered;
 let blockMoveInterval;
 let map;
 let playerPosition;
@@ -88,7 +89,7 @@ function init3d() {
 
     $("#game")[0].appendChild(renderer.domElement);
     renderer.shadowMapEnabled = true;
-    renderer.shadowMapType = THREE.PCFSoftShadowMap; // options are THREE.BasicShadowMap | THREE.PCFShadowMap | THREE.PCFSoftShadowMap
+    renderer.shadowMapType = THREE.PCFShadowMap; // options are THREE.BasicShadowMap | THREE.PCFShadowMap | THREE.PCFSoftShadowMap
 
     renderer.domElement.setAttribute("id", "three_renderer");
 
@@ -107,6 +108,40 @@ function init3d() {
                 plane.castShadow = false;
                 scene.add(plane);
             }
+        }
+    }
+
+    for (let i = 0; i < map.triggers.length; i++) {
+        let triggerY = map.triggers[i].y;
+        let triggerX = map.triggers[i].x;
+
+        if (!map.layout[triggerY][triggerX]) {
+            let plane = new THREE.Mesh(geometry, triggerMaterial);
+            plane.rotation.x = Math.PI / 2.0;
+            plane.position.z = squareSize * triggerY;
+            plane.position.x = squareSize * triggerX;
+            plane.receiveShadow = true;
+            plane.castShadow = false;
+            plane.name = "trigger";
+            scene.add(plane);
+            map.layout[triggerY][triggerX] = true;
+        }
+    }
+
+    for (let i = 0; i < map.ends.length; i++) {
+        let endY = map.ends[i].y;
+        let endX = map.ends[i].x;
+
+        if (!map.layout[endY][endX]) {
+            let plane = new THREE.Mesh(geometry, endMaterial);
+            plane.rotation.x = Math.PI / 2.0;
+            plane.position.z = squareSize * endY;
+            plane.position.x = squareSize * endX;
+            plane.receiveShadow = true;
+            plane.castShadow = false;
+            plane.name = "end";
+            scene.add(plane);
+            map.layout[endY][endX] = true;
         }
     }
 
@@ -130,8 +165,8 @@ function init3d() {
     light.position.z = -40;
     light.position.y = 60;
     light.castShadow = true;
-    light.shadowMapWidth = 2048; // default is 512
-    light.shadowMapHeight = 2048; // default is 512
+    light.shadowMapWidth = 1024; // default is 512
+    light.shadowMapHeight = 1024; // default is 512
     light.intensity = 3;
     scene.add(light);
 
@@ -152,7 +187,7 @@ function loadLevel() {
 
     cubeX = map.starts[0].x;
     cubeZ = map.starts[0].y;
-    playerPosition = new flatCoord(map.starts[0].x, map.starts[0].y);
+    playerPosition = new FlatCoord(map.starts[0].x, map.starts[0].y);
 
     cube.name = "cube";
     cube.position.x = cubeX;
@@ -208,23 +243,7 @@ function initInput() {
                 moveBlock('z', "dec", "move");
             } else if (event.key === "d" || event.key === "D") {
                 moveBlock('x', "inc", "move");
-            } else if (event.key === "t" || event.key === "T") {
-                moveBlock('z', "dec", "fall");
-            } else if (event.key === "f" || event.key === "F") {
-                moveBlock('x', "dec", "fall");
-            } else if (event.key === "g" || event.key === "G") {
-                moveBlock('z', "inc", "fall");
-            } else if (event.key === "h" || event.key === "H") {
-                moveBlock('x', "inc", "fall");
-            } else if (event.key === "k" || event.key === "K") {
-                for (let i = 0; i < map.triggers.length; i++) {
-                    console.log("triggers = " + map.triggers[i].x + "  " + map.triggers[i].y);
-                }
-                v
-                for (let i = 0; i < map.starts.length; i++) {
-                    console.log("starts = " + map.starts[i].x + "  " + map.starts[i].y);
-                }
-            }
+            } 
         }
     });
 }
@@ -724,9 +743,9 @@ function moveBlock(axis, dir, type) {
             if (axis === "x") {
                 console.log("z as");
                 if (dir === "inc") {
-                    return new flatCoord(quantNum(cube.position.x), quantNum(cube.position.z) + 1.5);
+                    return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) + 1.5);
                 } else if (dir === "dec") {
-                    return new flatCoord(quantNum(cube.position.x), quantNum(cube.position.z) - 1.5);
+                    return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) - 1.5);
                 }
             } else if (axis === "z") {
                 console.log("x as");
@@ -734,37 +753,37 @@ function moveBlock(axis, dir, type) {
                 if (dir === "inc") {
                     console.log("inc");
 
-                    return new flatCoord(quantNum(cube.position.x) + 1.5, quantNum(cube.position.z));
+                    return new FlatCoord(quantNum(cube.position.x) + 1.5, quantNum(cube.position.z));
                 } else if (dir === "dec") {
                     console.log("dec");
 
-                    return new flatCoord(quantNum(cube.position.x) - 1.5, quantNum(cube.position.z));
+                    return new FlatCoord(quantNum(cube.position.x) - 1.5, quantNum(cube.position.z));
                 }
             }
         } else {
             if (flatZ && axis === "x") {
                 if (dir === "inc") {
-                    return new flatCoord(quantNum(cube.position.x), quantNum(cube.position.z) + 1);
+                    return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) + 1);
                 } else if (dir === "dec") {
-                    return new flatCoord(quantNum(cube.position.x), quantNum(cube.position.z) - 1);
+                    return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) - 1);
                 }
             } if (flatX && axis === "x") {
                 if (dir === "inc") {
-                    return new flatCoord(quantNum(cube.position.x), quantNum(cube.position.z) + 1.5);
+                    return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) + 1.5);
                 } else if (dir === "dec") {
-                    return new flatCoord(quantNum(cube.position.x), quantNum(cube.position.z) - 1.5);
+                    return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) - 1.5);
                 }
             } else if (flatX && axis === "z") {
                 if (dir === "inc") {
-                    return new flatCoord(quantNum(cube.position.x) + 1, quantNum(cube.position.z));
+                    return new FlatCoord(quantNum(cube.position.x) + 1, quantNum(cube.position.z));
                 } else if (dir === "dec") {
-                    return new flatCoord(quantNum(cube.position.x) - 1, quantNum(cube.position.z));
+                    return new FlatCoord(quantNum(cube.position.x) - 1, quantNum(cube.position.z));
                 }
             } else if (flatZ && axis === "z") {
                 if (dir === "inc") {
-                    return new flatCoord(quantNum(cube.position.x) + 1.5, quantNum(cube.position.z));
+                    return new FlatCoord(quantNum(cube.position.x) + 1.5, quantNum(cube.position.z));
                 } else if (dir === "dec") {
-                    return new flatCoord(quantNum(cube.position.x) - 1.5, quantNum(cube.position.z));
+                    return new FlatCoord(quantNum(cube.position.x) - 1.5, quantNum(cube.position.z));
                 }
             }
         }
@@ -794,29 +813,31 @@ function moveBlock(axis, dir, type) {
     }
 
     function triggerCheck(coord) {
-        if (map.triggers[0].x === coord.x && map.triggers[0].y === coord.y) {
-            for (let i = 0; i < map.bridges.length; i++) {
-                console.log("bridges = " + map.bridges[i].x + "  " + map.bridges[i].y);
-                let bridgeY = map.bridges[i].y;
-                let bridgeX = map.bridges[i].x;
+        if (map.triggers.length > 0) {
+            if (map.triggers[0].x === coord.x && map.triggers[0].y === coord.y) {
+                for (let i = 0; i < map.bridges.length; i++) {
+                    console.log("bridges = " + map.bridges[i].x + "  " + map.bridges[i].y);
+                    let bridgeY = map.bridges[i].y;
+                    let bridgeX = map.bridges[i].x;
 
-                if (!map.layout[bridgeX][bridgeY]) {
-                    let plane = new THREE.Mesh(geometry, bridgeMaterial);
-                    plane.rotation.x = Math.PI / 2.0;
-                    plane.position.z = squareSize * bridgeY;
-                    plane.position.x = squareSize * bridgeX;
-                    plane.receiveShadow = true;
-                    plane.castShadow = false;
-                    plane.name = "bridge";
-                    scene.add(plane);
-                    map.layout[bridgeY][bridgeX] = true;
+                    if (!map.layout[bridgeY][bridgeX]) {
+                        let plane = new THREE.Mesh(geometry, bridgeMaterial);
+                        plane.rotation.x = Math.PI / 2.0;
+                        plane.position.z = squareSize * bridgeY;
+                        plane.position.x = squareSize * bridgeX;
+                        plane.receiveShadow = true;
+                        plane.castShadow = false;
+                        plane.name = "bridge";
+                        scene.add(plane);
+                        map.layout[bridgeY][bridgeX] = true;
+                    }
                 }
             }
         }
     }
 }
 
-function flatCoord(x, y) {
+function FlatCoord(x, y) {
     let _this = this;
     this.x = x;
     this.y = y;
