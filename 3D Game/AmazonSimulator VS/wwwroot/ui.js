@@ -24,7 +24,8 @@ const store = new Vuex.Store({
     },
     mutations: {
         load_main_menu: state => state.menu = "main_menu",
-        load_game_ui: state => state.menu = "game_ui"
+        load_game_ui: state => state.menu = "game_ui",
+        load_game_over: state => state.menu = "game_over"
     }
 });
 
@@ -38,7 +39,8 @@ Vue.component('main_menu', {
             top_padding: 0,
             levels: levels,
             padding_top:0,
-            game_started: false
+            game_started: false,
+            font_size: 10
         }
     },
     mounted: function(){
@@ -69,9 +71,10 @@ Vue.component('main_menu', {
             }
         },
         restart_level: function () {
+            store.commit("load_game_ui");
             restart();
         },
-        terug_naar_main_menu: function () {
+        return_main_menu: function () {
             store.commit("load_main_menu")
         }
     }

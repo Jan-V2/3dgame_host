@@ -7,8 +7,15 @@
     % v-if="current_menu === 'game_ui'" =>
     <div>
         % @click="restart_level()" =>
-        <button>restart</button>
-        % @click="terug_naar_main_menu()" =>
-        <button>terug naar hoofdmenu</button>
+        <button type="button" class="btn btn-primary btn-custom">Restart</button>
+        % @click="return_main_menu()" =>
+        <button type="button" class="btn btn-primary btn-custom">Return to Main Menu</button>
+    </div>
+    % v-if="current_menu === 'game_over'" =>
+    <div id="game_over_id" class="game-over" ref="game_over">
+        % @click="restart_level()" =>
+        <button type="button" class="btn btn-primary btn-game-over-restart">Restart</button>
+        % @click="return_main_menu()" =>
+        <button type="button" class="btn btn-primary btn-game-over-menu">Main Menu</button>
     </div>
 </div>

@@ -4,6 +4,15 @@ using Controllers;
 
 namespace Levels
 {
+    /// <summary>
+    /// used for storing all level layouts shown as below
+    /// level layout is as following:
+    /// top - bottom / left - right
+    /// l = empty space
+    /// v = plane
+    /// e = end / goal
+    /// b = starting position
+    /// </summary>
     public class AllLevels
     {
         public static char[][,] levels =
