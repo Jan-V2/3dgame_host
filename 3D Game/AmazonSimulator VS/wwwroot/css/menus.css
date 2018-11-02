@@ -1,3 +1,5 @@
+@import url(https://fonts.googleapis.com/css?family=Caveat+Brush); 
+
 .wrapper {
     display: grid;
     grid-template-columns: 100px 100px 100px 100px 100px;/*todo maak dit dynamic*/
@@ -19,6 +21,16 @@
     min-width: 100vw;
     text-align: center;
     z-index: 10;
+}
+
+.game-over-title {
+    position: absolute;
+    top: 30%;
+    left: 40%;
+    font-size: 100px;
+    font-family: 'Caveat Brush', cursive;
+    color: white;
+
 }
 
 .btn-custom {

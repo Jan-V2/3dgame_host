@@ -33,14 +33,11 @@ const store = new Vuex.Store({
 Vue.component('main_menu', {
     template:  main_menu_template,
     data: function () {
-
-
         return {
             top_padding: 0,
             levels: levels,
             padding_top:0,
             game_started: false,
-            font_size: 10
         }
     },
     mounted: function(){

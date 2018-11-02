@@ -71,7 +71,7 @@ function startUp(level) {
 // Sets up all the stuff we need
 function init3d() {
     // For debugging / performance stats, could be handy dandy when trying it on a mobile device
-    /* (function () { var script = document.createElement('script'); script.onload = function () {
+    /*(function () { var script = document.createElement('script'); script.onload = function () {
                 var stats = new Stats();
                 $("#game")[0].appendChild(stats.dom);
                 requestAnimationFrame(function loop() {
