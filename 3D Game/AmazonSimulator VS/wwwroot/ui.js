@@ -34,7 +34,8 @@ Vue.component('main_menu', {
             top_padding: 0,
             levels: 33,
             padding_top:0,
-            game_started: false
+            game_started: false,
+            font_size: 10
         }
     },
     mounted: function(){
