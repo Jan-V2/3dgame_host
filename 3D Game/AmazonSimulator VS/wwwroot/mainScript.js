@@ -59,7 +59,7 @@ THREE.Object3D.prototype.rotateAroundWorldAxis = function () {
 
 // Sets up a connection with the server and handles the server commands
 function startUp(level) {
-    map = level;
+    level_data = level;
     init3d(level);
     initInput();
     animate();
@@ -82,7 +82,7 @@ function start_three(level) {
 
     // Create Scene
 
-
+}
 function restart() {
     var selectedObject = scene.getObjectByName("cube");
     selectedObject.geometry.dispose();
@@ -91,7 +91,7 @@ function restart() {
 
     while (scene.getObjectByName("bridge")) {
         selectedObject = scene.getObjectByName("bridge");
-        map.layout[selectedObject.position.z][selectedObject.position.x] = false;
+        level_data.layout[selectedObject.position.z][selectedObject.position.x] = false;
         selectedObject.geometry.dispose();
         selectedObject.material.dispose();
         scene.remove(selectedObject);
@@ -133,12 +133,12 @@ function initInput() {
             } else if (event.key === "h" || event.key === "H") {
                 moveBlock('x', "inc", "fall");
             } else if (event.key === "k" || event.key === "K") {
-                for (let i = 0; i < map.triggers.length; i++) {
-                    console.log("triggers = " + map.triggers[i].x + "  " + map.triggers[i].y);
+                for (let i = 0; i < level_data.triggers.length; i++) {
+                    console.log("triggers = " + level_data.triggers[i].x + "  " + level_data.triggers[i].y);
                 }
                 v
-                for (let i = 0; i < map.starts.length; i++) {
-                    console.log("starts = " + map.starts[i].x + "  " + map.starts[i].y);
+                for (let i = 0; i < level_data.starts.length; i++) {
+                    console.log("starts = " + level_data.starts[i].x + "  " + level_data.starts[i].y);
                 }
             }
         }
@@ -158,6 +158,7 @@ function onWindowResize() {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
+
 
 function moveBlock(axis, dir, type) {
     let counter = 0;
@@ -229,69 +230,6 @@ function moveBlock(axis, dir, type) {
 
         console.log(endpoint);
 
-            if (!flatX && !flatZ) {
-                if (axis === "x") {
-                    if (dir === "inc") {
-                        return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z) + 1.5);
-                    } else if (dir === "dec") {
-                        return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z) - 1.5);
-                    }
-                } else if (axis === "z") {
-                    if (dir === "inc") {
-                        return new Flat_Coord(quant_num(cube.position.x) + 1.5, quant_num(cube.position.z));
-                    } else if (dir === "dec") {
-                        return new Flat_Coord(quant_num(cube.position.x) - 1.5, quant_num(cube.position.z));
-                    }
-                }
-            } else {
-                if (flatZ && axis === "x") {
-                    if (dir === "inc") {
-                        return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z) + 1);
-                    } else if (dir === "dec") {
-                        return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z) - 1);
-                    }
-                }
-                if (flatX && axis === "x") {
-                    if (dir === "inc") {
-                        return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z) + 1.5);
-                    } else if (dir === "dec") {
-                        return new Flat_Coord(quant_num(cube.position.x), quant_num(cube.position.z) - 1.5);
-                    }
-                } else if (flatX && axis === "z") {
-                    if (dir === "inc") {
-                        return new Flat_Coord(quant_num(cube.position.x) + 1, quant_num(cube.position.z));
-                    } else if (dir === "dec") {
-                        return new Flat_Coord(quant_num(cube.position.x) - 1, quant_num(cube.position.z));
-                    }
-                } else if (flatZ && axis === "z") {
-                    if (dir === "inc") {
-                        return new Flat_Coord(quant_num(cube.position.x) + 1.5, quant_num(cube.position.z));
-                    } else if (dir === "dec") {
-                        return new Flat_Coord(quant_num(cube.position.x) - 1.5, quant_num(cube.position.z));
-                    }
-                }
-            }
-        }
-
-        function save_map_get(x, y) {
-            let result;
-            try {
-                result = level_data.layout[Math.floor(y)][Math.floor(x)];
-            } catch {
-                result = false;
-            }
-            result = !!result;
-            return result;
-        }
-
-        let eindbestemming = bepaal_eindbestemming();
-        let op_speelveld;
-        let op_speelveld2;
-        if (eindbestemming.x % 1 === 0 && eindbestemming.y % 1 === 0) {
-            op_speelveld = op_speelveld2 = save_map_get(eindbestemming.x, eindbestemming.y)
-        } else if (eindbestemming.x % 1 !== 0 && eindbestemming.y % 1 === 0) {
-            op_speelveld = save_map_get(eindbestemming.x + 0.5, eindbestemming.y)
-            op_speelveld2 = save_map_get(eindbestemming.x - 0.5, eindbestemming.y);
         if (endpoint.x % 1 === 0 && endpoint.y % 1 === 0) {
             validSpace = validSpace2 = saveMapGet(endpoint.x, endpoint.y)
         } else if (endpoint.x % 1 !== 0 && endpoint.y % 1 === 0) {
@@ -639,7 +577,164 @@ function moveBlock(axis, dir, type) {
         }, animInterval);
     }
 
-// Changes the scene as per updated model so we see the models change   
+    function setRotPoint(givenStartRot) {
+        if (givenStartRot === 0) {
+            p = new THREE.Vector3(cubeX + xOffset, cubeY - yOffset, cubeZ + zOffset);
+        }
+        else if (givenStartRot === Math.PI / 2) {
+            p = new THREE.Vector3(cubeX + yOffsetZ, cubeY - 0.5, cubeZ + yOffsetX);
+        }
+        else if (givenStartRot === Math.PI) {
+            p = new THREE.Vector3(cubeX + xOffset, cubeY - yOffset, cubeZ + zOffset);
+        }
+    }
+
+    function correctRot(givenRotation) {
+        cRot = Math.abs(givenRotation);
+
+        if (cRot <= (Math.PI / 2) + 0.1 && cRot >= (Math.PI / 2) - 0.1) {
+            return Math.PI / 2;
+        }
+        else if (cRot <= Math.PI + 0.1 && cRot >= Math.PI - 0.1) {
+            return Math.PI;
+        }
+        else if (cRot <= (Math.PI * 1.5) + 0.1 && cRot >= (Math.PI * 1.5) - 0.1) {
+            return Math.PI * 1.5;
+        }
+        else if (cRot <= (Math.PI * 2) + 0.1 && cRot >= (Math.PI * 2) - 0.1) {
+            return 0;
+        }
+        else if (cRot <= 0.1 && cRot >= -0.1) {
+            return 0;
+        }
+    }
+
+    function toggleFlat(axis) {
+        if (axis === 'x') {
+            if (!flatZ) {
+                flatX = !flatX;
+            }
+        }
+        else if (axis === 'z') {
+            if (!flatX) {
+                flatZ = !flatZ;
+            }
+        }
+        console.log("flatX: " + flatX);
+        console.log("flatZ: " + flatZ);
+    }
+
+    function quantNum(num) {
+        let integerComp = Math.floor(num);
+        let remainder = num - integerComp;
+        if (0.25 < remainder && remainder <= 0.75) {
+            return integerComp + 0.5;
+        } else if (remainder > 0.75) {
+            return integerComp + 1;
+        } else {
+            return integerComp;
+        }
+    }
+
+    function calcEndpoint() {
+        if (!flatX && !flatZ) {
+            if (axis === "x") {
+                console.log("z as");
+                if (dir === "inc") {
+                    return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) + 1.5);
+                } else if (dir === "dec") {
+                    return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) - 1.5);
+                }
+            } else if (axis === "z") {
+                console.log("x as");
+
+                if (dir === "inc") {
+                    console.log("inc");
+
+                    return new FlatCoord(quantNum(cube.position.x) + 1.5, quantNum(cube.position.z));
+                } else if (dir === "dec") {
+                    console.log("dec");
+
+                    return new FlatCoord(quantNum(cube.position.x) - 1.5, quantNum(cube.position.z));
+                }
+            }
+        } else {
+            if (flatZ && axis === "x") {
+                if (dir === "inc") {
+                    return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) + 1);
+                } else if (dir === "dec") {
+                    return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) - 1);
+                }
+            } if (flatX && axis === "x") {
+                if (dir === "inc") {
+                    return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) + 1.5);
+                } else if (dir === "dec") {
+                    return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) - 1.5);
+                }
+            } else if (flatX && axis === "z") {
+                if (dir === "inc") {
+                    return new FlatCoord(quantNum(cube.position.x) + 1, quantNum(cube.position.z));
+                } else if (dir === "dec") {
+                    return new FlatCoord(quantNum(cube.position.x) - 1, quantNum(cube.position.z));
+                }
+            } else if (flatZ && axis === "z") {
+                if (dir === "inc") {
+                    return new FlatCoord(quantNum(cube.position.x) + 1.5, quantNum(cube.position.z));
+                } else if (dir === "dec") {
+                    return new FlatCoord(quantNum(cube.position.x) - 1.5, quantNum(cube.position.z));
+                }
+            }
+        }
+    }
+
+    function saveMapGet(x, y) {
+        let result;
+        console.log("x " + Math.floor(y) + " y " + Math.floor(x));
+        try {
+            result = level_data.layout[Math.floor(y)][Math.floor(x)];
+        } catch {
+            result = false;
+        }
+        result = !!result;
+        console.log(result);
+        return result;
+    }
+
+    function winCheck(coord) {
+        console.log("checking win");
+        console.log(coord);
+
+        if (level_data.ends[0].x === coord.x && level_data.ends[0].y === coord.y) {
+            console.log("gewonnen");
+            store.commit("load_main_menu");
+        }
+    }
+
+    function triggerCheck(coord) {
+        if (level_data.triggers[0].x === coord.x && level_data.triggers[0].y === coord.y) {
+            for (let i = 0; i < level_data.bridges.length; i++) {
+                console.log("bridges = " + level_data.bridges[i].x + "  " + level_data.bridges[i].y);
+                let bridgeY = level_data.bridges[i].y;
+                let bridgeX = level_data.bridges[i].x;
+
+                if (!level_data.layout[bridgeX][bridgeY]) {
+                    let plane = new THREE.Mesh(geometry, bridgeMaterial);
+                    plane.rotation.x = Math.PI / 2.0;
+                    plane.position.z = squareSize * bridgeY;
+                    plane.position.x = squareSize * bridgeX;
+                    plane.receiveShadow = true;
+                    plane.castShadow = false;
+                    plane.name = "bridge";
+                    scene.add(plane);
+                    level_data.layout[bridgeY][bridgeX] = true;
+                }
+            }
+        }
+    }
+}
+
+
+// Changes the scene as per updated model so we see the models change
 function animate() {
     requestAnimationFrame(animate);
     cameraControls.update();
@@ -673,7 +768,7 @@ function load_level(restart, level) {
 
         renderer.domElement.setAttribute("id", "three_renderer");
 
-        init_input();
+        initInput();
         three_started = true;
     }else{
 
@@ -724,42 +819,12 @@ function load_level(restart, level) {
                 plane.castShadow = false;
                 scene.add(plane);
             }
-    function setRotPoint(givenStartRot) {
-        if (givenStartRot === 0) {
-            p = new THREE.Vector3(cubeX + xOffset, cubeY - yOffset, cubeZ + zOffset);
         }
-        else if (givenStartRot === Math.PI / 2) {
-            p = new THREE.Vector3(cubeX + yOffsetZ, cubeY - 0.5, cubeZ + yOffsetX);
-        }
-        else if (givenStartRot === Math.PI) {
-            p = new THREE.Vector3(cubeX + xOffset, cubeY - yOffset, cubeZ + zOffset);
-        }
-    }
-
-    function correctRot(givenRotation) {
-        cRot = Math.abs(givenRotation);
-
-        if (cRot <= (Math.PI / 2) + 0.1 && cRot >= (Math.PI / 2) - 0.1) {
-            return Math.PI / 2;
-        }
-        else if (cRot <= Math.PI + 0.1 && cRot >= Math.PI - 0.1) {
-            return Math.PI;
-        }
-        else if (cRot <= (Math.PI * 1.5) + 0.1 && cRot >= (Math.PI * 1.5) - 0.1) {
-            return Math.PI * 1.5;
-        }
-        else if (cRot <= (Math.PI * 2) + 0.1 && cRot >= (Math.PI * 2) - 0.1) {
-            return 0;
-        }
-        else if (cRot <= 0.1 && cRot >= -0.1) {
-            return 0;
-        }
-    }
     }
 
     cubeX = level_data.starts[0].x;
     cubeZ = level_data.starts[0].y;
-    player_position = new Flat_Coord(level_data.starts[0].x, level_data.starts[0].y);
+    player_position = new FlatCoord(level_data.starts[0].x, level_data.starts[0].y);
 
     cube.position.x = cubeX;
     cube.position.y = 1;
@@ -799,7 +864,9 @@ function load_level(restart, level) {
     animate();
 }
 
-function toggleFlat(axis) {
+
+
+        function toggleFlat(axis) {
     if (axis === 'x') {
         if (!flatZ) {
             flatX = !flatX;
@@ -814,81 +881,17 @@ function toggleFlat(axis) {
     console.log("flatZ: " + flatZ);
 }
 
-    function quantNum(num) {
-        let integerComp = Math.floor(num);
-        let remainder = num - integerComp;
-        if (0.25 < remainder && remainder <= 0.75) {
-            return integerComp + 0.5;
-        } else if (remainder > 0.75) {
-            return integerComp + 1;
-        } else {
-            return integerComp;
-        }
+function setP(sRot) {
+    if (sRot === 0) {
+        p = new THREE.Vector3(cubeX + xOffset, cubeY - yOffset, cubeZ + zOffset);
     }
-
-    function calcEndpoint() {
-        if (!flatX && !flatZ) {
-            if (axis === "x") {
-                console.log("z as");
-                if (dir === "inc") {
-                    return new flatCoord(quantNum(cube.position.x), quantNum(cube.position.z) + 1.5);
-                } else if (dir === "dec") {
-                    return new flatCoord(quantNum(cube.position.x), quantNum(cube.position.z) - 1.5);
-                }
-            } else if (axis === "z") {
-                console.log("x as");
-
-                if (dir === "inc") {
-                    console.log("inc");
-
-                    return new flatCoord(quantNum(cube.position.x) + 1.5, quantNum(cube.position.z));
-                } else if (dir === "dec") {
-                    console.log("dec");
-
-                    return new flatCoord(quantNum(cube.position.x) - 1.5, quantNum(cube.position.z));
-                }
-            }
-        } else {
-            if (flatZ && axis === "x") {
-                if (dir === "inc") {
-                    return new flatCoord(quantNum(cube.position.x), quantNum(cube.position.z) + 1);
-                } else if (dir === "dec") {
-                    return new flatCoord(quantNum(cube.position.x), quantNum(cube.position.z) - 1);
-                }
-            } if (flatX && axis === "x") {
-                if (dir === "inc") {
-                    return new flatCoord(quantNum(cube.position.x), quantNum(cube.position.z) + 1.5);
-                } else if (dir === "dec") {
-                    return new flatCoord(quantNum(cube.position.x), quantNum(cube.position.z) - 1.5);
-                }
-            } else if (flatX && axis === "z") {
-                if (dir === "inc") {
-                    return new flatCoord(quantNum(cube.position.x) + 1, quantNum(cube.position.z));
-                } else if (dir === "dec") {
-                    return new flatCoord(quantNum(cube.position.x) - 1, quantNum(cube.position.z));
-                }
-            } else if (flatZ && axis === "z") {
-                if (dir === "inc") {
-                    return new flatCoord(quantNum(cube.position.x) + 1.5, quantNum(cube.position.z));
-                } else if (dir === "dec") {
-                    return new flatCoord(quantNum(cube.position.x) - 1.5, quantNum(cube.position.z));
-                }
-            }
-        }
+    else if (sRot === Math.PI / 2) {
+        p = new THREE.Vector3(cubeX + yOffsetZ, cubeY - 0.5, cubeZ + yOffsetX);
     }
-
-    function saveMapGet(x, y) {
-        let result;
-        console.log("x " + Math.floor(y) + " y " + Math.floor(x));
-        try {
-            result = map.layout[Math.floor(y)][Math.floor(x)];
-        } catch {
-            result = false;
-        }
-        result = !!result;
-        console.log(result);
-        return result;
+    else if (sRot === Math.PI) {
+        p = new THREE.Vector3(cubeX + xOffset, cubeY - yOffset, cubeZ + zOffset);
     }
+}
 
     function winCheck(coord) {
         console.log("checking win");
@@ -901,13 +904,13 @@ function toggleFlat(axis) {
     }
 
     function triggerCheck(coord) {
-        if (map.triggers[0].x === coord.x && map.triggers[0].y === coord.y) {
-            for (let i = 0; i < map.bridges.length; i++) {
-                console.log("bridges = " + map.bridges[i].x + "  " + map.bridges[i].y);
-                let bridgeY = map.bridges[i].y;
-                let bridgeX = map.bridges[i].x;
+        if (level_data.triggers[0].x === coord.x && level_data.triggers[0].y === coord.y) {
+            for (let i = 0; i < level_data.bridges.length; i++) {
+                console.log("bridges = " + level_data.bridges[i].x + "  " + level_data.bridges[i].y);
+                let bridgeY = level_data.bridges[i].y;
+                let bridgeX = level_data.bridges[i].x;
 
-                if (!map.layout[bridgeX][bridgeY]) {
+                if (!level_data.layout[bridgeX][bridgeY]) {
                     let plane = new THREE.Mesh(geometry, bridgeMaterial);
                     plane.rotation.x = Math.PI / 2.0;
                     plane.position.z = squareSize * bridgeY;
@@ -916,14 +919,14 @@ function toggleFlat(axis) {
                     plane.castShadow = false;
                     plane.name = "bridge";
                     scene.add(plane);
-                    map.layout[bridgeY][bridgeX] = true;
+                    level_data.layout[bridgeY][bridgeX] = true;
                 }
             }
         }
     }
-}
 
-function flatCoord(x, y) {
+
+function FlatCoord(x, y) {
     let _this = this;
     this.x = x;
     this.y = y;
