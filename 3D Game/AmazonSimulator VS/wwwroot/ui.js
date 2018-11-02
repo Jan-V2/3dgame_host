@@ -21,7 +21,8 @@ const store = new Vuex.Store({
     },
     mutations: {
         load_main_menu: state => state.menu = "main_menu",
-        load_game_ui: state => state.menu = "game_ui"
+        load_game_ui: state => state.menu = "game_ui",
+        load_game_over: state => state.menu = "game_over"
     }
 })
 
@@ -66,7 +67,7 @@ Vue.component('main_menu', {
         restart_level: function () {
             restart();
         },
-        terug_naar_main_menu: function () {
+        return_main_menu: function () {
             store.commit("load_main_menu")
 
         }

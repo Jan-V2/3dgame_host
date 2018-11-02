@@ -6,3 +6,12 @@
     width: -moz-fit-content;
     grid-gap: 15px;
 }
+
+.game-over {
+    position: center, absolute;
+    background-color: red;
+    background: red;
+    height: 100vh;
+    width: fit-content;
+    width: -moz-fit-content;
+}

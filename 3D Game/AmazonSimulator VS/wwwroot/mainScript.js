@@ -411,6 +411,7 @@ function moveBlock(axis, dir, type) {
                 inputReady = true;
                 changeR = false;
                 clearInterval(blockMoveInterval);
+                store.commit("load_game_over");
             }
         }, animInterval);
     }
@@ -494,6 +495,7 @@ function moveBlock(axis, dir, type) {
                 inputReady = true;
                 changeR = false;
                 clearInterval(blockMoveInterval);
+                store.commit("load_game_over");
             }
         }, animInterval);
     }
@@ -579,6 +581,7 @@ function moveBlock(axis, dir, type) {
                 inputReady = true;
                 changeR = false;
                 clearInterval(blockMoveInterval);
+                store.commit("load_game_over");
             }
         }, animInterval);
     }
@@ -637,6 +640,7 @@ function moveBlock(axis, dir, type) {
                 inputReady = true;
                 changeR = false;
                 clearInterval(blockMoveInterval);
+                store.commit("load_game_over");
             }
         }, animInterval);
     }
