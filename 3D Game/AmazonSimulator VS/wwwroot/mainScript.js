@@ -4,7 +4,7 @@ let cameraControls;
 // Path needs to be changed for both or we keep them doesn't really matter
 let modelPath = "/3dmodels/";
 let texturesPath = "/textures/models/";
-// Setup the size, tickrate, geometry & materials
+// Setup the size, animation tickrate, geometry & materials
 let squareSize = 1;
 let animInterval = 20;
 let cubeGeometry = new THREE.CubeGeometry(squareSize, squareSize*2, squareSize);
@@ -79,25 +79,6 @@ function load_nieuw_level(level) {
     }
 
     levelData = level;
-    r = 0;
-    cubeX = undefined;
-    cubeY = 1;
-    cubeZ = undefined;
-    xOffset = undefined;
-    yOffset = undefined;
-    zOffset = undefined;
-    yOffsetX = undefined;
-    yOffsetZ = undefined;
-    changeR = false;
-    flatX = false;
-    flatZ = false;
-    counter = 0;
-    animInterval = 25;
-    p = undefined;
-    ax = undefined;
-    squaresize = 1;
-    inputReady = true;
-    player_position = undefined;
 
     // Create Scene
     scene = new THREE.Scene();
