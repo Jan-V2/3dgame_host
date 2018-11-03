@@ -36,7 +36,7 @@ let inputReady;
 let blockMoveInterval;
 let levelData;
 let playerPosition;
-let animations_blocked =false;
+let animated = false;
 let three_started = false;
 
 const colors = Object.freeze({
@@ -59,6 +59,150 @@ THREE.Object3D.prototype.rotateAroundWorldAxis = function () {
         return this;
     };
 }();
+
+function load_nieuw_level(level) {
+    let old_game = $("#game")[0].firstChild;
+    if (old_game) {
+        old_game.remove();
+        if (renderer) {
+            renderer.forceContextLoss();
+            console.log("i did it");
+        }
+    }
+
+    try {
+        clearInterval(blockMoveInterval);
+        clearInterval(blockMoveInterval);
+    }
+    catch{
+        console.log("interval undefined");
+    }
+
+    levelData = level;
+    r = 0;
+    cubeX = undefined;
+    cubeY = 1;
+    cubeZ = undefined;
+    xOffset = undefined;
+    yOffset = undefined;
+    zOffset = undefined;
+    yOffsetX = undefined;
+    yOffsetZ = undefined;
+    changeR = false;
+    flatX = false;
+    flatZ = false;
+    counter = 0;
+    animInterval = 25;
+    p = undefined;
+    ax = undefined;
+    squaresize = 1;
+    inputReady = true;
+    player_position = undefined;
+
+    // Create Scene
+    scene = new THREE.Scene();
+
+    // Setup the WebGL renderer / alpha should help with loading in images with transparent parts <p.s. also makes background white for some reason>
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight + 5);
+
+    $("#game")[0].appendChild(renderer.domElement);
+    renderer.shadowMapEnabled = true;
+    renderer.shadowMapType = THREE.PCFShadowMap; // options are THREE.BasicShadowMap | THREE.PCFShadowMap | THREE.PCFSoftShadowMap
+
+    renderer.domElement.setAttribute("id", "three_renderer");
+
+    // Continuesly check if the window gets resized
+    window.addEventListener('resize', onWindowResize, false);
+
+    initInput();
+    three_started = true;
+
+    // Create the groundplanes
+    for (let i = 0; i < levelData.layout.length; i++) {
+        for (let j = 0; j < levelData.layout[0].length; j++) {
+            if (levelData.layout[i][j]) {
+                let plane = new THREE.Mesh(planeGeometry, planeMaterial);
+                plane.rotation.x = Math.PI / 2.0;
+                plane.position.z = squareSize * i;
+                plane.position.x = squareSize * j;
+                plane.receiveShadow = true;
+                plane.castShadow = false;
+                scene.add(plane);
+            }
+        }
+    }
+
+    for (let i = 0; i < levelData.triggers.length; i++) {
+        let triggerY = levelData.triggers[i].y;
+        let triggerX = levelData.triggers[i].x;
+
+        if (!levelData.layout[triggerY][triggerX]) {
+            let plane = new THREE.Mesh(planeGeometry, triggerMaterial);
+            plane.rotation.x = Math.PI / 2.0;
+            plane.position.z = squareSize * triggerY;
+            plane.position.x = squareSize * triggerX;
+            plane.receiveShadow = true;
+            plane.castShadow = false;
+            plane.name = "trigger";
+            scene.add(plane);
+            levelData.layout[triggerY][triggerX] = true;
+        }
+    }
+
+    for (let i = 0; i < levelData.ends.length; i++) {
+        let endY = levelData.ends[i].y;
+        let endX = levelData.ends[i].x;
+
+        if (!levelData.layout[endY][endX]) {
+            let plane = new THREE.Mesh(planeGeometry, endMaterial);
+            plane.rotation.x = Math.PI / 2.0;
+            plane.position.z = squareSize * endY;
+            plane.position.x = squareSize * endX;
+            plane.receiveShadow = true;
+            plane.castShadow = false;
+            plane.name = "end";
+            scene.add(plane);
+            levelData.layout[endY][endX] = true;
+        }
+    }
+
+    dummy = new THREE.Object3D;
+    loadCube();
+
+    // Setup camera
+    camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 1000);
+    cameraControls = new THREE.OrbitControls(camera);
+    cameraControls.target = dummy.position;
+    camera.position.z = dummy.position.z - 3;
+    camera.position.y = 15;
+    camera.position.x = dummy.position.x - 20;
+    camera.zoom = 3;
+    camera.updateProjectionMatrix();
+    cameraControls.update();
+
+    // Add lighting to the scene
+    let light = new THREE.PointLight(0x404040);
+    light.position.x = -40;
+    light.position.z = -40;
+    light.position.y = 60;
+    light.castShadow = true;
+    light.shadowMapWidth = 1024; // default is 512
+    light.shadowMapHeight = 1024; // default is 512
+    light.intensity = 3;
+    scene.add(light);
+
+    light = new THREE.AmbientLight(0x404040);
+    light.intensity = 2;
+    scene.add(light);
+
+    if (!animated) {
+        animate();
+        animated = true;
+        console.log("IM ANIMATING ALRIGHT");
+    }
+}
 
 function loadCube() {
     cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
@@ -126,6 +270,14 @@ function initInput() {
             } else if (event.key === "s" || event.key === "S") {
                 moveBlock('z', "dec", "move");
             } else if (event.key === "d" || event.key === "D") {
+                moveBlock('x', "inc", "move");
+            } else if (event.keyCode === 38) {
+                moveBlock('z', "inc", "move");
+            } else if (event.keyCode === 37) {
+                moveBlock('x', "dec", "move");
+            } else if (event.keyCode === 40) {
+                moveBlock('z', "dec", "move");
+            } else if (event.keyCode === 39) {
                 moveBlock('x', "inc", "move");
             } 
         }
@@ -723,146 +875,6 @@ function moveBlock(axis, dir, type) {
             }
         }
     }
-}
-
-function load_nieuw_level(level) {
-    let old_game = $("#game")[0].firstChild;
-    if (old_game) {
-        old_game.remove();
-        if (renderer) {
-            renderer.context.getExtension('WEBGL_lose_context').loseContext();
-            console.log("i did it");
-        }
-    }
-
-    try {
-        clearInterval(blockMoveInterval);
-        clearInterval(blockMoveInterval);
-    }
-    catch{
-        console.log("interval undefined");
-    }
-
-    levelData = level;
-    r = 0;
-    cubeX = undefined;
-    cubeY = 1;
-    cubeZ = undefined;
-    xOffset = undefined;
-    yOffset = undefined;
-    zOffset = undefined;
-    yOffsetX = undefined;
-    yOffsetZ = undefined;
-    changeR = false;
-    flatX = false;
-    flatZ = false;
-    counter = 0;
-    animInterval = 25;
-    p = undefined;
-    ax = undefined;
-    squaresize = 1;
-    inputReady = true;
-    player_position = undefined;
-
-    // Create Scene
-    scene = new THREE.Scene();
-
-    // Setup the WebGL renderer / alpha should help with loading in images with transparent parts <p.s. also makes background white for some reason>
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight + 5);
-
-    $("#game")[0].appendChild(renderer.domElement);
-    renderer.shadowMapEnabled = true;
-    renderer.shadowMapType = THREE.PCFShadowMap; // options are THREE.BasicShadowMap | THREE.PCFShadowMap | THREE.PCFSoftShadowMap
-
-    renderer.domElement.setAttribute("id", "three_renderer");
-
-    // Continuesly check if the window gets resized
-    window.addEventListener('resize', onWindowResize, false);
-
-    initInput();
-    three_started = true;
-
-    // Create the groundplanes
-    for (let i = 0; i < levelData.layout.length; i++) {
-        for (let j = 0; j < levelData.layout[0].length; j++) {
-            if (levelData.layout[i][j]) {
-                let plane = new THREE.Mesh(planeGeometry, planeMaterial);
-                plane.rotation.x = Math.PI / 2.0;
-                plane.position.z = squareSize * i;
-                plane.position.x = squareSize * j;
-                plane.receiveShadow = true;
-                plane.castShadow = false;
-                scene.add(plane);
-            }
-        }
-    }
-
-    for (let i = 0; i < levelData.triggers.length; i++) {
-        let triggerY = levelData.triggers[i].y;
-        let triggerX = levelData.triggers[i].x;
-
-        if (!levelData.layout[triggerY][triggerX]) {
-            let plane = new THREE.Mesh(planeGeometry, triggerMaterial);
-            plane.rotation.x = Math.PI / 2.0;
-            plane.position.z = squareSize * triggerY;
-            plane.position.x = squareSize * triggerX;
-            plane.receiveShadow = true;
-            plane.castShadow = false;
-            plane.name = "trigger";
-            scene.add(plane);
-            levelData.layout[triggerY][triggerX] = true;
-        }
-    }
-
-    for (let i = 0; i < levelData.ends.length; i++) {
-        let endY = levelData.ends[i].y;
-        let endX = levelData.ends[i].x;
-
-        if (!levelData.layout[endY][endX]) {
-            let plane = new THREE.Mesh(planeGeometry, endMaterial);
-            plane.rotation.x = Math.PI / 2.0;
-            plane.position.z = squareSize * endY;
-            plane.position.x = squareSize * endX;
-            plane.receiveShadow = true;
-            plane.castShadow = false;
-            plane.name = "end";
-            scene.add(plane);
-            levelData.layout[endY][endX] = true;
-        }
-    }
-
-    dummy = new THREE.Object3D;
-    loadCube();
-
-    // Setup camera
-    camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 1000);
-    cameraControls = new THREE.OrbitControls(camera);
-    cameraControls.target = dummy.position;
-    camera.position.z = dummy.position.z - 3;
-    camera.position.y = 15;
-    camera.position.x = dummy.position.x - 20;
-    camera.zoom = 2.5;
-    camera.updateProjectionMatrix();
-    cameraControls.update();
-
-    // Add lighting to the scene
-    let light = new THREE.PointLight(0x404040);
-    light.position.x = -40;
-    light.position.z = -40;
-    light.position.y = 60;
-    light.castShadow = true;
-    light.shadowMapWidth = 1024; // default is 512
-    light.shadowMapHeight = 1024; // default is 512
-    light.intensity = 3;
-    scene.add(light);
-
-    light = new THREE.AmbientLight(0x404040);
-    light.intensity = 2;
-    scene.add(light);
-
-    animate();
 }
 
 function FlatCoord(x, y) {

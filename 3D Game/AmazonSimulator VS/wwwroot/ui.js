@@ -75,7 +75,7 @@ Vue.component('main_menu', {
             restart();
         },
         return_main_menu: function () {
-            store.commit("load_main_menu")
+            store.commit("load_main_menu");
         }
     }
 });
