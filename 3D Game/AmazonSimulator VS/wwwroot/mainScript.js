@@ -159,7 +159,7 @@ function load_nieuw_level(level) {
     camera.position.z = dummy.position.z - 3;
     camera.position.y = 15;
     camera.position.x = dummy.position.x - 20;
-    camera.zoom = 3;
+    camera.zoom = 2.5;
     camera.updateProjectionMatrix();
     cameraControls.update();
 
