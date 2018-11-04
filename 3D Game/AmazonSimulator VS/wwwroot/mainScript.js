@@ -149,19 +149,15 @@ function load_nieuw_level(level) {
         }
     }
 
-    dummy = new THREE.Object3D;
-    loadCube();
-
     // Setup camera
     camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 1000);
     cameraControls = new THREE.OrbitControls(camera);
-    cameraControls.target = dummy.position;
-    camera.position.z = dummy.position.z - 3;
-    camera.position.y = 15;
-    camera.position.x = dummy.position.x - 20;
-    camera.zoom = 2.5;
+    camera.zoom = 3;
     camera.updateProjectionMatrix();
     cameraControls.update();
+
+    dummy = new THREE.Object3D;
+    loadCube();
 
     // Add lighting to the scene
     let light = new THREE.PointLight(0x404040);
@@ -209,6 +205,12 @@ function loadCube() {
     dummy.position.x = cube.position.x;
     dummy.position.y = 3;
     dummy.position.z = cube.position.z;
+
+    cameraControls.target = dummy.position;
+    camera.position.z = dummy.position.z - 3;
+    camera.position.y = 15;
+    camera.position.x = dummy.position.x - 25;
+    cameraControls.update();
 }
 
 function restart() {
@@ -234,11 +236,6 @@ function restart() {
     }
 
     loadCube();
-
-    camera.position.z = dummy.position.z - 3;
-    camera.position.y = 15;
-    camera.position.x = dummy.position.x - 20;
-    cameraControls.update();
 }
 
 function initInput() {
@@ -407,7 +404,7 @@ function moveBlock(axis, dir, type) {
 
             dummy.position.x = cube.position.x;
             dummy.position.z = cube.position.z;
-            camera.position.x = dummy.position.x - 20;
+            camera.position.x = dummy.position.x - 25;
             camera.position.z = dummy.position.z - 3;
 
             if (counter >= 10) {
