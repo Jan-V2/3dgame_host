@@ -9,7 +9,7 @@ let squareSize = 1;
 let animInterval = 20;
 let cubeGeometry = new THREE.CubeGeometry(squareSize, squareSize*2, squareSize);
 let cubeMaterial = new THREE.MeshPhysicalMaterial({ color: 0xFF0000 });
-let planeGeometry = new THREE.PlaneGeometry(squareSize, squareSize);
+let planeGeometry = new THREE.CubeGeometry(squareSize, 0.2, squareSize);
 let planeMaterial = new THREE.MeshPhongMaterial({ color: 0x808080, side: THREE.DoubleSide });
 let bridgeMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFF00, side: THREE.DoubleSide });
 let triggerMaterial = new THREE.MeshPhongMaterial({ color: 0x00FF00, side: THREE.DoubleSide });
@@ -105,8 +105,8 @@ function load_nieuw_level(level) {
         for (let j = 0; j < levelData.layout[0].length; j++) {
             if (levelData.layout[i][j]) {
                 let plane = new THREE.Mesh(planeGeometry, planeMaterial);
-                plane.rotation.x = Math.PI / 2.0;
                 plane.position.z = squareSize * i;
+                plane.position.y = -0.1;
                 plane.position.x = squareSize * j;
                 plane.receiveShadow = true;
                 plane.castShadow = false;
@@ -121,8 +121,8 @@ function load_nieuw_level(level) {
 
         if (!levelData.layout[triggerY][triggerX]) {
             let plane = new THREE.Mesh(planeGeometry, triggerMaterial);
-            plane.rotation.x = Math.PI / 2.0;
             plane.position.z = squareSize * triggerY;
+            plane.position.y = -0.1;
             plane.position.x = squareSize * triggerX;
             plane.receiveShadow = true;
             plane.castShadow = false;
@@ -138,8 +138,8 @@ function load_nieuw_level(level) {
 
         if (!levelData.layout[endY][endX]) {
             let plane = new THREE.Mesh(planeGeometry, endMaterial);
-            plane.rotation.x = Math.PI / 2.0;
             plane.position.z = squareSize * endY;
+            plane.position.y = -0.1;
             plane.position.x = squareSize * endX;
             plane.receiveShadow = true;
             plane.castShadow = false;
@@ -840,8 +840,8 @@ function moveBlock(axis, dir, type) {
 
                     if (!levelData.layout[bridgeY][bridgeX]) {
                         let plane = new THREE.Mesh(planeGeometry, bridgeMaterial);
-                        plane.rotation.x = Math.PI / 2.0;
                         plane.position.z = squareSize * bridgeY;
+                        plane.position.y = -0.1;
                         plane.position.x = squareSize * bridgeX;
                         plane.receiveShadow = true;
                         plane.castShadow = false;
