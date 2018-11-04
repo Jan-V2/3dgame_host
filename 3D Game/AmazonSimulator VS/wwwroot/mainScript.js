@@ -7,13 +7,6 @@ let texturesPath = "/textures/models/";
 // Setup the size, animation tickrate, geometry & materials
 let squareSize = 1;
 let animInterval = 20;
-let cubeGeometry = new THREE.CubeGeometry(squareSize, squareSize*2, squareSize);
-let cubeMaterial = new THREE.MeshPhysicalMaterial({ color: 0xFF0000 });
-let planeGeometry = new THREE.CubeGeometry(squareSize, 0.2, squareSize);
-let planeMaterial = new THREE.MeshPhongMaterial({ color: 0x808080, side: THREE.DoubleSide });
-let bridgeMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFF00, side: THREE.DoubleSide });
-let triggerMaterial = new THREE.MeshPhongMaterial({ color: 0x00FF00, side: THREE.DoubleSide });
-let endMaterial = new THREE.MeshPhongMaterial({ color: 0x0000FF, side: THREE.DoubleSide });
 // initiate the rest of the global variables
 let dummy;
 let cube;
