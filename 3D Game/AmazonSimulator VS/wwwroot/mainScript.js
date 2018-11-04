@@ -25,7 +25,7 @@ let flatZ;
 let counter;
 let p;
 let ax;
-let inputReady;
+var inputReady;
 let blockMoveInterval;
 let levelData;
 let playerPosition;
@@ -124,9 +124,14 @@ function load_nieuw_level(level) {
         let endX = levelData.ends[i].x;
 
         if (!levelData.layout[endY][endX]) {
-            let plane = new createObject(squareSize, 0.2, squareSize, "end", false, true);
+            let plane = new createObject(squareSize - 0.01, 1, squareSize - 0.01, "end", false, true);
             plane.position.z = squareSize * endY;
-            plane.position.y = -0.1;
+            plane.position.y = -0.57;
+            plane.position.x = squareSize * endX;
+            scene.add(plane);
+            plane = new createObject(squareSize + 0.01, 2.5, squareSize + 0.01, "end2", false, true);
+            plane.position.z = squareSize * endY;
+            plane.position.y = -1.4;
             plane.position.x = squareSize * endX;
             scene.add(plane);
             levelData.layout[endY][endX] = true;
@@ -211,32 +216,30 @@ function restart() {
 
 function initInput() {
     document.addEventListener('keydown', function (event) {
-        if (inputReady === true) {
-            if (event.key === "w" || event.key === "W") {
-                moveBlock('z', "inc", "move");
-            }
-            else if (event.key === "a" || event.key === "A") {
-                moveBlock('x', "dec", "move");
-            }
-            else if (event.key === "s" || event.key === "S") {
-                moveBlock('z', "dec", "move");
-            }
-            else if (event.key === "d" || event.key === "D") {
-                moveBlock('x', "inc", "move");
-            }
-            else if (event.keyCode === 38) {
-                moveBlock('z', "inc", "move");
-            }
-            else if (event.keyCode === 37) {
-                moveBlock('x', "dec", "move");
-            }
-            else if (event.keyCode === 40) {
-                moveBlock('z', "dec", "move");
-            }
-            else if (event.keyCode === 39) {
-                moveBlock('x', "inc", "move");
-            } 
+        if (event.key === "w" || event.key === "W") {
+            moveBlock('z', "inc", "move");
         }
+        else if (event.key === "a" || event.key === "A") {
+            moveBlock('x', "dec", "move");
+        }
+        else if (event.key === "s" || event.key === "S") {
+            moveBlock('z', "dec", "move");
+        }
+        else if (event.key === "d" || event.key === "D") {
+            moveBlock('x', "inc", "move");
+        }
+        else if (event.keyCode === 38) {
+            moveBlock('z', "inc", "move");
+        }
+        else if (event.keyCode === 37) {
+            moveBlock('x', "dec", "move");
+        }
+        else if (event.keyCode === 40) {
+            moveBlock('z', "dec", "move");
+        }
+        else if (event.keyCode === 39) {
+            moveBlock('x', "inc", "move");
+        } 
     });
 }
 
@@ -255,533 +258,542 @@ function onWindowResize() {
 }
 
 function moveBlock(axis, dir, type) {
-    let counter = 0;
-    let startRot = 0;
-    inputReady = false;
+    if (inputReady === true) {
+        let counter = 0;
+        let startRot = 0;
+        inputReady = false;
 
-    cubeX = cube.position.x;
-    cubeY = cube.position.y;
-    cubeZ = cube.position.z;
+        cubeX = cube.position.x;
+        cubeY = cube.position.y;
+        cubeZ = cube.position.z;
 
-    if (axis === 'x') {
-        startRot = cube.rotation.x;
-        yOffsetZ = 0;
-        xOffset = 0;
-        ax = new THREE.Vector3(1, 0, 0);
-
-        if (flatZ) {
-            yOffset = 0.5;
-        }
-        else {
-            yOffset = 1;
-        }
-
-        if (dir === "dec") {
-            r = -Math.PI / 20;
-            zOffset = -0.5;
-            yOffsetX = yOffset * -1;
-        }
-        else if (dir === "inc") {
-            r = Math.PI / 20;
-            zOffset = 0.5;
-            yOffsetX = yOffset;
-        }
-    }
-    else if (axis === 'z') {
-        startRot = cube.rotation.z;
-        yOffsetX = 0;
-        zOffset = 0;
-        ax = new THREE.Vector3(0, 0, 1);
-
-        if (flatX) {
-            yOffset = 0.5;
-        }
-        else {
-            yOffset = 1;
-        }
-
-        if (dir === "dec") {
-            r = Math.PI / 20;
-            xOffset = -0.5;
-            yOffsetZ = yOffset * -1;
-        }
-        else if (dir === "inc") {
-            r = -Math.PI / 20;
-            xOffset = 0.5;
-            yOffsetZ = yOffset;
-        }
-    }
-
-    if (type === "move") {
-        /*
-        * todo bebaal eindbestemming
-        * todo check of de eindbestemming in het speelveld ligt
-        * todo recursive call met fall
-        */
-        let endpoint = calcEndpoint();
-        let validSpace;
-        let validSpace2;
-
-        if (endpoint.x % 1 === 0 && endpoint.y % 1 === 0) {
-            validSpace = validSpace2 = saveMapGet(endpoint.x, endpoint.y)
-        }
-        else if (endpoint.x % 1 !== 0 && endpoint.y % 1 === 0) {
-            validSpace = saveMapGet(endpoint.x + 0.5, endpoint.y)
-            validSpace2 = saveMapGet(endpoint.x - 0.5, endpoint.y);
-            if (axis === "x") {
-                changeR = true;
-            }
-            else changeR = false;
-        }
-        else if (endpoint.x % 1 === 0 && endpoint.y % 1 !== 0) {
-            validSpace = saveMapGet(endpoint.x, endpoint.y + 0.5)
-            validSpace2 = saveMapGet(endpoint.x, endpoint.y - 0.5);
-            if (axis === "z") {
-                changeR = true;
-            }
-            else changeR = false;
-        }
-        else {
-            console.log("How did you end up here?");
-        }
-        
-        if ((!validSpace ^ !validSpace2) && !changeR) {
-            fall3();
-        }
-        else if (!validSpace && !validSpace2) {
-            fall();
-        }
-        else if (!validSpace && validSpace2) {
-            fall2();
-        }
-        else if (validSpace && !validSpace2) {
-            fall1();
-        }
-        else {
-            move(endpoint);
-        }
-    }
-    else if (type === "fall") {
-        fall();
-    }
-
-    function move(givenEndpoint) {
-        blockMoveInterval = setInterval(function () {
-            setRotPoint(startRot);
-
-            counter++;
-            cube.rotateAroundWorldAxis(p, ax, r);
-
-            dummy.position.x = cube.position.x;
-            dummy.position.z = cube.position.z;
-            camera.position.x = dummy.position.x - 25;
-            camera.position.z = dummy.position.z - 3;
-
-            if (counter >= 10) {
-                cube.rotation.x = correctRot(cube.rotation.x);
-                cube.rotation.z = correctRot(cube.rotation.z);
-
-                toggleFlat(axis);
-
-                inputReady = true;
-
-                clearInterval(blockMoveInterval);
-                
-                winCheck(givenEndpoint);
-                triggerCheck(givenEndpoint);
-            }
-        }, animInterval);
-    }
-
-    function fall() {
-        blockMoveInterval = setInterval(function () {
-            setRotPoint(startRot);
-
-            if (counter >= 10) {
-                cube.position.y -= 0.2;
-                cubeY = cube.position.y;
-                if (axis === 'x') {
-                    if (dir === "dec") {
-                        cube.position.z -= 0.05;
-                        cubeZ -= 0.05;
-                    }
-                    else if (dir === "inc") {
-                        cube.position.z += 0.05;
-                        cubeZ += 0.05;
-                    }
-                }
-                else if (axis === 'z') {
-                    if (dir === "dec") {
-                        cube.position.x -= 0.05;
-                        cubeX -= 0.05;
-                    }
-                    else if (dir === "inc") {
-                        cube.position.x += 0.05;
-                        cubeX += 0.05;
-                    }
-                }
-            }
-
-            counter++;
-            cube.rotateAroundWorldAxis(p, ax, r);
-
-            if (counter >= 80) {
-                cube.rotation.x = correctRot(cube.rotation.x);
-                cube.rotation.z = correctRot(cube.rotation.z);
-
-                inputReady = true;
-                changeR = false;
-                clearInterval(blockMoveInterval);
-                store.commit("load_game_over");
-            }
-        }, animInterval);
-    }
-
-    function fall1() {
-        blockMoveInterval = setInterval(function () {
-            if (counter >= 10 && counter < 20) {
-                if (axis === "x") {
-                    ax = new THREE.Vector3(0, 0, 1);
-
-                    if (counter === 10 && changeR && dir === "dec") {
-                        r *= -1;
-                    }
-                    else {
-                        dir = "dec";
-                    }
-                }
-                else if (axis === "z") {
-                    ax = new THREE.Vector3(1, 0, 0);
-
-                    if (counter === 10 && changeR && dir === "dec") {
-                        r *= -1;
-                    }
-                    else {
-                        dir = "dec";
-                    }
-                }
-            }
-
-            setRotPoint(startRot);
-
-            if (counter >= 20 && counter < 30) {
-                cube.position.y -= 0.1;
-                cubeY = cube.position.y;
-            }
-            else if (counter >= 30) {
-                cube.position.y -= 0.1;
-                cubeY = cube.position.y;
-                if (axis === 'z') {
-                    if (dir === "dec") {
-                        cube.position.z -= 0.05;
-                        cubeZ -= 0.05;
-                    }
-                    else if (dir === "inc") {
-                        cube.position.z += 0.05;
-                        cubeZ += 0.05;
-                    }
-                }
-                else if (axis === 'x') {
-                    if (dir === "dec") {
-                        cube.position.x -= 0.05;
-                        cubeX -= 0.05;
-                    }
-                    else if (dir === "inc") {
-                        cube.position.x += 0.05;
-                        cubeX += 0.05;
-                    }
-                }
-            }
-
-            counter++;
-            cube.rotateAroundWorldAxis(p, ax, r);
-
-            if (counter >= 80) {
-                cube.rotation.x = correctRot(cube.rotation.x);
-                cube.rotation.z = correctRot(cube.rotation.z);
-
-                inputReady = true;
-                changeR = false;
-                clearInterval(blockMoveInterval);
-                store.commit("load_game_over");
-            }
-        }, animInterval);
-    }
-
-    function fall2() {
-        blockMoveInterval = setInterval(function () {
-            if (counter >= 10 && counter < 20) {
-                if (axis === "x") {
-                    ax = new THREE.Vector3(0, 0, 1);
-
-                    if (counter === 10 && changeR && dir === "inc") {
-                        r *= -1;
-                    }
-                    else {
-                        dir = "inc";
-                    }
-                }
-                else if (axis === "z") {
-                    ax = new THREE.Vector3(1, 0, 0);
-
-                    if (counter === 10 && changeR && dir === "inc") {
-                        r *= -1;
-                    }
-                    else {
-                        dir = "inc";
-                    }
-                }
-            }
-
-            setRotPoint(startRot);
-
-            if (counter >= 20 && counter < 30) {
-                cube.position.y -= 0.1;
-                cubeY = cube.position.y;
-            }
-            else if (counter >= 30) {
-                cube.position.y -= 0.1;
-                cubeY = cube.position.y;
-                if (axis === 'z') {
-                    if (dir === "dec") {
-                        cube.position.z -= 0.05;
-                        cubeZ -= 0.05;
-                    }
-                    else if (dir === "inc") {
-                        cube.position.z += 0.05;
-                        cubeZ += 0.05;
-                    }
-                }
-                else if (axis === 'x') {
-                    if (dir === "dec") {
-                        cube.position.x -= 0.05;
-                        cubeX -= 0.05;
-                    }
-                    else if (dir === "inc") {
-                        cube.position.x += 0.05;
-                        cubeX += 0.05;
-                    }
-                }
-            }
-
-            counter++;
-            cube.rotateAroundWorldAxis(p, ax, r);
-
-            if (counter >= 80) {
-                cube.rotation.x = correctRot(cube.rotation.x);
-                cube.rotation.z = correctRot(cube.rotation.z);
-
-                inputReady = true;
-                changeR = false;
-                clearInterval(blockMoveInterval);
-                store.commit("load_game_over");
-            }
-        }, animInterval);
-    }
-
-    function fall3() {
-        blockMoveInterval = setInterval(function () {
-            if (counter >= 10 && counter < 20) {
-                if (axis === "x") {
-                    if (counter === 10) {
-                        cubeX = cube.position.x;
-                        cubeZ = cube.position.z;
-                    }
-                    cubeY = cube.position.y -= 0.12;
-                }
-                else if (axis === "z") {
-                    if (counter === 10) {
-                        cubeX = cube.position.x;
-                        cubeZ = cube.position.z;
-                    }
-                    cubeY = cube.position.y -= 0.12;
-                }
-            }
-            setRotPoint(startRot);
-            if (counter >= 20) {
-                cube.position.y -= 0.1;
-                cubeY = cube.position.y;
-                if (axis === 'x') {
-                    if (dir === "dec") {
-                        cube.position.z -= 0.05;
-                        cubeZ -= 0.05;
-                    }
-                    else if (dir === "inc") {
-                        cube.position.z += 0.05;
-                        cubeZ += 0.05;
-                    }
-                }
-                else if (axis === 'z') {
-                    if (dir === "dec") {
-                        cube.position.x -= 0.05;
-                        cubeX -= 0.05;
-                    }
-                    else if (dir === "inc") {
-                        cube.position.x += 0.05;
-                        cubeX += 0.05;
-                    }
-                }
-            }
-
-            counter++;
-            cube.rotateAroundWorldAxis(p, ax, r);
-
-            if (counter >= 80) {
-                cube.rotation.x = correctRot(cube.rotation.x);
-                cube.rotation.z = correctRot(cube.rotation.z);
-
-                inputReady = true;
-                changeR = false;
-                clearInterval(blockMoveInterval);
-                store.commit("load_game_over");
-            }
-        }, animInterval);
-    }
-
-    function setRotPoint(givenStartRot) {
-        if (givenStartRot === 0) {
-            p = new THREE.Vector3(cubeX + xOffset, cubeY - yOffset, cubeZ + zOffset);
-        }
-        else if (givenStartRot === Math.PI / 2) {
-            p = new THREE.Vector3(cubeX + yOffsetZ, cubeY - 0.5, cubeZ + yOffsetX);
-        }
-        else if (givenStartRot === Math.PI) {
-            p = new THREE.Vector3(cubeX + xOffset, cubeY - yOffset, cubeZ + zOffset);
-        }
-    }
-
-    function correctRot(givenRotation) {
-        cRot = Math.abs(givenRotation);
-
-        if (cRot <= (Math.PI / 2) + 0.1 && cRot >= (Math.PI / 2) - 0.1) {
-            return Math.PI / 2;
-        }
-        else if (cRot <= Math.PI + 0.1 && cRot >= Math.PI - 0.1) {
-            return Math.PI;
-        }
-        else if (cRot <= (Math.PI * 1.5) + 0.1 && cRot >= (Math.PI * 1.5) - 0.1) {
-            return Math.PI * 1.5;
-        }
-        else if (cRot <= (Math.PI * 2) + 0.1 && cRot >= (Math.PI * 2) - 0.1) {
-            return 0;
-        }
-        else if (cRot <= 0.1 && cRot >= -0.1) {
-            return 0;
-        }
-    }
-
-    function toggleFlat(axis) {
         if (axis === 'x') {
-            if (!flatZ) {
-                flatX = !flatX;
+            startRot = cube.rotation.x;
+            yOffsetZ = 0;
+            xOffset = 0;
+            ax = new THREE.Vector3(1, 0, 0);
+
+            if (flatZ) {
+                yOffset = 0.5;
+            }
+            else {
+                yOffset = 1;
+            }
+
+            if (dir === "dec") {
+                r = -Math.PI / 20;
+                zOffset = -0.5;
+                yOffsetX = yOffset * -1;
+            }
+            else if (dir === "inc") {
+                r = Math.PI / 20;
+                zOffset = 0.5;
+                yOffsetX = yOffset;
             }
         }
         else if (axis === 'z') {
-            if (!flatX) {
-                flatZ = !flatZ;
+            startRot = cube.rotation.z;
+            yOffsetX = 0;
+            zOffset = 0;
+            ax = new THREE.Vector3(0, 0, 1);
+
+            if (flatX) {
+                yOffset = 0.5;
+            }
+            else {
+                yOffset = 1;
+            }
+
+            if (dir === "dec") {
+                r = Math.PI / 20;
+                xOffset = -0.5;
+                yOffsetZ = yOffset * -1;
+            }
+            else if (dir === "inc") {
+                r = -Math.PI / 20;
+                xOffset = 0.5;
+                yOffsetZ = yOffset;
             }
         }
-    }
 
-    function quantNum(num) {
-        let integerComp = Math.floor(num);
-        let remainder = num - integerComp;
-        if (0.25 < remainder && remainder <= 0.75) {
-            return integerComp + 0.5;
-        }
-        else if (remainder > 0.75) {
-            return integerComp + 1;
-        }
-        else {
-            return integerComp;
-        }
-    }
+        if (type === "move") {
+            /*
+            * todo bebaal eindbestemming
+            * todo check of de eindbestemming in het speelveld ligt
+            * todo recursive call met fall
+            */
+            let endpoint = calcEndpoint();
+            let validSpace;
+            let validSpace2;
 
-    function calcEndpoint() {
-        if (!flatX && !flatZ) {
-            if (axis === "x") {
-                if (dir === "inc") {
-                    return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) + 1.5);
-                }
-                else if (dir === "dec") {
-                    return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) - 1.5);
-                }
+            if (endpoint.x % 1 === 0 && endpoint.y % 1 === 0) {
+                validSpace = validSpace2 = saveMapGet(endpoint.x, endpoint.y)
             }
-            else if (axis === "z") {
-                if (dir === "inc") {
-                    return new FlatCoord(quantNum(cube.position.x) + 1.5, quantNum(cube.position.z));
+            else if (endpoint.x % 1 !== 0 && endpoint.y % 1 === 0) {
+                validSpace = saveMapGet(endpoint.x + 0.5, endpoint.y)
+                validSpace2 = saveMapGet(endpoint.x - 0.5, endpoint.y);
+                if (axis === "x") {
+                    changeR = true;
                 }
-                else if (dir === "dec") {
-                    return new FlatCoord(quantNum(cube.position.x) - 1.5, quantNum(cube.position.z));
-                }
+                else changeR = false;
             }
-        } 
-        else {
-            if (flatZ && axis === "x") {
-                if (dir === "inc") {
-                    return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) + 1);
+            else if (endpoint.x % 1 === 0 && endpoint.y % 1 !== 0) {
+                validSpace = saveMapGet(endpoint.x, endpoint.y + 0.5)
+                validSpace2 = saveMapGet(endpoint.x, endpoint.y - 0.5);
+                if (axis === "z") {
+                    changeR = true;
                 }
-                else if (dir === "dec") {
-                    return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) - 1);
-                }
-            } if (flatX && axis === "x") {
-                if (dir === "inc") {
-                    return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) + 1.5);
-                }
-                else if (dir === "dec") {
-                    return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) - 1.5);
-                }
-            } else if (flatX && axis === "z") {
-                if (dir === "inc") {
-                    return new FlatCoord(quantNum(cube.position.x) + 1, quantNum(cube.position.z));
-                }
-                else if (dir === "dec") {
-                    return new FlatCoord(quantNum(cube.position.x) - 1, quantNum(cube.position.z));
-                }
-            } else if (flatZ && axis === "z") {
-                if (dir === "inc") {
-                    return new FlatCoord(quantNum(cube.position.x) + 1.5, quantNum(cube.position.z));
-                }
-                else if (dir === "dec") {
-                    return new FlatCoord(quantNum(cube.position.x) - 1.5, quantNum(cube.position.z));
-                }
+                else changeR = false;
+            }
+            else {
+                console.log("How did you end up here?");
+            }
+
+            if ((!validSpace ^ !validSpace2) && !changeR) {
+                fall3();
+            }
+            else if (!validSpace && !validSpace2) {
+                fall();
+            }
+            else if (!validSpace && validSpace2) {
+                fall2();
+            }
+            else if (validSpace && !validSpace2) {
+                fall1();
+            }
+            else {
+                move(endpoint);
             }
         }
-    }
-
-    function saveMapGet(x, y) {
-        let result;
-
-        try {
-            result = levelData.layout[Math.floor(y)][Math.floor(x)];
-        } catch {
-            result = false;
+        else if (type === "fall") {
+            fall();
         }
 
-        result = !!result;
-        return result;
-    }
+        function move(givenEndpoint) {
+            blockMoveInterval = setInterval(function () {
+                setRotPoint(startRot);
 
-    function winCheck(coord) {
-        if (levelData.ends[0].x === coord.x && levelData.ends[0].y === coord.y) {
-            setTimeout(function () { store.commit("load_main_menu"); }, 100);
+                counter++;
+                cube.rotateAroundWorldAxis(p, ax, r);
+
+                dummy.position.x = cube.position.x;
+                dummy.position.z = cube.position.z;
+                camera.position.x = dummy.position.x - 25;
+                camera.position.z = dummy.position.z - 3;
+
+                if (counter >= 10) {
+                    cube.rotation.x = correctRot(cube.rotation.x);
+                    cube.rotation.z = correctRot(cube.rotation.z);
+
+                    toggleFlat(axis);
+
+                    inputReady = true;
+
+                    clearInterval(blockMoveInterval);
+
+                    winCheck(givenEndpoint);
+                    triggerCheck(givenEndpoint);
+                }
+            }, animInterval);
         }
-    }
 
-    function triggerCheck(coord) {
-        if (levelData.triggers.length > 0) {
-            if (levelData.triggers[0].x === coord.x && levelData.triggers[0].y === coord.y) {
-                for (let i = 0; i < levelData.bridges.length; i++) {
-                    let bridgeY = levelData.bridges[i].y;
-                    let bridgeX = levelData.bridges[i].x;
+        function fall() {
+            blockMoveInterval = setInterval(function () {
+                setRotPoint(startRot);
 
-                    if (!levelData.layout[bridgeY][bridgeX]) {
-                        let plane = new createObject(squareSize, 0.2, squareSize, "bridge", false, true);
-                        plane.position.z = squareSize * bridgeY;
-                        plane.position.y = -0.1;
-                        plane.position.x = squareSize * bridgeX;
-                        scene.add(plane);
-                        levelData.layout[bridgeY][bridgeX] = true;
+                if (counter >= 10) {
+                    cube.position.y -= 0.2;
+                    cubeY = cube.position.y;
+                    if (axis === 'x') {
+                        if (dir === "dec") {
+                            cube.position.z -= 0.05;
+                            cubeZ -= 0.05;
+                        }
+                        else if (dir === "inc") {
+                            cube.position.z += 0.05;
+                            cubeZ += 0.05;
+                        }
+                    }
+                    else if (axis === 'z') {
+                        if (dir === "dec") {
+                            cube.position.x -= 0.05;
+                            cubeX -= 0.05;
+                        }
+                        else if (dir === "inc") {
+                            cube.position.x += 0.05;
+                            cubeX += 0.05;
+                        }
+                    }
+                }
+
+                counter++;
+                cube.rotateAroundWorldAxis(p, ax, r);
+
+                if (counter >= 80) {
+                    cube.rotation.x = correctRot(cube.rotation.x);
+                    cube.rotation.z = correctRot(cube.rotation.z);
+
+                    changeR = false;
+                    clearInterval(blockMoveInterval);
+                    store.commit("load_game_over");
+                }
+            }, animInterval);
+        }
+
+        function fall1() {
+            blockMoveInterval = setInterval(function () {
+                if (counter >= 10 && counter < 20) {
+                    if (axis === "x") {
+                        ax = new THREE.Vector3(0, 0, 1);
+
+                        if (counter === 10 && changeR && dir === "dec") {
+                            r *= -1;
+                        }
+                        else {
+                            dir = "dec";
+                        }
+                    }
+                    else if (axis === "z") {
+                        ax = new THREE.Vector3(1, 0, 0);
+
+                        if (counter === 10 && changeR && dir === "dec") {
+                            r *= -1;
+                        }
+                        else {
+                            dir = "dec";
+                        }
+                    }
+                }
+
+                setRotPoint(startRot);
+
+                if (counter >= 20 && counter < 30) {
+                    cube.position.y -= 0.1;
+                    cubeY = cube.position.y;
+                }
+                else if (counter >= 30) {
+                    cube.position.y -= 0.1;
+                    cubeY = cube.position.y;
+                    if (axis === 'z') {
+                        if (dir === "dec") {
+                            cube.position.z -= 0.05;
+                            cubeZ -= 0.05;
+                        }
+                        else if (dir === "inc") {
+                            cube.position.z += 0.05;
+                            cubeZ += 0.05;
+                        }
+                    }
+                    else if (axis === 'x') {
+                        if (dir === "dec") {
+                            cube.position.x -= 0.05;
+                            cubeX -= 0.05;
+                        }
+                        else if (dir === "inc") {
+                            cube.position.x += 0.05;
+                            cubeX += 0.05;
+                        }
+                    }
+                }
+
+                counter++;
+                cube.rotateAroundWorldAxis(p, ax, r);
+
+                if (counter >= 80) {
+                    cube.rotation.x = correctRot(cube.rotation.x);
+                    cube.rotation.z = correctRot(cube.rotation.z);
+
+                    changeR = false;
+                    clearInterval(blockMoveInterval);
+                    store.commit("load_game_over");
+                }
+            }, animInterval);
+        }
+
+        function fall2() {
+            blockMoveInterval = setInterval(function () {
+                if (counter >= 10 && counter < 20) {
+                    if (axis === "x") {
+                        ax = new THREE.Vector3(0, 0, 1);
+
+                        if (counter === 10 && changeR && dir === "inc") {
+                            r *= -1;
+                        }
+                        else {
+                            dir = "inc";
+                        }
+                    }
+                    else if (axis === "z") {
+                        ax = new THREE.Vector3(1, 0, 0);
+
+                        if (counter === 10 && changeR && dir === "inc") {
+                            r *= -1;
+                        }
+                        else {
+                            dir = "inc";
+                        }
+                    }
+                }
+
+                setRotPoint(startRot);
+
+                if (counter >= 20 && counter < 30) {
+                    cube.position.y -= 0.1;
+                    cubeY = cube.position.y;
+                }
+                else if (counter >= 30) {
+                    cube.position.y -= 0.1;
+                    cubeY = cube.position.y;
+                    if (axis === 'z') {
+                        if (dir === "dec") {
+                            cube.position.z -= 0.05;
+                            cubeZ -= 0.05;
+                        }
+                        else if (dir === "inc") {
+                            cube.position.z += 0.05;
+                            cubeZ += 0.05;
+                        }
+                    }
+                    else if (axis === 'x') {
+                        if (dir === "dec") {
+                            cube.position.x -= 0.05;
+                            cubeX -= 0.05;
+                        }
+                        else if (dir === "inc") {
+                            cube.position.x += 0.05;
+                            cubeX += 0.05;
+                        }
+                    }
+                }
+
+                counter++;
+                cube.rotateAroundWorldAxis(p, ax, r);
+
+                if (counter >= 80) {
+                    cube.rotation.x = correctRot(cube.rotation.x);
+                    cube.rotation.z = correctRot(cube.rotation.z);
+
+                    changeR = false;
+                    clearInterval(blockMoveInterval);
+                    store.commit("load_game_over");
+                }
+            }, animInterval);
+        }
+
+        function fall3() {
+            blockMoveInterval = setInterval(function () {
+                if (counter >= 10 && counter < 20) {
+                    if (axis === "x") {
+                        if (counter === 10) {
+                            cubeX = cube.position.x;
+                            cubeZ = cube.position.z;
+                        }
+                        cubeY = cube.position.y -= 0.12;
+                    }
+                    else if (axis === "z") {
+                        if (counter === 10) {
+                            cubeX = cube.position.x;
+                            cubeZ = cube.position.z;
+                        }
+                        cubeY = cube.position.y -= 0.12;
+                    }
+                }
+                setRotPoint(startRot);
+                if (counter >= 20) {
+                    cube.position.y -= 0.1;
+                    cubeY = cube.position.y;
+                    if (axis === 'x') {
+                        if (dir === "dec") {
+                            cube.position.z -= 0.05;
+                            cubeZ -= 0.05;
+                        }
+                        else if (dir === "inc") {
+                            cube.position.z += 0.05;
+                            cubeZ += 0.05;
+                        }
+                    }
+                    else if (axis === 'z') {
+                        if (dir === "dec") {
+                            cube.position.x -= 0.05;
+                            cubeX -= 0.05;
+                        }
+                        else if (dir === "inc") {
+                            cube.position.x += 0.05;
+                            cubeX += 0.05;
+                        }
+                    }
+                }
+
+                counter++;
+                cube.rotateAroundWorldAxis(p, ax, r);
+
+                if (counter >= 80) {
+                    cube.rotation.x = correctRot(cube.rotation.x);
+                    cube.rotation.z = correctRot(cube.rotation.z);
+
+                    changeR = false;
+                    clearInterval(blockMoveInterval);
+                    store.commit("load_game_over");
+                }
+            }, animInterval);
+        }
+
+        function setRotPoint(givenStartRot) {
+            if (givenStartRot === 0) {
+                p = new THREE.Vector3(cubeX + xOffset, cubeY - yOffset, cubeZ + zOffset);
+            }
+            else if (givenStartRot === Math.PI / 2) {
+                p = new THREE.Vector3(cubeX + yOffsetZ, cubeY - 0.5, cubeZ + yOffsetX);
+            }
+            else if (givenStartRot === Math.PI) {
+                p = new THREE.Vector3(cubeX + xOffset, cubeY - yOffset, cubeZ + zOffset);
+            }
+        }
+
+        function correctRot(givenRotation) {
+            cRot = Math.abs(givenRotation);
+
+            if (cRot <= (Math.PI / 2) + 0.1 && cRot >= (Math.PI / 2) - 0.1) {
+                return Math.PI / 2;
+            }
+            else if (cRot <= Math.PI + 0.1 && cRot >= Math.PI - 0.1) {
+                return Math.PI;
+            }
+            else if (cRot <= (Math.PI * 1.5) + 0.1 && cRot >= (Math.PI * 1.5) - 0.1) {
+                return Math.PI * 1.5;
+            }
+            else if (cRot <= (Math.PI * 2) + 0.1 && cRot >= (Math.PI * 2) - 0.1) {
+                return 0;
+            }
+            else if (cRot <= 0.1 && cRot >= -0.1) {
+                return 0;
+            }
+        }
+
+        function toggleFlat(axis) {
+            if (axis === 'x') {
+                if (!flatZ) {
+                    flatX = !flatX;
+                }
+            }
+            else if (axis === 'z') {
+                if (!flatX) {
+                    flatZ = !flatZ;
+                }
+            }
+        }
+
+        function quantNum(num) {
+            let integerComp = Math.floor(num);
+            let remainder = num - integerComp;
+            if (0.25 < remainder && remainder <= 0.75) {
+                return integerComp + 0.5;
+            }
+            else if (remainder > 0.75) {
+                return integerComp + 1;
+            }
+            else {
+                return integerComp;
+            }
+        }
+
+        function calcEndpoint() {
+            if (!flatX && !flatZ) {
+                if (axis === "x") {
+                    if (dir === "inc") {
+                        return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) + 1.5);
+                    }
+                    else if (dir === "dec") {
+                        return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) - 1.5);
+                    }
+                }
+                else if (axis === "z") {
+                    if (dir === "inc") {
+                        return new FlatCoord(quantNum(cube.position.x) + 1.5, quantNum(cube.position.z));
+                    }
+                    else if (dir === "dec") {
+                        return new FlatCoord(quantNum(cube.position.x) - 1.5, quantNum(cube.position.z));
+                    }
+                }
+            }
+            else {
+                if (flatZ && axis === "x") {
+                    if (dir === "inc") {
+                        return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) + 1);
+                    }
+                    else if (dir === "dec") {
+                        return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) - 1);
+                    }
+                } if (flatX && axis === "x") {
+                    if (dir === "inc") {
+                        return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) + 1.5);
+                    }
+                    else if (dir === "dec") {
+                        return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) - 1.5);
+                    }
+                } else if (flatX && axis === "z") {
+                    if (dir === "inc") {
+                        return new FlatCoord(quantNum(cube.position.x) + 1, quantNum(cube.position.z));
+                    }
+                    else if (dir === "dec") {
+                        return new FlatCoord(quantNum(cube.position.x) - 1, quantNum(cube.position.z));
+                    }
+                } else if (flatZ && axis === "z") {
+                    if (dir === "inc") {
+                        return new FlatCoord(quantNum(cube.position.x) + 1.5, quantNum(cube.position.z));
+                    }
+                    else if (dir === "dec") {
+                        return new FlatCoord(quantNum(cube.position.x) - 1.5, quantNum(cube.position.z));
+                    }
+                }
+            }
+        }
+
+        function saveMapGet(x, y) {
+            let result;
+
+            try {
+                result = levelData.layout[Math.floor(y)][Math.floor(x)];
+            } catch {
+                result = false;
+            }
+
+            result = !!result;
+            return result;
+        }
+
+        function winCheck(coord) {
+            if (levelData.ends[0].x === coord.x && levelData.ends[0].y === coord.y) {
+                inputReady = false;
+
+                blockMoveInterval = setInterval(function () {
+                    counter++;
+                    cube.position.y -= 0.12;
+
+                    if (counter >= 32) {
+                        clearInterval(blockMoveInterval);
+                    }
+                }, animInterval);
+
+                setTimeout(function () { store.commit("load_main_menu"); }, 100);
+            }
+        }
+
+        function triggerCheck(coord) {
+            if (levelData.triggers.length > 0) {
+                if (levelData.triggers[0].x === coord.x && levelData.triggers[0].y === coord.y) {
+                    for (let i = 0; i < levelData.bridges.length; i++) {
+                        let bridgeY = levelData.bridges[i].y;
+                        let bridgeX = levelData.bridges[i].x;
+
+                        if (!levelData.layout[bridgeY][bridgeX]) {
+                            let plane = new createObject(squareSize, 0.2, squareSize, "bridge", false, true);
+                            plane.position.z = squareSize * bridgeY;
+                            plane.position.y = -0.1;
+                            plane.position.x = squareSize * bridgeX;
+                            scene.add(plane);
+                            levelData.layout[bridgeY][bridgeX] = true;
+                        }
                     }
                 }
             }

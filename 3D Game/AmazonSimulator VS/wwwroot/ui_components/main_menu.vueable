@@ -10,6 +10,20 @@
         <button type="button" class="btn btn-primary btn-custom">Restart</button>
         % @click="return_main_menu()" =>
         <button type="button" class="btn btn-primary btn-custom">Return to Main Menu</button>
+      <div class ="fixed-bottom">
+        <div class="row centerelement">
+          % @click="up_press" =>
+          <button type="button" class="btn-lg btn-primary btn-custom">Up</button>
+        </div>
+        <div class="row centerelement">
+          % @click="left_press" =>
+          <button type="button" class="btn-lg btn-primary btn-custom">Left</button>
+          % @click="down_press" =>
+          <button type="button" class="btn-lg btn-primary btn-custom">Down</button>
+          % @click="right_press" =>
+          <button type="button" class="btn-lg btn-primary btn-custom">Right</button>
+        </div>
+      </div>
     </div>
     % v-if="current_menu === 'game_over'" =>
     <div id="game_over_id" class="game-over" ref="game_over">
