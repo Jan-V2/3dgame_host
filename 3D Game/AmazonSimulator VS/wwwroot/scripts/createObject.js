@@ -14,7 +14,7 @@
         }
         else if (name === "plane") {
             cubeMaterials = [
-                new THREE.MeshPhysicalMaterial({ map: new THREE.TextureLoader().load("textures/RockTex.png"), side: THREE.DoubleSide }), //LEFT
+                new THREE.MeshPhysicalMaterial({ visible: false }), //LEFT
                 new THREE.MeshPhysicalMaterial({ map: new THREE.TextureLoader().load("textures/RockTex.png"), side: THREE.DoubleSide }), //RIGHT
                 new THREE.MeshPhysicalMaterial({ map: new THREE.TextureLoader().load("textures/BrickTex.png"), side: THREE.DoubleSide }), //TOP
                 new THREE.MeshPhysicalMaterial({ visible: false }), //BOTTOM
@@ -24,7 +24,7 @@
         }
         else if (name === "trigger") {
             cubeMaterials = [
-                new THREE.MeshPhysicalMaterial({ map: new THREE.TextureLoader().load("textures/GoldTex.png"), side: THREE.DoubleSide }), //LEFT
+                new THREE.MeshPhysicalMaterial({ visible: false }), //LEFT
                 new THREE.MeshPhysicalMaterial({ map: new THREE.TextureLoader().load("textures/GoldTex.png"), side: THREE.DoubleSide }), //RIGHT
                 new THREE.MeshPhysicalMaterial({ map: new THREE.TextureLoader().load("textures/GoldTex.png"), side: THREE.DoubleSide }), //TOP
                 new THREE.MeshPhysicalMaterial({ visible: false }), //BOTTOM
@@ -34,7 +34,7 @@
         }
         else if (name === "bridge") {
             cubeMaterials = [
-                new THREE.MeshPhysicalMaterial({ map: new THREE.TextureLoader().load("textures/PlanksTex.png"), side: THREE.DoubleSide }), //LEFT
+                new THREE.MeshPhysicalMaterial({ visible: false }), //LEFT
                 new THREE.MeshPhysicalMaterial({ map: new THREE.TextureLoader().load("textures/PlanksTex.png"), side: THREE.DoubleSide }), //RIGHT
                 new THREE.MeshPhysicalMaterial({ map: new THREE.TextureLoader().load("textures/PlanksTex.png"), side: THREE.DoubleSide }), //TOP
                 new THREE.MeshPhysicalMaterial({ visible: false}), //BOTTOM
@@ -45,7 +45,7 @@
         else if (name === "end") {
             cubeMaterials = [
                 new THREE.MeshPhysicalMaterial({ map: new THREE.TextureLoader().load("textures/DiamondTex.png"), side: THREE.BackSide }), //LEFT
-                new THREE.MeshPhysicalMaterial({ map: new THREE.TextureLoader().load("textures/DiamondTex.png"), side: THREE.BackSide }), //RIGHT
+                new THREE.MeshPhysicalMaterial({ visible: false }), //RIGHT
                 new THREE.MeshPhysicalMaterial({ visible: false }), //TOP
                 new THREE.MeshPhysicalMaterial({ visible: false }), //BOTTOM
                 new THREE.MeshPhysicalMaterial({ map: new THREE.TextureLoader().load("textures/DiamondTex.png"), side: THREE.BackSide }), //FRONT
@@ -54,12 +54,12 @@
         }
         else if (name === "end2") {
             cubeMaterials = [
-                new THREE.MeshPhysicalMaterial({ color: 0x00000, side: THREE.FrontSide }), //LEFT
-                new THREE.MeshPhysicalMaterial({ color: 0x00000, side: THREE.FrontSide }), //LEFT
+                new THREE.MeshPhysicalMaterial({ visible: false }), //FRONT
+                new THREE.MeshPhysicalMaterial({ color: 0x00000, side: THREE.FrontSide }), //BACK
                 new THREE.MeshPhysicalMaterial({ visible: false }), //TOP
                 new THREE.MeshPhysicalMaterial({ visible: false }), //BOTTOM
                 new THREE.MeshPhysicalMaterial({ color: 0x00000, side: THREE.FrontSide }), //LEFT
-                new THREE.MeshPhysicalMaterial({ color: 0x00000, side: THREE.FrontSide }), //LEFT
+                new THREE.MeshPhysicalMaterial({ color: 0x00000, side: THREE.FrontSide }) //RIGHT
             ];
         }
 

@@ -16,8 +16,6 @@ r_async.parallel([
 * options?
 */
 
-
-
 const store = new Vuex.Store({
     state: {
         menu: "main_menu"

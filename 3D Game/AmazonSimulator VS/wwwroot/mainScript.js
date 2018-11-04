@@ -129,7 +129,7 @@ function load_nieuw_level(level) {
             plane.position.y = -0.57;
             plane.position.x = squareSize * endX;
             scene.add(plane);
-            plane = new createObject(squareSize + 0.01, 2.5, squareSize + 0.01, "end2", false, true);
+            plane = new createObject(squareSize + 0.01, 2.5, squareSize + 0.01, "end2", false, false);
             plane.position.z = squareSize * endY;
             plane.position.y = -1.4;
             plane.position.x = squareSize * endX;
@@ -141,7 +141,7 @@ function load_nieuw_level(level) {
     // Setup camera
     camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 1000);
     cameraControls = new THREE.OrbitControls(camera);
-    camera.zoom = 3;
+    camera.zoom = 4;
     camera.updateProjectionMatrix();
     cameraControls.update();
 
@@ -188,13 +188,13 @@ function loadCube() {
     scene.add(cube);
     
     dummy.position.x = cube.position.x;
-    dummy.position.y = 3;
+    dummy.position.y = 0;
     dummy.position.z = cube.position.z;
 
     cameraControls.target = dummy.position;
     camera.position.z = dummy.position.z - 3;
     camera.position.y = 15;
-    camera.position.x = dummy.position.x - 25;
+    camera.position.x = dummy.position.x - 30;
     cameraControls.update();
 }
 
@@ -216,30 +216,32 @@ function restart() {
 
 function initInput() {
     document.addEventListener('keydown', function (event) {
-        if (event.key === "w" || event.key === "W") {
-            moveBlock('z', "inc", "move");
+        if (inputReady === true) {
+            if (event.key === "w" || event.key === "W") {
+                moveBlock('z', "inc", "move");
+            }
+            else if (event.key === "a" || event.key === "A") {
+                moveBlock('x', "dec", "move");
+            }
+            else if (event.key === "s" || event.key === "S") {
+                moveBlock('z', "dec", "move");
+            }
+            else if (event.key === "d" || event.key === "D") {
+                moveBlock('x', "inc", "move");
+            }
+            else if (event.keyCode === 38) {
+                moveBlock('z', "inc", "move");
+            }
+            else if (event.keyCode === 37) {
+                moveBlock('x', "dec", "move");
+            }
+            else if (event.keyCode === 40) {
+                moveBlock('z', "dec", "move");
+            }
+            else if (event.keyCode === 39) {
+                moveBlock('x', "inc", "move");
+            }
         }
-        else if (event.key === "a" || event.key === "A") {
-            moveBlock('x', "dec", "move");
-        }
-        else if (event.key === "s" || event.key === "S") {
-            moveBlock('z', "dec", "move");
-        }
-        else if (event.key === "d" || event.key === "D") {
-            moveBlock('x', "inc", "move");
-        }
-        else if (event.keyCode === 38) {
-            moveBlock('z', "inc", "move");
-        }
-        else if (event.keyCode === 37) {
-            moveBlock('x', "dec", "move");
-        }
-        else if (event.keyCode === 40) {
-            moveBlock('z', "dec", "move");
-        }
-        else if (event.keyCode === 39) {
-            moveBlock('x', "inc", "move");
-        } 
     });
 }
 
@@ -378,7 +380,7 @@ function moveBlock(axis, dir, type) {
 
                 dummy.position.x = cube.position.x;
                 dummy.position.z = cube.position.z;
-                camera.position.x = dummy.position.x - 25;
+                camera.position.x = dummy.position.x - 30;
                 camera.position.z = dummy.position.z - 3;
 
                 if (counter >= 10) {
