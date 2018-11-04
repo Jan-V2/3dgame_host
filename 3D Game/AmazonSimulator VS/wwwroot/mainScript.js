@@ -66,7 +66,6 @@ function load_nieuw_level(level) {
         old_game.remove();
         if (renderer) {
             renderer.forceContextLoss();
-            console.log("i did it");
         }
     }
 
@@ -75,7 +74,7 @@ function load_nieuw_level(level) {
         clearInterval(blockMoveInterval);
     }
     catch{
-        console.log("interval undefined");
+        console.log("No intervals to clear");
     }
 
     levelData = level;
@@ -104,12 +103,10 @@ function load_nieuw_level(level) {
     for (let i = 0; i < levelData.layout.length; i++) {
         for (let j = 0; j < levelData.layout[0].length; j++) {
             if (levelData.layout[i][j]) {
-                let plane = new THREE.Mesh(planeGeometry, planeMaterial);
+                let plane = new createObject(squareSize, 0.2, squareSize, "plane", false, true);
                 plane.position.z = squareSize * i;
                 plane.position.y = -0.1;
                 plane.position.x = squareSize * j;
-                plane.receiveShadow = true;
-                plane.castShadow = false;
                 scene.add(plane);
             }
         }
@@ -120,13 +117,10 @@ function load_nieuw_level(level) {
         let triggerX = levelData.triggers[i].x;
 
         if (!levelData.layout[triggerY][triggerX]) {
-            let plane = new THREE.Mesh(planeGeometry, triggerMaterial);
+            let plane = new createObject(squareSize, 0.2, squareSize, "trigger", false, true);
             plane.position.z = squareSize * triggerY;
             plane.position.y = -0.1;
             plane.position.x = squareSize * triggerX;
-            plane.receiveShadow = true;
-            plane.castShadow = false;
-            plane.name = "trigger";
             scene.add(plane);
             levelData.layout[triggerY][triggerX] = true;
         }
@@ -137,13 +131,10 @@ function load_nieuw_level(level) {
         let endX = levelData.ends[i].x;
 
         if (!levelData.layout[endY][endX]) {
-            let plane = new THREE.Mesh(planeGeometry, endMaterial);
+            let plane = new createObject(squareSize, 0.2, squareSize, "end", false, true);
             plane.position.z = squareSize * endY;
             plane.position.y = -0.1;
             plane.position.x = squareSize * endX;
-            plane.receiveShadow = true;
-            plane.castShadow = false;
-            plane.name = "end";
             scene.add(plane);
             levelData.layout[endY][endX] = true;
         }
@@ -167,7 +158,7 @@ function load_nieuw_level(level) {
     light.castShadow = true;
     light.shadowMapWidth = 1024; // default is 512
     light.shadowMapHeight = 1024; // default is 512
-    light.intensity = 3;
+    light.intensity = 4;
     scene.add(light);
 
     light = new THREE.AmbientLight(0x404040);
@@ -177,13 +168,10 @@ function load_nieuw_level(level) {
     if (!animated) {
         animate();
         animated = true;
-        console.log("IM ANIMATING ALRIGHT");
     }
 }
 
 function loadCube() {
-    cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
-
     cubeY = 1;
     changeR = false;
     flatX = false;
@@ -194,12 +182,10 @@ function loadCube() {
     cubeZ = levelData.starts[0].y;
     playerPosition = new FlatCoord(levelData.starts[0].x, levelData.starts[0].y);
 
-    cube.name = "cube";
+    cube = new createObject(squareSize, squareSize * 2, squareSize, "cube", true, false);
     cube.position.x = cubeX;
     cube.position.y = cubeY;
     cube.position.z = cubeZ;
-    cube.castShadow = true;
-    cube.receiveShadow = false;
     scene.add(cube);
     
     dummy.position.x = cube.position.x;
@@ -214,28 +200,19 @@ function loadCube() {
 }
 
 function restart() {
-    var selectedObject = scene.getObjectByName("cube");
-    selectedObject.geometry.dispose();
-    selectedObject.material.dispose();
-    scene.remove(selectedObject);
-
-    while (scene.getObjectByName("bridge")) {
-        selectedObject = scene.getObjectByName("bridge");
-        levelData.layout[selectedObject.position.z][selectedObject.position.x] = false;
-        selectedObject.geometry.dispose();
-        selectedObject.material.dispose();
-        scene.remove(selectedObject);
+    for (let i = 0; i < levelData.triggers.length; i++) {
+        levelData.layout[levelData.triggers[i].y][levelData.triggers[i].x] = false;
     }
 
-    try {
-        clearInterval(blockMoveInterval);
-        clearInterval(blockMoveInterval);
-    }
-    catch{
-        console.log("interval undefined");
+    for (let i = 0; i < levelData.ends.length; i++) {
+        levelData.layout[levelData.ends[i].y][levelData.ends[i].x] = false;
     }
 
-    loadCube();
+    for (let i = 0; i < levelData.bridges.length; i++) {
+        levelData.layout[levelData.bridges[i].y][levelData.bridges[i].x] = false;
+    }
+
+    load_nieuw_level(levelData);
 }
 
 function initInput() {
@@ -243,19 +220,26 @@ function initInput() {
         if (inputReady === true) {
             if (event.key === "w" || event.key === "W") {
                 moveBlock('z', "inc", "move");
-            } else if (event.key === "a" || event.key === "A") {
+            }
+            else if (event.key === "a" || event.key === "A") {
                 moveBlock('x', "dec", "move");
-            } else if (event.key === "s" || event.key === "S") {
+            }
+            else if (event.key === "s" || event.key === "S") {
                 moveBlock('z', "dec", "move");
-            } else if (event.key === "d" || event.key === "D") {
+            }
+            else if (event.key === "d" || event.key === "D") {
                 moveBlock('x', "inc", "move");
-            } else if (event.keyCode === 38) {
+            }
+            else if (event.keyCode === 38) {
                 moveBlock('z', "inc", "move");
-            } else if (event.keyCode === 37) {
+            }
+            else if (event.keyCode === 37) {
                 moveBlock('x', "dec", "move");
-            } else if (event.keyCode === 40) {
+            }
+            else if (event.keyCode === 40) {
                 moveBlock('z', "dec", "move");
-            } else if (event.keyCode === 39) {
+            }
+            else if (event.keyCode === 39) {
                 moveBlock('x', "inc", "move");
             } 
         }
@@ -344,48 +328,40 @@ function moveBlock(axis, dir, type) {
         let validSpace;
         let validSpace2;
 
-        console.log(endpoint);
-
         if (endpoint.x % 1 === 0 && endpoint.y % 1 === 0) {
             validSpace = validSpace2 = saveMapGet(endpoint.x, endpoint.y)
-        } else if (endpoint.x % 1 !== 0 && endpoint.y % 1 === 0) {
+        }
+        else if (endpoint.x % 1 !== 0 && endpoint.y % 1 === 0) {
             validSpace = saveMapGet(endpoint.x + 0.5, endpoint.y)
             validSpace2 = saveMapGet(endpoint.x - 0.5, endpoint.y);
             if (axis === "x") {
                 changeR = true;
             }
             else changeR = false;
-        } else if (endpoint.x % 1 === 0 && endpoint.y % 1 !== 0) {
+        }
+        else if (endpoint.x % 1 === 0 && endpoint.y % 1 !== 0) {
             validSpace = saveMapGet(endpoint.x, endpoint.y + 0.5)
             validSpace2 = saveMapGet(endpoint.x, endpoint.y - 0.5);
             if (axis === "z") {
                 changeR = true;
             }
             else changeR = false;
-        } else {
-            console.log("niet afgevangen");
-            console.log(cube.position);
         }
-
-        console.log(levelData.layout);
-        console.log("opspeelveld " + validSpace);
-        console.log("opspeelveld2 " + validSpace2);
-        console.log("changeR" + changeR);
+        else {
+            console.log("How did you end up here?");
+        }
+        
         if ((!validSpace ^ !validSpace2) && !changeR) {
             fall3();
-            console.log("fall3");
         }
         else if (!validSpace && !validSpace2) {
             fall();
-            console.log("fall");
         }
         else if (!validSpace && validSpace2) {
             fall2();
-            console.log("fall2");
         }
         else if (validSpace && !validSpace2) {
             fall1();
-            console.log("fall1");
         }
         else {
             move(endpoint);
@@ -412,12 +388,11 @@ function moveBlock(axis, dir, type) {
                 cube.rotation.z = correctRot(cube.rotation.z);
 
                 toggleFlat(axis);
-                console.log(cube.position);
 
                 inputReady = true;
 
                 clearInterval(blockMoveInterval);
-
+                
                 winCheck(givenEndpoint);
                 triggerCheck(givenEndpoint);
             }
@@ -456,7 +431,7 @@ function moveBlock(axis, dir, type) {
             counter++;
             cube.rotateAroundWorldAxis(p, ax, r);
 
-            if (counter >= 100) {
+            if (counter >= 80) {
                 cube.rotation.x = correctRot(cube.rotation.x);
                 cube.rotation.z = correctRot(cube.rotation.z);
 
@@ -474,35 +449,22 @@ function moveBlock(axis, dir, type) {
                 if (axis === "x") {
                     ax = new THREE.Vector3(0, 0, 1);
 
-                    console.log(changeR);
-
                     if (counter === 10 && changeR && dir === "dec") {
                         r *= -1;
-
-                        console.log("R changed");
                     }
                     else {
                         dir = "dec";
                     }
-                    console.log("x as");
-                    console.log("dir: " + dir);
                 }
                 else if (axis === "z") {
                     ax = new THREE.Vector3(1, 0, 0);
 
-                    console.log(changeR);
-
                     if (counter === 10 && changeR && dir === "dec") {
                         r *= -1;
-
-                        console.log("R changed");
                     }
                     else {
                         dir = "dec";
                     }
-
-                    console.log("z as");
-                    console.log("dir: " + dir);
                 }
             }
 
@@ -540,7 +502,7 @@ function moveBlock(axis, dir, type) {
             counter++;
             cube.rotateAroundWorldAxis(p, ax, r);
 
-            if (counter >= 100) {
+            if (counter >= 80) {
                 cube.rotation.x = correctRot(cube.rotation.x);
                 cube.rotation.z = correctRot(cube.rotation.z);
 
@@ -558,37 +520,22 @@ function moveBlock(axis, dir, type) {
                 if (axis === "x") {
                     ax = new THREE.Vector3(0, 0, 1);
 
-                    console.log(changeR);
-
                     if (counter === 10 && changeR && dir === "inc") {
                         r *= -1;
-
-                        console.log("R changed");
                     }
                     else {
                         dir = "inc";
                     }
-
-                    console.log("x as");
-                    console.log("dir: " + dir);
-
                 }
                 else if (axis === "z") {
                     ax = new THREE.Vector3(1, 0, 0);
 
-                    console.log(changeR);
-
                     if (counter === 10 && changeR && dir === "inc") {
                         r *= -1;
-
-                        console.log("R changed");
                     }
                     else {
                         dir = "inc";
                     }
-
-                    console.log("z as");
-                    console.log("dir: " + dir);
                 }
             }
 
@@ -626,7 +573,7 @@ function moveBlock(axis, dir, type) {
             counter++;
             cube.rotateAroundWorldAxis(p, ax, r);
 
-            if (counter >= 100) {
+            if (counter >= 80) {
                 cube.rotation.x = correctRot(cube.rotation.x);
                 cube.rotation.z = correctRot(cube.rotation.z);
 
@@ -685,7 +632,7 @@ function moveBlock(axis, dir, type) {
             counter++;
             cube.rotateAroundWorldAxis(p, ax, r);
 
-            if (counter >= 100) {
+            if (counter >= 80) {
                 cube.rotation.x = correctRot(cube.rotation.x);
                 cube.rotation.z = correctRot(cube.rotation.z);
 
@@ -740,8 +687,6 @@ function moveBlock(axis, dir, type) {
                 flatZ = !flatZ;
             }
         }
-        console.log("flatX: " + flatX);
-        console.log("flatZ: " + flatZ);
     }
 
     function quantNum(num) {
@@ -749,9 +694,11 @@ function moveBlock(axis, dir, type) {
         let remainder = num - integerComp;
         if (0.25 < remainder && remainder <= 0.75) {
             return integerComp + 0.5;
-        } else if (remainder > 0.75) {
+        }
+        else if (remainder > 0.75) {
             return integerComp + 1;
-        } else {
+        }
+        else {
             return integerComp;
         }
     }
@@ -759,48 +706,49 @@ function moveBlock(axis, dir, type) {
     function calcEndpoint() {
         if (!flatX && !flatZ) {
             if (axis === "x") {
-                console.log("z as");
                 if (dir === "inc") {
                     return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) + 1.5);
-                } else if (dir === "dec") {
+                }
+                else if (dir === "dec") {
                     return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) - 1.5);
                 }
-            } else if (axis === "z") {
-                console.log("x as");
-
+            }
+            else if (axis === "z") {
                 if (dir === "inc") {
-                    console.log("inc");
-
                     return new FlatCoord(quantNum(cube.position.x) + 1.5, quantNum(cube.position.z));
-                } else if (dir === "dec") {
-                    console.log("dec");
-
+                }
+                else if (dir === "dec") {
                     return new FlatCoord(quantNum(cube.position.x) - 1.5, quantNum(cube.position.z));
                 }
             }
-        } else {
+        } 
+        else {
             if (flatZ && axis === "x") {
                 if (dir === "inc") {
                     return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) + 1);
-                } else if (dir === "dec") {
+                }
+                else if (dir === "dec") {
                     return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) - 1);
                 }
             } if (flatX && axis === "x") {
                 if (dir === "inc") {
                     return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) + 1.5);
-                } else if (dir === "dec") {
+                }
+                else if (dir === "dec") {
                     return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) - 1.5);
                 }
             } else if (flatX && axis === "z") {
                 if (dir === "inc") {
                     return new FlatCoord(quantNum(cube.position.x) + 1, quantNum(cube.position.z));
-                } else if (dir === "dec") {
+                }
+                else if (dir === "dec") {
                     return new FlatCoord(quantNum(cube.position.x) - 1, quantNum(cube.position.z));
                 }
             } else if (flatZ && axis === "z") {
                 if (dir === "inc") {
                     return new FlatCoord(quantNum(cube.position.x) + 1.5, quantNum(cube.position.z));
-                } else if (dir === "dec") {
+                }
+                else if (dir === "dec") {
                     return new FlatCoord(quantNum(cube.position.x) - 1.5, quantNum(cube.position.z));
                 }
             }
@@ -809,24 +757,20 @@ function moveBlock(axis, dir, type) {
 
     function saveMapGet(x, y) {
         let result;
-        console.log("x " + Math.floor(y) + " y " + Math.floor(x));
+
         try {
             result = levelData.layout[Math.floor(y)][Math.floor(x)];
         } catch {
             result = false;
         }
+
         result = !!result;
-        console.log(result);
         return result;
     }
 
     function winCheck(coord) {
-        console.log("checking win");
-        console.log(coord);
-
         if (levelData.ends[0].x === coord.x && levelData.ends[0].y === coord.y) {
-            console.log("gewonnen");
-            store.commit("load_main_menu");
+            setTimeout(function () { store.commit("load_main_menu"); }, 100);
         }
     }
 
@@ -834,18 +778,14 @@ function moveBlock(axis, dir, type) {
         if (levelData.triggers.length > 0) {
             if (levelData.triggers[0].x === coord.x && levelData.triggers[0].y === coord.y) {
                 for (let i = 0; i < levelData.bridges.length; i++) {
-                    console.log("bridges = " + levelData.bridges[i].x + "  " + levelData.bridges[i].y);
                     let bridgeY = levelData.bridges[i].y;
                     let bridgeX = levelData.bridges[i].x;
 
                     if (!levelData.layout[bridgeY][bridgeX]) {
-                        let plane = new THREE.Mesh(planeGeometry, bridgeMaterial);
+                        let plane = new createObject(squareSize, 0.2, squareSize, "bridge", false, true);
                         plane.position.z = squareSize * bridgeY;
                         plane.position.y = -0.1;
                         plane.position.x = squareSize * bridgeX;
-                        plane.receiveShadow = true;
-                        plane.castShadow = false;
-                        plane.name = "bridge";
                         scene.add(plane);
                         levelData.layout[bridgeY][bridgeX] = true;
                     }
