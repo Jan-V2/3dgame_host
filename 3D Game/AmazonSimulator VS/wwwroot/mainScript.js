@@ -140,7 +140,6 @@ function load_nieuw_level(level) {
     camera.updateProjectionMatrix();
     cameraControls.update();
 
-    dummy = new THREE.Object3D;
     loadCube();
 
     // Add lighting to the scene
@@ -170,6 +169,8 @@ function loadCube() {
     flatX = false;
     flatZ = false;
     inputReady = true;
+
+    dummy = new THREE.Object3D;
 
     cubeX = levelData.starts[0].x;
     cubeZ = levelData.starts[0].y;
