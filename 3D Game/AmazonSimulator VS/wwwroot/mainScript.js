@@ -141,7 +141,7 @@ function load_nieuw_level(level) {
     // Setup camera
     camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 1000);
     cameraControls = new THREE.OrbitControls(camera);
-    camera.zoom = 4;
+    camera.zoom = 5;
     camera.updateProjectionMatrix();
     cameraControls.update();
 
@@ -155,7 +155,7 @@ function load_nieuw_level(level) {
     light.castShadow = true;
     light.shadowMapWidth = 1024; // default is 512
     light.shadowMapHeight = 1024; // default is 512
-    light.intensity = 4;
+    light.intensity = 3;
     scene.add(light);
 
     light = new THREE.AmbientLight(0x404040);
