@@ -439,12 +439,22 @@ function moveBlock(axis, dir, type) {
                 if (levelData.fragiles.length > 0) {
                     for (let i = 0; i < levelData.fragiles.length; i++) {
                         if (levelData.fragiles[i].x === endpoint.x && levelData.fragiles[i].y === endpoint.y) {
-                            move(endpoint, calcPoint1, calcPoint2, true);
+                            if (calcPoint1 === endpoint) {
+                                move(endpoint, true, calcPoint1, calcPoint2);
+                            }
+                            else {
+                                move(endpoint, true);
+                            }
                             return;
                         }
                     }
                 }
-                move(endpoint, calcPoint1, calcPoint2);
+                if (calcPoint1 === endpoint) {
+                    move(endpoint, false, calcPoint1, calcPoint2);
+                }
+                else {
+                    move(endpoint, false);
+                }
             }
         }
         else if (type === "fall") {
@@ -452,7 +462,7 @@ function moveBlock(axis, dir, type) {
         } 
     }
 
-    function move(givenEndpoint, p1, p2, fragile) {
+    function move(givenEndpoint, fragile, p1, p2) {
         blockMoveInterval = setInterval(function () {
             setRotPoint(startRot);
 
@@ -475,7 +485,12 @@ function moveBlock(axis, dir, type) {
                 clearInterval(blockMoveInterval);
 
                 winCheck(givenEndpoint);
-                triggerCheck(givenEndpoint, p1, p2);
+                if (p1 === p2) {
+                    triggerCheck(givenEndpoint, p1, p2);
+                }
+                else {
+                    triggerCheck(givenEndpoint);
+                }
 
                 if (fragile) fall4(givenEndpoint, 45);
             }
