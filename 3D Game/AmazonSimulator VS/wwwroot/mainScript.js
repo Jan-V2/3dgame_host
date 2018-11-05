@@ -22,17 +22,14 @@ let yOffsetZ;
 let changeR;
 let flatX;
 let flatZ;
-let counter;
 let p;
 let ax;
-var inputReady;
+let inputReady;
 let blockMoveInterval;
 let levelData;
 let playerPosition;
 let animated = false;
 let three_started = false;
-let triggered;
-let plane1;
 
 const colors = Object.freeze({
     start_square: "",
@@ -787,24 +784,29 @@ function moveBlock(axis, dir, type) {
 
     function triggerCheck(coord) {
         if (levelData.triggers.length > 0) {
-            if (levelData.triggers[0].x === coord.x && levelData.triggers[0].y === coord.y) {
-                for (let i = 0; i < levelData.bridges.length; i++) {
-                    let bridgeY = levelData.bridges[i].y;
-                    let bridgeX = levelData.bridges[i].x;
+            for (let i = 0; i < levelData.triggers.length; i++) {
+                let triggerX = levelData.triggers[i].x;
+                let triggerY = levelData.triggers[i].y;
+                
+                if (triggerX === coord.x && triggerY === coord.y) {
+                    for (let j = 0; j < levelData.bridges.length; j++) {
+                        let bridgeY = levelData.bridges[j].y;
+                        let bridgeX = levelData.bridges[j].x;
 
-                    if (!levelData.layout[bridgeY][bridgeX]) {
-                        plane1 = new createObject(squareSize, 0.1, squareSize, "bridge", false, true);
-                        plane1.position.z = squareSize * bridgeY;
-                        plane1.position.y = -0.05;
-                        plane1.position.x = squareSize * bridgeX;
-                        scene.add(plane1);
-                        levelData.layout[bridgeY][bridgeX] = true;
-                    }
-                    else {
-                        levelData.layout[bridgeY][bridgeX] = false;
-                        while (scene.getObjectByName("bridge")) {
-                            let selectedObject = scene.getObjectByName("bridge");
-                            scene.remove(selectedObject);
+                        if (!levelData.layout[bridgeY][bridgeX]) {
+                            let plane = new createObject(squareSize, 0.1, squareSize, "bridge", false, true);
+                            plane.position.z = squareSize * bridgeY;
+                            plane.position.y = -0.05;
+                            plane.position.x = squareSize * bridgeX;
+                            scene.add(plane);
+                            levelData.layout[bridgeY][bridgeX] = true;
+                        }
+                        else {
+                            levelData.layout[bridgeY][bridgeX] = false;
+                            while (scene.getObjectByName("bridge")) {
+                                let selectedObject = scene.getObjectByName("bridge");
+                                scene.remove(selectedObject);
+                            }
                         }
                     }
                 }
