@@ -13,7 +13,6 @@
     align-content: center;
     position: absolute;
     margin: auto;
-    background-color: red;
     background: black;
     min-height: 100vh;
     width: fit-content;
@@ -24,9 +23,9 @@
 }
 
 .game-over-title {
-    position: absolute;
-    top: 30%;
-    left: 40%;
+    position: relative;
+    padding-top: 20%;
+    text-align: center;
     font-size: 100px;
     font-family: 'Caveat Brush', cursive;
     color: white;
@@ -43,18 +42,15 @@
     background-color: red !important;
     border-color: red !important;
     font-size: 30px;
-    transition: .5s ease;
-    position: absolute;
-    top: 50% !important;
-    left: 55%
+    position: relative;
+    text-align: center !important;
 }
 
 .btn-game-over-restart {
     background-color: red !important;
     border-color: red !important;
     font-size: 30px;
-    transition: .5s ease;
-    position: absolute;
-    top: 50% !important;
-    left: 45%
+    position: relative;
+    margin-right: 35px;
+    text-align: center !important;
 }

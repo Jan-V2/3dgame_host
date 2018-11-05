@@ -27,7 +27,7 @@
     </div>
     % v-if="current_menu === 'game_over'" =>
     <div id="game_over_id" class="game-over" ref="game_over">
-      <p class="game-over-title">Game Over</p>
+      <p class="game-over-title text-center">Game Over</p>
         % @click="restart_level()" =>
         <button type="button" class="btn btn-primary btn-game-over-restart">Restart</button>
         % @click="return_main_menu()" =>
