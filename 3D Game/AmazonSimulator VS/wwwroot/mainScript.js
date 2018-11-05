@@ -30,6 +30,8 @@ let levelData;
 let playerPosition;
 let animated = false;
 let three_started = false;
+let fragileObject;
+let fragile;
 
 const colors = Object.freeze({
     start_square: "",
@@ -212,7 +214,7 @@ function loadCube() {
 }
 
 function restart() {
-    var selectedObject = scene.getObjectByName("cube");
+    let selectedObject = scene.getObjectByName("cube");
     selectedObject.geometry.dispose();
     scene.remove(selectedObject);
 
@@ -222,6 +224,17 @@ function restart() {
         selectedObject.geometry.dispose();
         scene.remove(selectedObject);
     }
+
+    if (levelData.fragiles.length > 0 && fragileObject) {
+        scene.add(fragileObject);
+        fragileObject = false;
+    }
+
+    while (scene.getObjectByName("test")) {
+        selectedObject = scene.getObjectByName("test");
+        console.log(selectedObject);
+        selectedObject.name = "fragile";
+    } 
 
     try {
         clearInterval(blockMoveInterval);
@@ -340,11 +353,6 @@ function moveBlock(axis, dir, type) {
         }
 
         if (type === "move") {
-            /*
-            * todo bebaal eindbestemming
-            * todo check of de eindbestemming in het speelveld ligt
-            * todo recursive call met fall
-            */
             let endpoint = calcEndpoint();
             let validSpace;
             let validSpace2;
@@ -388,12 +396,12 @@ function moveBlock(axis, dir, type) {
                 if (levelData.fragiles.length > 0) {
                     for (let i = 0; i < levelData.fragiles.length; i++) {
                         if (levelData.fragiles[i].x === endpoint.x && levelData.fragiles[i].y === endpoint.y) {
-                            move(endpoint, "fall");
+                            move(endpoint, true);
                             return;
                         }
                     }
                 }
-                move(endpoint, "stay");
+                move(endpoint);
             }
         }
         else if (type === "fall") {
@@ -401,7 +409,7 @@ function moveBlock(axis, dir, type) {
         } 
     }
 
-    function move(givenEndpoint, action) {
+    function move(givenEndpoint, fragile) {
         blockMoveInterval = setInterval(function () {
             setRotPoint(startRot);
 
@@ -425,16 +433,35 @@ function moveBlock(axis, dir, type) {
 
                 winCheck(givenEndpoint);
                 triggerCheck(givenEndpoint);
-                if (action === "fall") {
-                    blockFallInterval = setInterval(function () {
-                        counter++;
-                        cube.position.y -= 0.12;
 
-                        if (counter >= 32) {
-                            clearInterval(blockFallInterval);
-                            store.commit("load_game_over");
-                        }
-                    }, animInterval);
+                if (fragile) fall4(givenEndpoint, 45);
+            }
+        }, animInterval);
+    }
+
+    function fall4(givenEndpoint, time) {
+        if (givenEndpoint) {
+            while (scene.getObjectByName("fragile")) {
+                fragileObject = scene.getObjectByName("fragile");
+
+                fragileObject.name = "test";
+                console.log("looping");
+
+                if (fragileObject.position.x === givenEndpoint.x && fragileObject.position.z === givenEndpoint.y) {
+                    scene.remove(fragileObject);
+                    break;
+                }
+            }
+        }
+
+        blockFallInterval = setInterval(function () {
+            counter++;
+            cube.position.y -= 0.18;
+
+            if (counter >= time) {
+                clearInterval(blockFallInterval);
+                if (givenEndpoint) {
+                    store.commit("load_game_over");
                 }
             }
         }, animInterval);
@@ -808,15 +835,8 @@ function moveBlock(axis, dir, type) {
     function winCheck(coord) {
         if (levelData.ends[0].x === coord.x && levelData.ends[0].y === coord.y) {
             inputReady = false;
-
-            blockFallInterval = setInterval(function () {
-                counter++;
-                cube.position.y -= 0.12;
-
-                if (counter >= 32) {
-                    clearInterval(blockFallInterval);
-                }
-            }, animInterval);
+            
+            fall4(0, 24);
 
             setTimeout(function () { store.commit("load_main_menu"); }, 100);
         }
