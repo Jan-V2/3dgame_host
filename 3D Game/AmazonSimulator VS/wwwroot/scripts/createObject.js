@@ -25,11 +25,11 @@
         else if (name === "fragile") {
             cubeMaterials = [
                 new THREE.MeshPhongMaterial({ visible: false }), //LEFT
-                new THREE.MeshPhongMaterial({ color: 0x6E6553, side: THREE.FrontSide }), //RIGHT
+                new THREE.MeshPhongMaterial({ color: 0x878787, side: THREE.FrontSide }), //RIGHT
                 new THREE.MeshPhongMaterial({ map: new THREE.TextureLoader().load("textures/IronFragileTex.png"), side: THREE.FrontSide }), //TOP
                 new THREE.MeshPhongMaterial({ visible: false }), //BOTTOM
-                new THREE.MeshPhongMaterial({ color: 0x6E6553, side: THREE.FrontSide }), //FRONT
-                new THREE.MeshPhongMaterial({ color: 0x6E6553, side: THREE.FrontSide }) //BACK
+                new THREE.MeshPhongMaterial({ color: 0x878787, side: THREE.FrontSide }), //FRONT
+                new THREE.MeshPhongMaterial({ color: 0x878787, side: THREE.FrontSide }) //BACK
             ];
         }
         else if (name === "trigger") {
