@@ -329,10 +329,10 @@ function moveBlock(axis, dir, type) {
             let validSpace2;
 
             if (endpoint.x % 1 === 0 && endpoint.y % 1 === 0) {
-                validSpace = validSpace2 = saveMapGet(endpoint.x, endpoint.y)
+                validSpace = validSpace2 = saveMapGet(endpoint.x, endpoint.y);
             }
             else if (endpoint.x % 1 !== 0 && endpoint.y % 1 === 0) {
-                validSpace = saveMapGet(endpoint.x + 0.5, endpoint.y)
+                validSpace = saveMapGet(endpoint.x + 0.5, endpoint.y);
                 validSpace2 = saveMapGet(endpoint.x - 0.5, endpoint.y);
                 if (axis === "x") {
                     changeR = true;
@@ -340,7 +340,7 @@ function moveBlock(axis, dir, type) {
                 else changeR = false;
             }
             else if (endpoint.x % 1 === 0 && endpoint.y % 1 !== 0) {
-                validSpace = saveMapGet(endpoint.x, endpoint.y + 0.5)
+                validSpace = saveMapGet(endpoint.x, endpoint.y + 0.5);
                 validSpace2 = saveMapGet(endpoint.x, endpoint.y - 0.5);
                 if (axis === "z") {
                     changeR = true;
