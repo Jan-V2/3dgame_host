@@ -9,12 +9,14 @@
 
     <script src="scripts/three.min.js"></script>
     <script src="scripts/LoadModel.js"></script>
+    <script src="scripts/createObject.js"></script>
     <script src="scripts/MTLLoader.js"></script>
     <script src="scripts/OBJLoader.js"></script>
     <script src="scripts/OrbitControls.js"></script>
     <script src="scripts/addSpotLight.js"></script>
     <script src="scripts/addPointLight.js"></script>
     <script src="scripts/SkyBox.js"></script>
+
 
     <script src="scripts/vue.js"></script>
     <script src="scripts/vueable.js"></script>
@@ -26,29 +28,20 @@
     <script src="utils.js"></script>
 
     <script src="mainScript.js"></script>
-
-
-    <script src="scripts/blockMovement.js"></script>
-
-
 </head>
 
 <body style="margin:0px;padding:0px;overflow:hidden;">
-
-<div style="position: absolute; left: 0px; top: 0px; z-index: 1" id="ui">
-    <div id="main_menu">
-        <main_menu>
-        </main_menu>
+    <div style="position: absolute; left: 0px; top: 0px; z-index: 1" id="ui">
+        <div id="main_menu">
+            <main_menu>
+            </main_menu>
+        </div>
     </div>
-</div>
-<div style="position: absolute; left: 0px; top: 0px; z-index: 0; width: 100px; height: 100px"></div>
-<div id="game" style="position: absolute; left: 0px; top: 0px; z-index: -1">
-
-</div>
+    <div style="position: absolute; left: 0px; top: 0px; z-index: 0; width: 100px; height: 100px"></div>
+    <div id="game" style="position: absolute; left: 0px; top: 0px; z-index: -1"></div>
 </body>
 
 <script src="ui.js"></script>
 <script src="scripts/bootstrap-4.1.3/js/bootstrap.js"></script>
-
 
 </html>
