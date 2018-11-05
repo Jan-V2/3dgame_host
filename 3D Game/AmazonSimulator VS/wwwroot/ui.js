@@ -101,67 +101,10 @@ let main_menu = new Vue({
     el: '#main_menu'
 });
 
-
-/*let x0 = null;
-
-function lock(e) { x0 = unify(e).clientX };
-
-let i = 0;
-
-var start = { x: 0, y: 0 };
-let px;
-let py;
-
-function touchStart(event) {
-
-    start.x = event.touches[0].pageX;
-    start.y = event.touches[0].pageY;
-}
-
-function touchMove(event) {
-
-    offset = {};
-
-    offset.x = start.x - event.touches[0].pageX;
-    offset.y = start.y - event.touches[0].pageY;
-    px = event.touches[0].pageX;
-    py = event.touches[0].pageY;
+function onTouch(evt) {
     
-
-    console.log(event.touches[0].pageX);
-    console.log(offset);
-    return offset;
 }
 
-function touchEnd(event) {
-    if (px < offset.x) {
-        moveBlock('x', "dec", "move");
-        console.log("dec")
-    } else if (px > offset.x) {
-        moveBlock('x', "inc", "move");
-        console.log("inc");
-    } if (py > offset.y) {
-        moveBlock('z', "dec", "move");
-        console.log("dec")
-    } else if (py < offset.y) {
-        moveBlock('z', "inc", "move");
-        console.log("inc");
-    }
-}
-function unify(e) { return e.changedTouches ? e.changedTouches[0] : e };
-function drag(e) {
-    e.preventDefault()
-    
-};
-
-_C.addEventListener('mousemove', drag, false);
-_C.addEventListener('touchmove', touchMove, false);
-_C.addEventListener('mousedown', lock, false);
-_C.addEventListener('touchstart', touchStart, false);
-
-_C.addEventListener('mouseup', move, false);
-_C.addEventListener('touchend', touchEnd, false);
-*/
 function swipedetect(el, callback) {
     console.log("swipedetect");
     var touchsurface = el,
@@ -184,7 +127,6 @@ function swipedetect(el, callback) {
         startX = touchobj.pageX
         startY = touchobj.pageY
         startTime = new Date().getTime() // record time when finger first makes contact with surface
-        e.preventDefault()
     }, false)
 
     touchsurface.addEventListener('touchmove', function (e) {
@@ -202,6 +144,38 @@ function swipedetect(el, callback) {
             }
             else if (Math.abs(distY) >= threshold && Math.abs(distX) <= restraint) { // 2nd condition for vertical swipe met
                 swipedir = (distY < 0) ? 'up' : 'down' // if dist traveled is negative, it indicates up swipe
+            } else {
+                e.preventDefault();
+                if (e.touches.length > 1 || (e.type == "touchend" && e.touches.length > 0))
+                    return;
+
+                var newEvt = document.createEvent("MouseEvents");
+                var type = null;
+                var touch = null;
+
+                switch (e.type) {
+                    case "touchstart":
+                        type = "mousedown";
+                        touch = e.changedTouches[0];
+                        break;
+                    case "touchmove":
+                        type = "mousemove";
+                        touch = e.changedTouches[0];
+                        break;
+                    case "touchend":
+                        type = "mouseup";
+                        touch = e.changedTouches[0];
+                        break;
+                }
+                /*var evt = new MouseEvent("click", {
+                    bubbles: true,
+                    cancelable: true,
+                    view: window
+                });*/
+                newEvt.MouseEvent(type, true, true, e.originalTarget.ownerDocument.defaultView, 0,
+                    touch.screenX, touch.screenY, touch.clientX, touch.clientY,
+                    e.ctrlKey, e.altKey, e.shiftKey, e.metaKey, 0, null);
+                e.originalTarget.dispatchEvent(evt);
             }
         }
         handleswipe(swipedir)
