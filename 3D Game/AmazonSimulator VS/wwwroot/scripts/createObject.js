@@ -42,7 +42,27 @@
                 new THREE.MeshPhongMaterial({ color: 0xFFD637, side: THREE.FrontSide }) //BACK
             ];
         }
+        else if (name === "antiTrigger") {
+            cubeMaterials = [
+                new THREE.MeshPhongMaterial({ visible: false }), //LEFT
+                new THREE.MeshPhongMaterial({ color: 0xD71404, side: THREE.FrontSide }), //RIGHT
+                new THREE.MeshPhongMaterial({ map: new THREE.TextureLoader().load("textures/RedTex.png"), side: THREE.FrontSide }), //TOP
+                new THREE.MeshPhongMaterial({ visible: false }), //BOTTOM
+                new THREE.MeshPhongMaterial({ color: 0xD71404, side: THREE.FrontSide }), //FRONT
+                new THREE.MeshPhongMaterial({ color: 0xD71404, side: THREE.FrontSide }) //BACK
+            ];
+        }
         else if (name === "bridge") {
+            cubeMaterials = [
+                new THREE.MeshPhongMaterial({ visible: false }), //LEFT
+                new THREE.MeshPhongMaterial({ color: 0x74603A, side: THREE.FrontSide }), //RIGHT
+                new THREE.MeshPhongMaterial({ map: new THREE.TextureLoader().load("textures/PlanksTex.png"), side: THREE.FrontSide }), //TOP
+                new THREE.MeshPhongMaterial({ visible: false }), //BOTTOM
+                new THREE.MeshPhongMaterial({ color: 0x74603A, side: THREE.FrontSide }), //FRONT
+                new THREE.MeshPhongMaterial({ color: 0x74603A, side: THREE.FrontSide }) //BACK
+            ];
+        }
+        else if (name === "antiBridge") {
             cubeMaterials = [
                 new THREE.MeshPhongMaterial({ visible: false }), //LEFT
                 new THREE.MeshPhongMaterial({ color: 0x74603A, side: THREE.FrontSide }), //RIGHT

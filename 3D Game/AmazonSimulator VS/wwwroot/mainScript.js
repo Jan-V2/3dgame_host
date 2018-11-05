@@ -104,6 +104,17 @@ function load_nieuw_level(level) {
         }
     }
 
+    for (let j = 0; j < levelData.antiBridges.length; j++) {
+        let antiBridgeY = levelData.antiBridges[j].y;
+        let antiBridgeX = levelData.antiBridges[j].x;
+        let plane = new createObject(squareSize, 0.1, squareSize, "antiBridge", false, true);
+        plane.position.z = squareSize * antiBridgeY;
+        plane.position.y = -0.05;
+        plane.position.x = squareSize * antiBridgeX;
+        scene.add(plane);
+        levelData.layout[antiBridgeY][antiBridgeX] = true;
+    }
+
     for (let i = 0; i < levelData.triggers.length; i++) {
         let triggerY = levelData.triggers[i].y;
         let triggerX = levelData.triggers[i].x;
@@ -115,6 +126,20 @@ function load_nieuw_level(level) {
             plane.position.x = squareSize * triggerX;
             scene.add(plane);
             levelData.layout[triggerY][triggerX] = true;
+        }
+    }
+
+    for (let i = 0; i < levelData.antiTriggers.length; i++) {
+        let antiTriggerY = levelData.antiTriggers[i].y;
+        let antiTriggerX = levelData.antiTriggers[i].x;
+
+        if (!levelData.layout[antiTriggerY][antiTriggerX]) {
+            let plane = new createObject(squareSize, 0.2, squareSize, "antiTrigger", false, true);
+            plane.position.z = squareSize * antiTriggerY;
+            plane.position.y = -0.1;
+            plane.position.x = squareSize * antiTriggerX;
+            scene.add(plane);
+            levelData.layout[antiTriggerY][antiTriggerX] = true;
         }
     }
 
@@ -221,6 +246,18 @@ function restart() {
         levelData.layout[selectedObject.position.z][selectedObject.position.x] = false;
         selectedObject.geometry.dispose();
         scene.remove(selectedObject);
+    }
+
+    for (let j = 0; j < levelData.antiBridges.length; j++) {
+        let antiBridgeY = levelData.antiBridges[j].y;
+        let antiBridgeX = levelData.antiBridges[j].x;
+
+        let plane = new createObject(squareSize, 0.1, squareSize, "antiBridge", false, true);
+        plane.position.z = squareSize * antiBridgeY;
+        plane.position.y = -0.05;
+        plane.position.x = squareSize * antiBridgeX;
+        scene.add(plane);
+        levelData.layout[antiBridgeY][antiBridgeX] = true;
     }
 
     if (levelData.fragiles.length > 0 && fragileObject) {
@@ -352,6 +389,8 @@ function moveBlock(axis, dir, type) {
 
         if (type === "move") {
             let endpoint = calcEndpoint();
+            let calcPoint1 = calcEndpoint();
+            let calcPoint2 = calcEndpoint();
             let validSpace;
             let validSpace2;
 
@@ -361,6 +400,9 @@ function moveBlock(axis, dir, type) {
             else if (endpoint.x % 1 !== 0 && endpoint.y % 1 === 0) {
                 validSpace = saveMapGet(endpoint.x + 0.5, endpoint.y);
                 validSpace2 = saveMapGet(endpoint.x - 0.5, endpoint.y);
+                calcPoint1.x = endpoint.x + 0.5;
+                calcPoint2.x = endpoint.x - 0.5;
+                calcPoint1.y = calcPoint2.y = endpoint.y;
                 if (axis === "x") {
                     changeR = true;
                 }
@@ -369,6 +411,9 @@ function moveBlock(axis, dir, type) {
             else if (endpoint.x % 1 === 0 && endpoint.y % 1 !== 0) {
                 validSpace = saveMapGet(endpoint.x, endpoint.y + 0.5);
                 validSpace2 = saveMapGet(endpoint.x, endpoint.y - 0.5);
+                calcPoint1.y = endpoint.y + 0.5;
+                calcPoint2.y = endpoint.y - 0.5;
+                calcPoint1.x = calcPoint2.x = endpoint.x;
                 if (axis === "z") {
                     changeR = true;
                 }
@@ -394,12 +439,12 @@ function moveBlock(axis, dir, type) {
                 if (levelData.fragiles.length > 0) {
                     for (let i = 0; i < levelData.fragiles.length; i++) {
                         if (levelData.fragiles[i].x === endpoint.x && levelData.fragiles[i].y === endpoint.y) {
-                            move(endpoint, true);
+                            move(endpoint, calcPoint1, calcPoint2, true);
                             return;
                         }
                     }
                 }
-                move(endpoint);
+                move(endpoint, calcPoint1, calcPoint2);
             }
         }
         else if (type === "fall") {
@@ -407,7 +452,7 @@ function moveBlock(axis, dir, type) {
         } 
     }
 
-    function move(givenEndpoint, fragile) {
+    function move(givenEndpoint, p1, p2, fragile) {
         blockMoveInterval = setInterval(function () {
             setRotPoint(startRot);
 
@@ -430,7 +475,7 @@ function moveBlock(axis, dir, type) {
                 clearInterval(blockMoveInterval);
 
                 winCheck(givenEndpoint);
-                triggerCheck(givenEndpoint);
+                triggerCheck(givenEndpoint, p1, p2);
 
                 if (fragile) fall4(givenEndpoint, 45);
             }
@@ -842,7 +887,7 @@ function moveBlock(axis, dir, type) {
         }
     }
 
-    function triggerCheck(coord) {
+    function triggerCheck(coord, c1, c2) {
         if (levelData.triggers.length > 0) {
             for (let i = 0; i < levelData.triggers.length; i++) {
                 let triggerX = levelData.triggers[i].x;
@@ -865,6 +910,31 @@ function moveBlock(axis, dir, type) {
                             levelData.layout[bridgeY][bridgeX] = false;
                             while (scene.getObjectByName("bridge")) {
                                 let selectedObject = scene.getObjectByName("bridge");
+                                selectedObject.geometry.dispose();
+                                scene.remove(selectedObject);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (levelData.antiTriggers.length > 0) {
+            for (let i = 0; i < levelData.antiTriggers.length; i++) {
+                let antiTriggerX = levelData.antiTriggers[i].x;
+                let antiTriggerY = levelData.antiTriggers[i].y;
+
+                console.log(c1);
+                console.log(c2);
+
+                if ((antiTriggerX === c1.x && antiTriggerY === c1.y) || (antiTriggerX === c2.x && antiTriggerY === c2.y) || (antiTriggerX === coord.x && antiTriggerY === coord.y)) {
+                    for (let j = 0; j < levelData.antiBridges.length; j++) {
+                        let antiBridgeY = levelData.antiBridges[j].y;
+                        let antiBridgeX = levelData.antiBridges[j].x;
+
+                        if (levelData.layout[antiBridgeY][antiBridgeX]) {
+                            levelData.layout[antiBridgeY][antiBridgeX] = false;
+                            while (scene.getObjectByName("antiBridge")) {
+                                let selectedObject = scene.getObjectByName("antiBridge");
                                 selectedObject.geometry.dispose();
                                 scene.remove(selectedObject);
                             }
