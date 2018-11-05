@@ -101,15 +101,16 @@ let main_menu = new Vue({
     el: '#main_menu'
 });
 
-const _C = document.querySelector('.container');
 
-let x0 = null;
+/*let x0 = null;
 
 function lock(e) { x0 = unify(e).clientX };
 
 let i = 0;
 
 var start = { x: 0, y: 0 };
+let px;
+let py;
 
 function touchStart(event) {
 
@@ -123,29 +124,30 @@ function touchMove(event) {
 
     offset.x = start.x - event.touches[0].pageX;
     offset.y = start.y - event.touches[0].pageY;
-    if (event.touches[0].pageX < offset.x) {
-        moveBlock('x', "dec", "move");
-        console.log("dec")
-    } else if (event.touches[0].pageX > offset.x) {
-        moveBlock('x', "inc", "move");
-        console.log("inc");
-    }
+    px = event.touches[0].pageX;
+    py = event.touches[0].pageY;
+    
 
     console.log(event.touches[0].pageX);
     console.log(offset);
     return offset;
 }
 
-function move(e) {
-    if (x0 || x0 === 0) {
-        let dx = unify(e).clientX - x0, s = Math.sign(dx);
-
-        if ((i > 0 || s < 0) && (i < N - 1 || s > 0))
-            console.log("touch");
-
-        x0 = null
+function touchEnd(event) {
+    if (px < offset.x) {
+        moveBlock('x', "dec", "move");
+        console.log("dec")
+    } else if (px > offset.x) {
+        moveBlock('x', "inc", "move");
+        console.log("inc");
+    } if (py > offset.y) {
+        moveBlock('z', "dec", "move");
+        console.log("dec")
+    } else if (py < offset.y) {
+        moveBlock('z', "inc", "move");
+        console.log("inc");
     }
-};
+}
 function unify(e) { return e.changedTouches ? e.changedTouches[0] : e };
 function drag(e) {
     e.preventDefault()
@@ -158,5 +160,68 @@ _C.addEventListener('mousedown', lock, false);
 _C.addEventListener('touchstart', touchStart, false);
 
 _C.addEventListener('mouseup', move, false);
-_C.addEventListener('touchend', move, false);
+_C.addEventListener('touchend', touchEnd, false);
+*/
+function swipedetect(el, callback) {
+    console.log("swipedetect");
+    var touchsurface = el,
+        swipedir,
+        startX,
+        startY,
+        distX,
+        distY,
+        threshold = 150, //required min distance traveled to be considered swipe
+        restraint = 100, // maximum distance allowed at the same time in perpendicular direction
+        allowedTime = 300, // maximum time allowed to travel that distance
+        elapsedTime,
+        startTime,
+        handleswipe = callback || function (swipedir) { }
 
+    touchsurface.addEventListener('touchstart', function (e) {
+        var touchobj = e.changedTouches[0]
+        swipedir = 'none'
+        dist = 0
+        startX = touchobj.pageX
+        startY = touchobj.pageY
+        startTime = new Date().getTime() // record time when finger first makes contact with surface
+        e.preventDefault()
+    }, false)
+
+    touchsurface.addEventListener('touchmove', function (e) {
+        e.preventDefault() // prevent scrolling when inside DIV
+    }, false)
+
+    touchsurface.addEventListener('touchend', function (e) {
+        var touchobj = e.changedTouches[0]
+        distX = touchobj.pageX - startX // get horizontal dist traveled by finger while in contact with surface
+        distY = touchobj.pageY - startY // get vertical dist traveled by finger while in contact with surface
+        elapsedTime = new Date().getTime() - startTime // get time elapsed
+        if (elapsedTime <= allowedTime) { // first condition for awipe met
+            if (Math.abs(distX) >= threshold && Math.abs(distY) <= restraint) { // 2nd condition for horizontal swipe met
+                swipedir = (distX < 0) ? 'left' : 'right' // if dist traveled is negative, it indicates left swipe
+            }
+            else if (Math.abs(distY) >= threshold && Math.abs(distX) <= restraint) { // 2nd condition for vertical swipe met
+                swipedir = (distY < 0) ? 'up' : 'down' // if dist traveled is negative, it indicates up swipe
+            }
+        }
+        handleswipe(swipedir)
+        e.preventDefault()
+    }, false)
+}
+
+var el = document.querySelector('.container');
+swipedetect(el, function (swipedir) {
+    if (swipedir == 'left') {
+        console.log("left swipe");
+        moveBlock('x', "dec", "move");
+    }
+    if (swipedir == 'right') {
+        moveBlock('x', "inc", "move");
+    }
+    if (swipedir == 'up') {
+        moveBlock('z', "inc", "move");
+    }
+    if (swipedir == 'down') {
+        moveBlock('z', "dec", "move");
+    }
+})
