@@ -1,11 +1,15 @@
 <div >
     % v-if="current_menu === 'main_menu'" =>
-    <div>
-        <div class="wrapper" ref="level_selector" v-bind:style="{paddingTop: padding_top + 'px',gridTemplateColumns: column_class_text }">
-            % v-for="level_num in _.range(num_available_levels)" @click="select_level(level_num + 1)" =>
-            <button type="button" class="btn btn-primary" >{{"level " + (level_num + 1)}}</button>
+    <div class="menu-background">
+        <div class="centervh">
+            <div>
+              <img src="textures/BloxorzLogo.png"></img>
+            </div>
+            <div class="wrapper" ref="level_selector" v-bind:style="{paddingTop: 100 + 'px',gridTemplateColumns: column_class_text }">
+                % v-for="level_num in _.range(num_available_levels)" @click="select_level(level_num + 1)" =>
+                <button type="button" class="btn btn-primary" >{{"level " + (level_num + 1)}}</button>
+            </div>
         </div>
-
     </div>
     % v-if="current_menu === 'game_ui'" =>
     <div>

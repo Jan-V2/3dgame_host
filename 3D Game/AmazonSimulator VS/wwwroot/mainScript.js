@@ -1,9 +1,6 @@
 // inclare letiables that are needed here so it's all grouped nicely
 let camera, scene, renderer;
 let cameraControls;
-// Path needs to be changed for both or we keep them doesn't really matter
-let modelPath = "/3dmodels/";
-let texturesPath = "/textures/models/";
 // Setup the size, animation tickrate, geometry & materials
 let squareSize = 1;
 let animInterval = 20;
@@ -841,7 +838,7 @@ function moveBlock(axis, dir, type) {
 
             store.commit("add_passed_level", current_level_number);
 
-            setTimeout(function () { store.commit("load_main_menu"); }, 100);
+            setTimeout(function () { store.commit("load_main_menu"); }, 24*animInterval);
         }
     }
 
