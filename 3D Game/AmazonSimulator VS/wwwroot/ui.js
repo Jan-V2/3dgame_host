@@ -1,6 +1,6 @@
 
 let main_menu_template;
-
+let is_on_mobile;
 let parser = new Vueable();
 // fetches the templates from the server.
 
@@ -30,17 +30,43 @@ const store = new Vuex.Store({
 });
 
 
+
+
+is_on_mobile = function() {
+    var userAgent = window.navigator.userAgent,
+        platform = window.navigator.platform,
+        iosPlatforms = ['iPhone', 'iPad', 'iPod'];
+
+    if (iosPlatforms.indexOf(platform) !== -1) {
+        return true;
+    } else if (/Android/.test(userAgent)) {
+        return true;
+    }
+
+    return false;
+}();
+
+
 Vue.component('main_menu', {
     template:  main_menu_template,
     data: function () {
-
+        let collum_width = 100;
+        let collums_style_text = "";
+        let max_collums = Math.floor(window.innerWidth / collum_width);
+        if (max_collums > 5){
+            max_collums = 5;
+        }
+        for (let i in _.range(max_collums)){
+            collums_style_text += " " + collum_width + "px";
+        }
 
         return {
             top_padding: 0,
             levels: levels,
             padding_top:0,
             game_started: false,
-            font_size: 10
+            font_size: 10,
+            columns_style:{gridTemplateColumns: collums_style_text}
         }
     },
     mounted: function(){
