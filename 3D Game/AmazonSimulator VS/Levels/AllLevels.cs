@@ -12,6 +12,11 @@ namespace Levels
     /// v = plane
     /// e = end / goal
     /// b = starting position
+    /// t = trigger to toggle bridges
+    /// a = bridge which can be toggled by triggers
+    /// f = fragile parts which can only be traversed sideways
+    /// q = 'antitrigger' to destroy 'antibridges'
+    /// u = 'antibridge' which is destroyed by 'antitrigger'
     /// </summary>
     public class AllLevels
     {
@@ -210,14 +215,31 @@ namespace Levels
             },
             new[,]
             {
+                { 'l', 'l', 'l', 'l', 'v', 'v', 'v', 'v', 'v', 'v' },
+                { 'l', 'l', 'l', 'l', 'v', 'v', 'v', 'v', 'v', 'v' },
+                { 'l', 'l', 'v', 'v', 'v', 'v', 'v', 'l', 'l', 'v' },
+                { 'v', 'v', 'v', 'l', 'l', 'f', 'l', 'l', 'l', 'f' },
+                { 'v', 'v', 'v', 'l', 'l', 'f', 'l', 'l', 'l', 'v' },
+                { 'v', 'f', 'f', 'f', 'f', 'f', 'l', 'l', 'l', 'v' },
+                { 'l', 'f', 'f', 'f', 'v', 'v', 'v', 'l', 'l', 'v' },
+                { 'l', 'f', 'v', 'f', 'v', 'e', 'v', 'l', 'l', 'v' },
+                { 'v', 'f', 'f', 'f', 'v', 'v', 'v', 'l', 'l', 'f' },
+                { 'v', 'f', 'f', 'f', 'l', 'l', 'l', 'l', 'l', 'v' },
+                { 'l', 'f', 'f', 'v', 'l', 'l', 'l', 'l', 'v', 'v' },
+                { 'l', 'l', 'l', 'v', 'v', 'v', 'v', 'v', 'v', 'v' },
+                { 'l', 'l', 'l', 'l', 'l', 'v', 'b', 'v', 'v', 'v' },
+                { 'l', 'l', 'l', 'l', 'l', 'v', 'v', 'v', 'l', 'l' }
+            },
+            new[,]
+            {
                 { 'v', 'v', 'v', 'v', 'l', 'l', 'l', 'l', 'l', 'v', 'v', 'v', 'v', 'v', 'v', 'l', 'l', 'l', 'l', 'l', 'l', 'l', 'l', 'l' },
                 { 'v', 'e', 'v', 'v', 'a', 'a', 'a', 'l', 'l', 'v', 'v', 'v', 'l', 'l', 'v', 'v', 'l', 'l', 'l', 'l', 'l', 'l', 'l', 'l' },
                 { 'v', 'v', 'v', 'l', 'l', 'l', 'a', 'l', 'l', 'v', 'v', 'v', 'l', 'l', 'v', 'v', 'l', 'l', 'l', 'l', 'l', 'l', 'l', 'l' },
                 { 'l', 'l', 'l', 'l', 'l', 'l', 'a', 'l', 'l', 'l', 'v', 'v', 'l', 'l', 'l', 'v', 'l', 'l', 'l', 'l', 'l', 'l', 'l', 'l' },
-                { 'l', 'l', 'l', 'v', 'v', 'v', 'v', 'v', 'l', 'l', 'l', 'v', 'v', 'l', 'l', 'v', 'v', 'v', 'v', 'l', 'l', 'l', 'l', 'l' },
+                { 'l', 'l', 'l', 'v', 'v', 'v', 'v', 'l', 'l', 'l', 'l', 'v', 'l', 'l', 'l', 'v', 'v', 'v', 'v', 'l', 'l', 'l', 'l', 'l' },
                 { 'l', 'l', 'v', 'v', 'l', 'l', 'v', 'v', 'v', 'l', 'l', 'v', 'v', 'l', 'l', 'v', 'v', 'v', 'v', 'l', 'l', 'l', 'l', 'l' },
                 { 'l', 'l', 'v', 'v', 'l', 'l', 'v', 'v', 'v', 'l', 'l', 'v', 'v', 'l', 'l', 'l', 'l', 'l', 'v', 'v', 'v', 'v', 'l', 'l' },
-                { 'l', 'l', 'v', 'l', 'l', 'l', 'l', 'l', 'v', 'l', 'l', 'v', 'v', 'l', 'l', 'l', 'l', 'l', 'v', 'v', 'v', 'v', 'v', 'l' },
+                { 'l', 'l', 'v', 'l', 'l', 'l', 'l', 'l', 'v', 'l', 'l', 'l', 'v', 'l', 'l', 'l', 'l', 'l', 'v', 'v', 'v', 'v', 'v', 'l' },
                 { 'v', 'v', 'v', 'v', 'v', 'l', 'l', 'l', 'v', 'v', 'l', 'l', 'v', 'l', 'l', 'l', 'l', 'l', 'l', 'l', 'l', 'v', 'v', 'v' },
                 { 'v', 'v', 'b', 'v', 'v', 'l', 'l', 'l', 'v', 'v', 'l', 'l', 'v', 'l', 'l', 'l', 'l', 'l', 'l', 'l', 'l', 'v', 't', 'v' },
                 { 'v', 'v', 'v', 'v', 'v', 'l', 'l', 'l', 'l', 'v', 'v', 'v', 'v', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'v', 'v', 'v' }

@@ -424,16 +424,16 @@ function moveBlock(axis, dir, type) {
             }
 
             if ((!validSpace ^ !validSpace2) && !changeR) {
-                fall3();
+                fall(3);
             }
             else if (!validSpace && !validSpace2) {
-                fall();
+                fall(0);
             }
             else if (!validSpace && validSpace2) {
-                fall2();
+                fall(2);
             }
             else if (validSpace && !validSpace2) {
-                fall1();
+                fall(1);
             }
             else {
                 if (levelData.fragiles.length > 0) {
@@ -492,12 +492,12 @@ function moveBlock(axis, dir, type) {
                     triggerCheck(givenEndpoint);
                 }
 
-                if (fragile) fall4(givenEndpoint, 45);
+                if (fragile) fall1(givenEndpoint, 45);
             }
         }, animInterval);
     }
 
-    function fall4(givenEndpoint, time) {
+    function fall1(givenEndpoint, time) {
         if (givenEndpoint) {
             while (scene.getObjectByName("fragile")) {
                 fragileObject = scene.getObjectByName("fragile");
@@ -525,12 +525,75 @@ function moveBlock(axis, dir, type) {
         }, animInterval);
     }
 
-    function fall() {
+    function fall(type) {
         blockMoveInterval = setInterval(function () {
+            if (type !== 0) {
+                if (counter >= 10 && counter < 20 && type === 1) {
+                    if (axis === "x") {
+                        ax = new THREE.Vector3(0, 0, 1);
+
+                        if (counter === 10 && changeR && dir === "dec") {
+                            r *= -1;
+                        }
+                        else {
+                            dir = "dec";
+                        }
+                    }
+                    else if (axis === "z") {
+                        ax = new THREE.Vector3(1, 0, 0);
+
+                        if (counter === 10 && changeR && dir === "dec") {
+                            r *= -1;
+                        }
+                        else {
+                            dir = "dec";
+                        }
+                    }
+                }
+                else if (counter >= 10 && counter < 20 && type === 2) {
+                    if (axis === "x") {
+                        ax = new THREE.Vector3(0, 0, 1);
+
+                        if (counter === 10 && changeR && dir === "inc") {
+                            r *= -1;
+                        }
+                        else {
+                            dir = "inc";
+                        }
+                    }
+                    else if (axis === "z") {
+                        ax = new THREE.Vector3(1, 0, 0);
+
+                        if (counter === 10 && changeR && dir === "inc") {
+                            r *= -1;
+                        }
+                        else {
+                            dir = "inc";
+                        }
+                    }
+                }
+                else if (counter >= 10 && counter < 20 && type === 3) {
+                    if (axis === "x") {
+                        if (counter === 10) {
+                            cubeX = cube.position.x;
+                            cubeZ = cube.position.z;
+                        }
+                        cubeY = cube.position.y -= 0.12;
+                    }
+                    else if (axis === "z") {
+                        if (counter === 10) {
+                            cubeX = cube.position.x;
+                            cubeZ = cube.position.z;
+                        }
+                        cubeY = cube.position.y -= 0.12;
+                    }
+                }
+            }
+
             setRotPoint(startRot);
 
-            if (counter >= 10) {
-                cube.position.y -= 0.2;
+            if (counter >= 10 && type === 0) {
+                cube.position.y -= 0.12;
                 cubeY = cube.position.y;
                 if (axis === 'x') {
                     if (dir === "dec") {
@@ -553,53 +616,59 @@ function moveBlock(axis, dir, type) {
                     }
                 }
             }
-
-            counter++;
-            cube.rotateAroundWorldAxis(p, ax, r);
-
-            if (counter >= 100) {
-                cube.rotation.x = correctRot(cube.rotation.x);
-                cube.rotation.z = correctRot(cube.rotation.z);
-
-                changeR = false;
-                clearInterval(blockMoveInterval);
-                store.commit("load_game_over");
-            }
-        }, animInterval);
-    }
-
-    function fall1() {
-        blockMoveInterval = setInterval(function () {
-            if (counter >= 10 && counter < 20) {
-                if (axis === "x") {
-                    ax = new THREE.Vector3(0, 0, 1);
-
-                    if (counter === 10 && changeR && dir === "dec") {
-                        r *= -1;
-                    }
-                    else {
-                        dir = "dec";
-                    }
-                }
-                else if (axis === "z") {
-                    ax = new THREE.Vector3(1, 0, 0);
-
-                    if (counter === 10 && changeR && dir === "dec") {
-                        r *= -1;
-                    }
-                    else {
-                        dir = "dec";
-                    }
-                }
-            }
-
-            setRotPoint(startRot);
-
-            if (counter >= 20 && counter < 30) {
+            else if (counter >= 20 && counter < 30 && (type === 2 || type === 3)) {
                 cube.position.y -= 0.1;
                 cubeY = cube.position.y;
             }
-            else if (counter >= 30) {
+            else if (counter >= 20 && type === 3) {
+                cube.position.y -= 0.1;
+                cubeY = cube.position.y;
+                if (axis === 'x') {
+                    if (dir === "dec") {
+                        cube.position.z -= 0.05;
+                        cubeZ -= 0.05;
+                    }
+                    else if (dir === "inc") {
+                        cube.position.z += 0.05;
+                        cubeZ += 0.05;
+                    }
+                }
+                else if (axis === 'z') {
+                    if (dir === "dec") {
+                        cube.position.x -= 0.05;
+                        cubeX -= 0.05;
+                    }
+                    else if (dir === "inc") {
+                        cube.position.x += 0.05;
+                        cubeX += 0.05;
+                    }
+                }
+            }
+            else if (counter >= 30 && type === 1) {
+                cube.position.y -= 0.1;
+                cubeY = cube.position.y;
+                if (axis === 'z') {
+                    if (dir === "dec") {
+                        cube.position.z -= 0.05;
+                        cubeZ -= 0.05;
+                    }
+                    else if (dir === "inc") {
+                        cube.position.z += 0.05;
+                        cubeZ += 0.05;
+                    }
+                }
+                else if (axis === 'x') {
+                    if (dir === "dec") {
+                        cube.position.x -= 0.05;
+                        cubeX -= 0.05;
+                    }
+                    else if (dir === "inc") {
+                        cube.position.x += 0.05;
+                        cubeX += 0.05;
+                    }
+                }
+            }
+            else if (counter >= 30 && type === 2) {
                 cube.position.y -= 0.1;
                 cubeY = cube.position.y;
                 if (axis === 'z') {
@@ -631,16 +700,38 @@ function moveBlock(axis, dir, type) {
                 cube.rotation.x = correctRot(cube.rotation.x);
                 cube.rotation.z = correctRot(cube.rotation.z);
 
-                changeR = false;
+                if (type === 0) changeR = false;
                 clearInterval(blockMoveInterval);
                 store.commit("load_game_over");
             }
         }, animInterval);
     }
 
-    function fall2() {
+    function fall1(type) {
         blockMoveInterval = setInterval(function () {
-            if (counter >= 10 && counter < 20) {
+            if (counter >= 10 && counter < 20 && type === 1) {
+                if (axis === "x") {
+                    ax = new THREE.Vector3(0, 0, 1);
+
+                    if (counter === 10 && changeR && dir === "dec") {
+                        r *= -1;
+                    }
+                    else {
+                        dir = "dec";
+                    }
+                }
+                else if (axis === "z") {
+                    ax = new THREE.Vector3(1, 0, 0);
+
+                    if (counter === 10 && changeR && dir === "dec") {
+                        r *= -1;
+                    }
+                    else {
+                        dir = "dec";
+                    }
+                }
+            }
+            else if (counter >= 10 && counter < 20 && type === 2) {
                 if (axis === "x") {
                     ax = new THREE.Vector3(0, 0, 1);
 
@@ -662,14 +753,54 @@ function moveBlock(axis, dir, type) {
                     }
                 }
             }
+            else if (counter >= 10 && counter < 20 && type === 3) {
+                if (axis === "x") {
+                    if (counter === 10) {
+                        cubeX = cube.position.x;
+                        cubeZ = cube.position.z;
+                    }
+                    cubeY = cube.position.y -= 0.12;
+                }
+                else if (axis === "z") {
+                    if (counter === 10) {
+                        cubeX = cube.position.x;
+                        cubeZ = cube.position.z;
+                    }
+                    cubeY = cube.position.y -= 0.12;
+                }
+            }
 
             setRotPoint(startRot);
 
-            if (counter >= 20 && counter < 30) {
+            if (counter >= 20 && counter < 30 && (type === 2 || type === 3)) {
                 cube.position.y -= 0.1;
                 cubeY = cube.position.y;
             }
-            else if (counter >= 30) {
+            else if (counter >= 20 && type === 3) {
+                cube.position.y -= 0.1;
+                cubeY = cube.position.y;
+                if (axis === 'x') {
+                    if (dir === "dec") {
+                        cube.position.z -= 0.05;
+                        cubeZ -= 0.05;
+                    }
+                    else if (dir === "inc") {
+                        cube.position.z += 0.05;
+                        cubeZ += 0.05;
+                    }
+                }
+                else if (axis === 'z') {
+                    if (dir === "dec") {
+                        cube.position.x -= 0.05;
+                        cubeX -= 0.05;
+                    }
+                    else if (dir === "inc") {
+                        cube.position.x += 0.05;
+                        cubeX += 0.05;
+                    }
+                }
+            }
+            else if (counter >= 30 && type === 1) {
                 cube.position.y -= 0.1;
                 cubeY = cube.position.y;
                 if (axis === 'z') {
@@ -693,44 +824,10 @@ function moveBlock(axis, dir, type) {
                     }
                 }
             }
-
-            counter++;
-            cube.rotateAroundWorldAxis(p, ax, r);
-
-            if (counter >= 80) {
-                cube.rotation.x = correctRot(cube.rotation.x);
-                cube.rotation.z = correctRot(cube.rotation.z);
-
-                changeR = false;
-                clearInterval(blockMoveInterval);
-                store.commit("load_game_over");
-            }
-        }, animInterval);
-    }
-
-    function fall3() {
-        blockMoveInterval = setInterval(function () {
-            if (counter >= 10 && counter < 20) {
-                if (axis === "x") {
-                    if (counter === 10) {
-                        cubeX = cube.position.x;
-                        cubeZ = cube.position.z;
-                    }
-                    cubeY = cube.position.y -= 0.12;
-                }
-                else if (axis === "z") {
-                    if (counter === 10) {
-                        cubeX = cube.position.x;
-                        cubeZ = cube.position.z;
-                    }
-                    cubeY = cube.position.y -= 0.12;
-                }
-            }
-            setRotPoint(startRot);
-            if (counter >= 20) {
+            else if (counter >= 30 && type === 2) {
                 cube.position.y -= 0.1;
                 cubeY = cube.position.y;
-                if (axis === 'x') {
+                if (axis === 'z') {
                     if (dir === "dec") {
                         cube.position.z -= 0.05;
                         cubeZ -= 0.05;
@@ -740,7 +837,7 @@ function moveBlock(axis, dir, type) {
                         cubeZ += 0.05;
                     }
                 }
-                else if (axis === 'z') {
+                else if (axis === 'x') {
                     if (dir === "dec") {
                         cube.position.x -= 0.05;
                         cubeX -= 0.05;
@@ -894,7 +991,7 @@ function moveBlock(axis, dir, type) {
         if (levelData.ends[0].x === coord.x && levelData.ends[0].y === coord.y) {
             inputReady = false;
             
-            fall4(0, 24);
+            fall1(0, 24);
 
             store.commit("add_passed_level", current_level_number);
 
