@@ -32,6 +32,7 @@ let animated = false;
 let three_started = false;
 let fragileObject;
 let fragile;
+let current_level_number;
 
 const colors = Object.freeze({
     start_square: "",
@@ -837,6 +838,8 @@ function moveBlock(axis, dir, type) {
             inputReady = false;
             
             fall4(0, 24);
+
+            store.commit("add_passed_level", current_level_number);
 
             setTimeout(function () { store.commit("load_main_menu"); }, 100);
         }

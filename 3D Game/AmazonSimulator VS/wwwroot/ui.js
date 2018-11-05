@@ -18,12 +18,27 @@ r_async.parallel([
 
 const store = new Vuex.Store({
     state: {
-        menu: "main_menu"
+        menu: "main_menu",
+        passed_levels : [],
+
     },
     mutations: {
         load_main_menu: state => state.menu = "main_menu",
         load_game_ui: state => state.menu = "game_ui",
-        load_game_over: state => state.menu = "game_over"
+        load_game_over: state => state.menu = "game_over",
+        add_passed_level: (state, level_num) => {
+            if (state.passed_levels.indexOf(level_num) === -1){
+                state.passed_levels.push(level_num);
+                document.cookie = JSON.stringify(state.passed_levels);
+            }
+        },
+        load_unlocks_from_cookie:(state) => {
+            try {
+                state.passed_levels = JSON.parse(document.cookie);
+            }
+            catch(err) {
+            }
+        }
     }
 });
 
@@ -48,23 +63,18 @@ is_on_mobile = function() {
 Vue.component('main_menu', {
     template:  main_menu_template,
     data: function () {
-        let collum_width = 100;
-        let collums_style_text = "";
-        let max_collums = Math.floor(window.innerWidth / collum_width);
-        if (max_collums > 5){
-            max_collums = 5;
-        }
-        for (let i in _.range(max_collums)){
-            collums_style_text += " " + collum_width + "px";
-        }
 
+        store.commit("load_unlocks_from_cookie")
         return {
             top_padding: 0,
-            levels: levels,
             padding_top:0,
             game_started: false,
             font_size: 10,
-            columns_style:{gridTemplateColumns: collums_style_text}
+            collumn_css: undefined,
+            classObject: {
+                    color: "blue",
+
+            }
         }
     },
     mounted: function(){
@@ -74,15 +84,48 @@ Vue.component('main_menu', {
     computed:{
         current_menu: function () {
             return store.state.menu;
-        }
+        },
+        num_available_levels: function () {
+            if(devmode){
+                return levels;
+            }else{
+                let ret = store.state.passed_levels.length +1;
+                if (ret > levels){
+                    return levels;
+                }else{
+                    return ret;
+                }
+
+            }
+        },
+        column_class_text: function () {
+            let collum_width = 100;
+            let collums_style_text = "";
+            let max_collums = Math.floor(window.innerWidth / collum_width);
+            if (max_collums > 5){
+                max_collums = 5;
+            }
+            if (this.num_available_levels < max_collums){
+                max_collums = this.num_available_levels;
+            }
+            for (let i in _.range(max_collums)){
+                collums_style_text += " " + collum_width + "px";
+            }
+            return collums_style_text;
+        },
+
     },
     methods: {
+
+
+
         select_level: function (level_num) {
             console.log(level_num);
             //this.game_started = true;
             store.commit("load_game_ui");
             console.log(store.state.menu);
             load_nieuw_level(JSON.parse(utils.syncAjax("api/levels/" +level_num)));
+            current_level_number = level_num;
         },
         recalculate_padding: function () {
             if (this.$refs.level_selector !== undefined){
