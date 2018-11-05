@@ -16,8 +16,6 @@ r_async.parallel([
 * options?
 */
 
-
-
 const store = new Vuex.Store({
     state: {
         menu: "main_menu"
@@ -101,7 +99,19 @@ Vue.component('main_menu', {
             restart();
         },
         return_main_menu: function () {
-            store.commit("load_main_menu")
+            store.commit("load_main_menu");
+        },
+        up_press: function () {
+            moveBlock('z', "inc", "move");
+        },
+        down_press: function () {
+            moveBlock('z', "dec", "move");
+        },
+        left_press: function () {
+            moveBlock('x', "dec", "move");
+        },
+        right_press: function () {
+            moveBlock('x', "inc", "move");
         }
     }
 });

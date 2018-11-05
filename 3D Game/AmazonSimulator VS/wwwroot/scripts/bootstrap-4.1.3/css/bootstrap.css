@@ -468,6 +468,12 @@ mark,
   font-size: 1.25rem;
 }
 
+.centerelement {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .blockquote-footer {
   display: block;
   font-size: 80%;

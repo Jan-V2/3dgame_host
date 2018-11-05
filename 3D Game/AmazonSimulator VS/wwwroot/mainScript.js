@@ -4,16 +4,9 @@ let cameraControls;
 // Path needs to be changed for both or we keep them doesn't really matter
 let modelPath = "/3dmodels/";
 let texturesPath = "/textures/models/";
-// Setup the size, tickrate, geometry & materials
+// Setup the size, animation tickrate, geometry & materials
 let squareSize = 1;
 let animInterval = 20;
-let cubeGeometry = new THREE.CubeGeometry(squareSize, (squareSize*2), squareSize);
-let cubeMaterial = new THREE.MeshPhysicalMaterial({ color: 0xFF0000 });
-let planeGeometry = new THREE.PlaneGeometry(squareSize, squareSize);
-let planeMaterial = new THREE.MeshPhongMaterial({ color: 0x808080, side: THREE.DoubleSide });
-let bridgeMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFF00, side: THREE.DoubleSide });
-let triggerMaterial = new THREE.MeshPhongMaterial({ color: 0x00FF00, side: THREE.DoubleSide });
-let endMaterial = new THREE.MeshPhongMaterial({ color: 0x0000FF, side: THREE.DoubleSide });
 // initiate the rest of the global variables
 let dummy;
 let cube;
@@ -32,11 +25,11 @@ let flatZ;
 let counter;
 let p;
 let ax;
-let inputReady;
+var inputReady;
 let blockMoveInterval;
 let levelData;
 let playerPosition;
-let animations_blocked =false;
+let animated = false;
 let three_started = false;
 
 const colors = Object.freeze({
@@ -60,28 +53,24 @@ THREE.Object3D.prototype.rotateAroundWorldAxis = function () {
     };
 }();
 
-// Sets up a connection with the server and handles the server commands
-function startUp(level) {
-    levelData = level;
-    init3d(level);
-    initInput();
-    animate();
-}
+function load_nieuw_level(level) {
+    let old_game = $("#game")[0].firstChild;
+    if (old_game) {
+        old_game.remove();
+        if (renderer) {
+            renderer.forceContextLoss();
+        }
+    }
 
-// Sets up all the stuff we need
-function init3d() {
-    // For debugging / performance stats, could be handy dandy when trying it on a mobile device
-    /* (function () { var script = document.createElement('script'); script.onload = function () {
-                var stats = new Stats();
-                $("#game")[0].appendChild(stats.dom);
-                requestAnimationFrame(function loop() {
-                    stats.update();
-                    requestAnimationFrame(loop)
-                });
-            };
-                script.src = '//rawgit.com/mrdoob/stats.js/master/build/stats.min.js'; document.head.appendChild(script);
-            }
-        )();*/
+    try {
+        clearInterval(blockMoveInterval);
+        clearInterval(blockMoveInterval);
+    }
+    catch{
+        console.log("No intervals to clear");
+    }
+
+    levelData = level;
 
     // Create Scene
     scene = new THREE.Scene();
@@ -100,16 +89,17 @@ function init3d() {
     // Continuesly check if the window gets resized
     window.addEventListener('resize', onWindowResize, false);
 
+    initInput();
+    three_started = true;
+
     // Create the groundplanes
     for (let i = 0; i < levelData.layout.length; i++) {
         for (let j = 0; j < levelData.layout[0].length; j++) {
             if (levelData.layout[i][j]) {
-                let plane = new THREE.Mesh(planeGeometry, planeMaterial);
-                plane.rotation.x = Math.PI / 2.0;
+                let plane = new createObject(squareSize, 0.2, squareSize, "plane", false, true);
                 plane.position.z = squareSize * i;
+                plane.position.y = -0.1;
                 plane.position.x = squareSize * j;
-                plane.receiveShadow = true;
-                plane.castShadow = false;
                 scene.add(plane);
             }
         }
@@ -120,13 +110,10 @@ function init3d() {
         let triggerX = levelData.triggers[i].x;
 
         if (!levelData.layout[triggerY][triggerX]) {
-            let plane = new THREE.Mesh(planeGeometry, triggerMaterial);
-            plane.rotation.x = Math.PI / 2.0;
+            let plane = new createObject(squareSize, 0.2, squareSize, "trigger", false, true);
             plane.position.z = squareSize * triggerY;
+            plane.position.y = -0.1;
             plane.position.x = squareSize * triggerX;
-            plane.receiveShadow = true;
-            plane.castShadow = false;
-            plane.name = "trigger";
             scene.add(plane);
             levelData.layout[triggerY][triggerX] = true;
         }
@@ -137,31 +124,28 @@ function init3d() {
         let endX = levelData.ends[i].x;
 
         if (!levelData.layout[endY][endX]) {
-            let plane = new THREE.Mesh(planeGeometry, endMaterial);
-            plane.rotation.x = Math.PI / 2.0;
+            let plane = new createObject(squareSize - 0.01, 1, squareSize - 0.01, "end", false, true);
             plane.position.z = squareSize * endY;
+            plane.position.y = -0.57;
             plane.position.x = squareSize * endX;
-            plane.receiveShadow = true;
-            plane.castShadow = false;
-            plane.name = "end";
+            scene.add(plane);
+            plane = new createObject(squareSize + 0.01, 2.5, squareSize + 0.01, "end2", false, false);
+            plane.position.z = squareSize * endY;
+            plane.position.y = -1.4;
+            plane.position.x = squareSize * endX;
             scene.add(plane);
             levelData.layout[endY][endX] = true;
         }
     }
 
-    dummy = new THREE.Object3D;
-    loadCube();
-
     // Setup camera
     camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 1000);
     cameraControls = new THREE.OrbitControls(camera);
-    cameraControls.target = dummy.position;
-    camera.position.z = dummy.position.z - 3;
-    camera.position.y = 15;
-    camera.position.x = dummy.position.x - 20;
-    camera.zoom = 2.5;
+    camera.zoom = 5;
     camera.updateProjectionMatrix();
     cameraControls.update();
+
+    loadCube();
 
     // Add lighting to the scene
     let light = new THREE.PointLight(0x404040);
@@ -177,63 +161,57 @@ function init3d() {
     light = new THREE.AmbientLight(0x404040);
     light.intensity = 2;
     scene.add(light);
+
+    if (!animated) {
+        animate();
+        animated = true;
+    }
 }
 
 function loadCube() {
-    cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
-
     cubeY = 1;
     changeR = false;
     flatX = false;
     flatZ = false;
     inputReady = true;
-    bridgesTriggered = false;
+
+    dummy = new THREE.Object3D;
 
     cubeX = levelData.starts[0].x;
     cubeZ = levelData.starts[0].y;
     playerPosition = new FlatCoord(levelData.starts[0].x, levelData.starts[0].y);
 
-    cube.name = "cube";
+    cube = new createObject(squareSize, squareSize * 2, squareSize, "cube", true, false);
     cube.position.x = cubeX;
     cube.position.y = cubeY;
     cube.position.z = cubeZ;
-    cube.castShadow = true;
-    cube.receiveShadow = false;
     scene.add(cube);
     
     dummy.position.x = cube.position.x;
-    dummy.position.y = 3;
+    dummy.position.y = 0;
     dummy.position.z = cube.position.z;
+
+    cameraControls.target = dummy.position;
+    camera.position.z = dummy.position.z - 3;
+    camera.position.y = 15;
+    camera.position.x = dummy.position.x - 30;
+    cameraControls.update();
 }
 
 function restart() {
-    var selectedObject = scene.getObjectByName("cube");
-    selectedObject.geometry.dispose();
-    selectedObject.material.dispose();
-    scene.remove(selectedObject);
-
-    while (scene.getObjectByName("bridge")) {
-        selectedObject = scene.getObjectByName("bridge");
-        levelData.layout[selectedObject.position.z][selectedObject.position.x] = false;
-        selectedObject.geometry.dispose();
-        selectedObject.material.dispose();
-        scene.remove(selectedObject);
+    for (let i = 0; i < levelData.triggers.length; i++) {
+        levelData.layout[levelData.triggers[i].y][levelData.triggers[i].x] = false;
     }
 
-    try {
-        clearInterval(blockMoveInterval);
-        clearInterval(blockMoveInterval);
-    }
-    catch{
-        console.log("interval undefined");
+    for (let i = 0; i < levelData.ends.length; i++) {
+        levelData.layout[levelData.ends[i].y][levelData.ends[i].x] = false;
     }
 
-    loadCube();
+    for (let i = 0; i < levelData.bridges.length; i++) {
+        levelData.layout[levelData.bridges[i].y][levelData.bridges[i].x] = false;
+    }
 
-    camera.position.z = dummy.position.z - 3;
-    camera.position.y = 15;
-    camera.position.x = dummy.position.x - 20;
-    cameraControls.update();
+    load_nieuw_level(levelData);
 }
 
 function initInput() {
@@ -241,13 +219,28 @@ function initInput() {
         if (inputReady === true) {
             if (event.key === "w" || event.key === "W") {
                 moveBlock('z', "inc", "move");
-            } else if (event.key === "a" || event.key === "A") {
+            }
+            else if (event.key === "a" || event.key === "A") {
                 moveBlock('x', "dec", "move");
-            } else if (event.key === "s" || event.key === "S") {
+            }
+            else if (event.key === "s" || event.key === "S") {
                 moveBlock('z', "dec", "move");
-            } else if (event.key === "d" || event.key === "D") {
+            }
+            else if (event.key === "d" || event.key === "D") {
                 moveBlock('x', "inc", "move");
-            } 
+            }
+            else if (event.keyCode === 38) {
+                moveBlock('z', "inc", "move");
+            }
+            else if (event.keyCode === 37) {
+                moveBlock('x', "dec", "move");
+            }
+            else if (event.keyCode === 40) {
+                moveBlock('z', "dec", "move");
+            }
+            else if (event.keyCode === 39) {
+                moveBlock('x', "inc", "move");
+            }
         }
     });
 }
@@ -266,124 +259,118 @@ function onWindowResize() {
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-
 function moveBlock(axis, dir, type) {
     let counter = 0;
     let startRot = 0;
-    inputReady = false;
 
-    cubeX = cube.position.x;
-    cubeY = cube.position.y;
-    cubeZ = cube.position.z;
+    if (inputReady === true) {
+        inputReady = false;
 
-    if (axis === 'x') {
-        startRot = cube.rotation.x;
-        yOffsetZ = 0;
-        xOffset = 0;
-        ax = new THREE.Vector3(1, 0, 0);
+        cubeX = cube.position.x;
+        cubeY = cube.position.y;
+        cubeZ = cube.position.z;
 
-        if (flatZ) {
-            yOffset = 0.5;
-        }
-        else {
-            yOffset = 1;
-        }
+        if (axis === 'x') {
+            startRot = cube.rotation.x;
+            yOffsetZ = 0;
+            xOffset = 0;
+            ax = new THREE.Vector3(1, 0, 0);
 
-        if (dir === "dec") {
-            r = -Math.PI / 20;
-            zOffset = -0.5;
-            yOffsetX = yOffset * -1;
-        }
-        else if (dir === "inc") {
-            r = Math.PI / 20;
-            zOffset = 0.5;
-            yOffsetX = yOffset;
-        }
-    }
-    else if (axis === 'z') {
-        startRot = cube.rotation.z;
-        yOffsetX = 0;
-        zOffset = 0;
-        ax = new THREE.Vector3(0, 0, 1);
-
-        if (flatX) {
-            yOffset = 0.5;
-        }
-        else {
-            yOffset = 1;
-        }
-
-        if (dir === "dec") {
-            r = Math.PI / 20;
-            xOffset = -0.5;
-            yOffsetZ = yOffset * -1;
-        }
-        else if (dir === "inc") {
-            r = -Math.PI / 20;
-            xOffset = 0.5;
-            yOffsetZ = yOffset;
-        }
-    }
-
-    if (type === "move") {
-        /*
-        * todo bebaal eindbestemming
-        * todo check of de eindbestemming in het speelveld ligt
-        * todo recursive call met fall
-        */
-        let endpoint = calcEndpoint();
-        let validSpace;
-        let validSpace2;
-
-        console.log(endpoint);
-
-        if (endpoint.x % 1 === 0 && endpoint.y % 1 === 0) {
-            validSpace = validSpace2 = saveMapGet(endpoint.x, endpoint.y)
-        } else if (endpoint.x % 1 !== 0 && endpoint.y % 1 === 0) {
-            validSpace = saveMapGet(endpoint.x + 0.5, endpoint.y)
-            validSpace2 = saveMapGet(endpoint.x - 0.5, endpoint.y);
-            if (axis === "x") {
-                changeR = true;
+            if (flatZ) {
+                yOffset = 0.5;
             }
-            else changeR = false;
-        } else if (endpoint.x % 1 === 0 && endpoint.y % 1 !== 0) {
-            validSpace = saveMapGet(endpoint.x, endpoint.y + 0.5)
-            validSpace2 = saveMapGet(endpoint.x, endpoint.y - 0.5);
-            if (axis === "z") {
-                changeR = true;
+            else {
+                yOffset = 1;
             }
-            else changeR = false;
-        } else {
-            console.log("niet afgevangen");
-            console.log(cube.position);
+
+            if (dir === "dec") {
+                r = -Math.PI / 20;
+                zOffset = -0.5;
+                yOffsetX = yOffset * -1;
+            }
+            else if (dir === "inc") {
+                r = Math.PI / 20;
+                zOffset = 0.5;
+                yOffsetX = yOffset;
+            }
+        }
+        else if (axis === 'z') {
+            startRot = cube.rotation.z;
+            yOffsetX = 0;
+            zOffset = 0;
+            ax = new THREE.Vector3(0, 0, 1);
+
+            if (flatX) {
+                yOffset = 0.5;
+            }
+            else {
+                yOffset = 1;
+            }
+
+            if (dir === "dec") {
+                r = Math.PI / 20;
+                xOffset = -0.5;
+                yOffsetZ = yOffset * -1;
+            }
+            else if (dir === "inc") {
+                r = -Math.PI / 20;
+                xOffset = 0.5;
+                yOffsetZ = yOffset;
+            }
         }
 
-        console.log(levelData.layout);
-        console.log("opspeelveld " + validSpace);
-        console.log("opspeelveld2 " + validSpace2);
-        console.log("changeR" + changeR);
-        if ((!validSpace ^ !validSpace2) && !changeR) {
-            fall3();
-            console.log("fall3");
+        if (type === "move") {
+            /*
+            * todo bebaal eindbestemming
+            * todo check of de eindbestemming in het speelveld ligt
+            * todo recursive call met fall
+            */
+            let endpoint = calcEndpoint();
+            let validSpace;
+            let validSpace2;
+
+            if (endpoint.x % 1 === 0 && endpoint.y % 1 === 0) {
+                validSpace = validSpace2 = saveMapGet(endpoint.x, endpoint.y)
+            }
+            else if (endpoint.x % 1 !== 0 && endpoint.y % 1 === 0) {
+                validSpace = saveMapGet(endpoint.x + 0.5, endpoint.y)
+                validSpace2 = saveMapGet(endpoint.x - 0.5, endpoint.y);
+                if (axis === "x") {
+                    changeR = true;
+                }
+                else changeR = false;
+            }
+            else if (endpoint.x % 1 === 0 && endpoint.y % 1 !== 0) {
+                validSpace = saveMapGet(endpoint.x, endpoint.y + 0.5)
+                validSpace2 = saveMapGet(endpoint.x, endpoint.y - 0.5);
+                if (axis === "z") {
+                    changeR = true;
+                }
+                else changeR = false;
+            }
+            else {
+                console.log("How did you end up here?");
+            }
+
+            if ((!validSpace ^ !validSpace2) && !changeR) {
+                fall3();
+            }
+            else if (!validSpace && !validSpace2) {
+                fall();
+            }
+            else if (!validSpace && validSpace2) {
+                fall2();
+            }
+            else if (validSpace && !validSpace2) {
+                fall1();
+            }
+            else {
+                move(endpoint);
+            }
         }
-        else if (!validSpace && !validSpace2) {
+        else if (type === "fall") {
             fall();
-            console.log("fall");
-        }
-        else if (!validSpace && validSpace2) {
-            fall2();
-            console.log("fall2");
-        }
-        else if (validSpace && !validSpace2) {
-            fall1();
-            console.log("fall1");
-        }
-        else {
-            move(endpoint);
-        }
-    }
-    else if (type === "fall") {
-        fall();
+        } 
     }
 
     function move(givenEndpoint) {
@@ -395,7 +382,7 @@ function moveBlock(axis, dir, type) {
 
             dummy.position.x = cube.position.x;
             dummy.position.z = cube.position.z;
-            camera.position.x = dummy.position.x - 20;
+            camera.position.x = dummy.position.x - 30;
             camera.position.z = dummy.position.z - 3;
 
             if (counter >= 10) {
@@ -403,7 +390,6 @@ function moveBlock(axis, dir, type) {
                 cube.rotation.z = correctRot(cube.rotation.z);
 
                 toggleFlat(axis);
-                console.log(cube.position);
 
                 inputReady = true;
 
@@ -447,11 +433,10 @@ function moveBlock(axis, dir, type) {
             counter++;
             cube.rotateAroundWorldAxis(p, ax, r);
 
-            if (counter >= 100) {
+            if (counter >= 80) {
                 cube.rotation.x = correctRot(cube.rotation.x);
                 cube.rotation.z = correctRot(cube.rotation.z);
 
-                inputReady = true;
                 changeR = false;
                 clearInterval(blockMoveInterval);
                 store.commit("load_game_over");
@@ -465,35 +450,22 @@ function moveBlock(axis, dir, type) {
                 if (axis === "x") {
                     ax = new THREE.Vector3(0, 0, 1);
 
-                    console.log(changeR);
-
                     if (counter === 10 && changeR && dir === "dec") {
                         r *= -1;
-
-                        console.log("R changed");
                     }
                     else {
                         dir = "dec";
                     }
-                    console.log("x as");
-                    console.log("dir: " + dir);
                 }
                 else if (axis === "z") {
                     ax = new THREE.Vector3(1, 0, 0);
 
-                    console.log(changeR);
-
                     if (counter === 10 && changeR && dir === "dec") {
                         r *= -1;
-
-                        console.log("R changed");
                     }
                     else {
                         dir = "dec";
                     }
-
-                    console.log("z as");
-                    console.log("dir: " + dir);
                 }
             }
 
@@ -531,11 +503,10 @@ function moveBlock(axis, dir, type) {
             counter++;
             cube.rotateAroundWorldAxis(p, ax, r);
 
-            if (counter >= 100) {
+            if (counter >= 80) {
                 cube.rotation.x = correctRot(cube.rotation.x);
                 cube.rotation.z = correctRot(cube.rotation.z);
 
-                inputReady = true;
                 changeR = false;
                 clearInterval(blockMoveInterval);
                 store.commit("load_game_over");
@@ -549,37 +520,22 @@ function moveBlock(axis, dir, type) {
                 if (axis === "x") {
                     ax = new THREE.Vector3(0, 0, 1);
 
-                    console.log(changeR);
-
                     if (counter === 10 && changeR && dir === "inc") {
                         r *= -1;
-
-                        console.log("R changed");
                     }
                     else {
                         dir = "inc";
                     }
-
-                    console.log("x as");
-                    console.log("dir: " + dir);
-
                 }
                 else if (axis === "z") {
                     ax = new THREE.Vector3(1, 0, 0);
 
-                    console.log(changeR);
-
                     if (counter === 10 && changeR && dir === "inc") {
                         r *= -1;
-
-                        console.log("R changed");
                     }
                     else {
                         dir = "inc";
                     }
-
-                    console.log("z as");
-                    console.log("dir: " + dir);
                 }
             }
 
@@ -617,11 +573,10 @@ function moveBlock(axis, dir, type) {
             counter++;
             cube.rotateAroundWorldAxis(p, ax, r);
 
-            if (counter >= 100) {
+            if (counter >= 80) {
                 cube.rotation.x = correctRot(cube.rotation.x);
                 cube.rotation.z = correctRot(cube.rotation.z);
 
-                inputReady = true;
                 changeR = false;
                 clearInterval(blockMoveInterval);
                 store.commit("load_game_over");
@@ -676,11 +631,10 @@ function moveBlock(axis, dir, type) {
             counter++;
             cube.rotateAroundWorldAxis(p, ax, r);
 
-            if (counter >= 100) {
+            if (counter >= 80) {
                 cube.rotation.x = correctRot(cube.rotation.x);
                 cube.rotation.z = correctRot(cube.rotation.z);
 
-                inputReady = true;
                 changeR = false;
                 clearInterval(blockMoveInterval);
                 store.commit("load_game_over");
@@ -731,8 +685,6 @@ function moveBlock(axis, dir, type) {
                 flatZ = !flatZ;
             }
         }
-        console.log("flatX: " + flatX);
-        console.log("flatZ: " + flatZ);
     }
 
     function quantNum(num) {
@@ -740,9 +692,11 @@ function moveBlock(axis, dir, type) {
         let remainder = num - integerComp;
         if (0.25 < remainder && remainder <= 0.75) {
             return integerComp + 0.5;
-        } else if (remainder > 0.75) {
+        }
+        else if (remainder > 0.75) {
             return integerComp + 1;
-        } else {
+        }
+        else {
             return integerComp;
         }
     }
@@ -750,48 +704,49 @@ function moveBlock(axis, dir, type) {
     function calcEndpoint() {
         if (!flatX && !flatZ) {
             if (axis === "x") {
-                console.log("z as");
                 if (dir === "inc") {
                     return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) + 1.5);
-                } else if (dir === "dec") {
+                }
+                else if (dir === "dec") {
                     return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) - 1.5);
                 }
-            } else if (axis === "z") {
-                console.log("x as");
-
+            }
+            else if (axis === "z") {
                 if (dir === "inc") {
-                    console.log("inc");
-
                     return new FlatCoord(quantNum(cube.position.x) + 1.5, quantNum(cube.position.z));
-                } else if (dir === "dec") {
-                    console.log("dec");
-
+                }
+                else if (dir === "dec") {
                     return new FlatCoord(quantNum(cube.position.x) - 1.5, quantNum(cube.position.z));
                 }
             }
-        } else {
+        }
+        else {
             if (flatZ && axis === "x") {
                 if (dir === "inc") {
                     return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) + 1);
-                } else if (dir === "dec") {
+                }
+                else if (dir === "dec") {
                     return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) - 1);
                 }
             } if (flatX && axis === "x") {
                 if (dir === "inc") {
                     return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) + 1.5);
-                } else if (dir === "dec") {
+                }
+                else if (dir === "dec") {
                     return new FlatCoord(quantNum(cube.position.x), quantNum(cube.position.z) - 1.5);
                 }
             } else if (flatX && axis === "z") {
                 if (dir === "inc") {
                     return new FlatCoord(quantNum(cube.position.x) + 1, quantNum(cube.position.z));
-                } else if (dir === "dec") {
+                }
+                else if (dir === "dec") {
                     return new FlatCoord(quantNum(cube.position.x) - 1, quantNum(cube.position.z));
                 }
             } else if (flatZ && axis === "z") {
                 if (dir === "inc") {
                     return new FlatCoord(quantNum(cube.position.x) + 1.5, quantNum(cube.position.z));
-                } else if (dir === "dec") {
+                }
+                else if (dir === "dec") {
                     return new FlatCoord(quantNum(cube.position.x) - 1.5, quantNum(cube.position.z));
                 }
             }
@@ -800,24 +755,31 @@ function moveBlock(axis, dir, type) {
 
     function saveMapGet(x, y) {
         let result;
-        console.log("x " + Math.floor(y) + " y " + Math.floor(x));
+
         try {
             result = levelData.layout[Math.floor(y)][Math.floor(x)];
         } catch {
             result = false;
         }
+
         result = !!result;
-        console.log(result);
         return result;
     }
 
     function winCheck(coord) {
-        console.log("checking win");
-        console.log(coord);
-
         if (levelData.ends[0].x === coord.x && levelData.ends[0].y === coord.y) {
-            console.log("gewonnen");
-            store.commit("load_main_menu");
+            inputReady = false;
+
+            blockMoveInterval = setInterval(function () {
+                counter++;
+                cube.position.y -= 0.12;
+
+                if (counter >= 32) {
+                    clearInterval(blockMoveInterval);
+                }
+            }, animInterval);
+
+            setTimeout(function () { store.commit("load_main_menu"); }, 100);
         }
     }
 
@@ -825,18 +787,14 @@ function moveBlock(axis, dir, type) {
         if (levelData.triggers.length > 0) {
             if (levelData.triggers[0].x === coord.x && levelData.triggers[0].y === coord.y) {
                 for (let i = 0; i < levelData.bridges.length; i++) {
-                    console.log("bridges = " + levelData.bridges[i].x + "  " + levelData.bridges[i].y);
                     let bridgeY = levelData.bridges[i].y;
                     let bridgeX = levelData.bridges[i].x;
 
                     if (!levelData.layout[bridgeY][bridgeX]) {
-                        let plane = new THREE.Mesh(planeGeometry, bridgeMaterial);
-                        plane.rotation.x = Math.PI / 2.0;
+                        let plane = new createObject(squareSize, 0.1, squareSize, "bridge", false, true);
                         plane.position.z = squareSize * bridgeY;
+                        plane.position.y = -0.05;
                         plane.position.x = squareSize * bridgeX;
-                        plane.receiveShadow = true;
-                        plane.castShadow = false;
-                        plane.name = "bridge";
                         scene.add(plane);
                         levelData.layout[bridgeY][bridgeX] = true;
                     }
@@ -844,131 +802,6 @@ function moveBlock(axis, dir, type) {
             }
         }
     }
-}
-
-function load_nieuw_level(level) {
-    let old_game = $("#game")[0].firstChild;
-    if (old_game){
-        old_game.remove();
-    }
-
-    levelData = level;
-    scene = new THREE.Scene();
-
-    // Setup the WebGL renderer / alpha should help with loading in images with transparent parts <p.s. also makes background white for some reason>
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight + 5);
-
-    $("#game")[0].appendChild(renderer.domElement);
-    renderer.shadowMapEnabled = true;
-    renderer.shadowMapType = THREE.PCFSoftShadowMap; // options are THREE.BasicShadowMap | THREE.PCFShadowMap | THREE.PCFSoftShadowMap
-
-    renderer.domElement.setAttribute("id", "three_renderer");
-
-    initInput();
-    three_started = true;
-
-    dummy = new THREE.Object3D;
-    cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
-    r = 0;
-    cubeX = undefined;
-    cubeY = 1;
-    cubeZ = undefined;
-    xOffset = undefined;
-    yOffset = undefined;
-    zOffset = undefined;
-    yOffsetX = undefined;
-    yOffsetZ = undefined;
-    changeR = false;
-    flatX = false;
-    flatZ = false;
-    counter = 0;
-    animInterval = 25;
-    p = undefined;
-    ax = undefined;
-    squaresize = 1;
-    inputReady = true;
-    player_position = undefined;
-
-    // Create the groundplanes
-    for (let i = 0; i < levelData.layout.length; i++) {
-        for (let j = 0; j < levelData.layout[0].length; j++) {
-            if (levelData.layout[i][j]) {
-                let plane = new THREE.Mesh(planeGeometry, planeMaterial);
-                plane.rotation.x = Math.PI / 2.0;
-                plane.position.z = squareSize * i;
-                plane.position.x = squareSize * j;
-                plane.receiveShadow = true;
-                plane.castShadow = false;
-                scene.add(plane);
-            }
-        }
-    }
-
-    for (let i = 0; i < levelData.triggers.length; i++) {
-        let triggerY = levelData.triggers[i].y;
-        let triggerX = levelData.triggers[i].x;
-
-        if (!levelData.layout[triggerY][triggerX]) {
-            let plane = new THREE.Mesh(planeGeometry, triggerMaterial);
-            plane.rotation.x = Math.PI / 2.0;
-            plane.position.z = squareSize * triggerY;
-            plane.position.x = squareSize * triggerX;
-            plane.receiveShadow = true;
-            plane.castShadow = false;
-            plane.name = "trigger";
-            scene.add(plane);
-            levelData.layout[triggerY][triggerX] = true;
-        }
-    }
-
-    for (let i = 0; i < levelData.ends.length; i++) {
-        let endY = levelData.ends[i].y;
-        let endX = levelData.ends[i].x;
-
-        if (!levelData.layout[endY][endX]) {
-            let plane = new THREE.Mesh(planeGeometry, endMaterial);
-            plane.rotation.x = Math.PI / 2.0;
-            plane.position.z = squareSize * endY;
-            plane.position.x = squareSize * endX;
-            plane.receiveShadow = true;
-            plane.castShadow = false;
-            plane.name = "end";
-            scene.add(plane);
-            levelData.layout[endY][endX] = true;
-        }
-    }
-
-    dummy = new THREE.Object3D;
-    loadCube();
-
-    // Setup camera
-    camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 1000);
-    cameraControls = new THREE.OrbitControls(camera);
-    cameraControls.target = dummy.position;
-    camera.position.z = 0;
-    camera.position.y = 15;
-    camera.position.x = -15;
-    camera.zoom = 2.5;
-    camera.updateProjectionMatrix();
-    cameraControls.update();
-
-    // Add lighting to the scene
-    let light = new THREE.PointLight(0x404040);
-    light.position.y = 30;
-    light.castShadow = true;
-    light.shadowDarkness = 0.5;
-    light.shadowMapWidth = 1024; // default is 512
-    light.shadowMapHeight = 1024; // default is 512
-    light.intensity = 3;
-    scene.add(light);
-
-    light = new THREE.AmbientLight(0x404040);
-    light.intensity = 1;
-    scene.add(light);
-    inputReady = true;
-    animate();
 }
 
 function FlatCoord(x, y) {
