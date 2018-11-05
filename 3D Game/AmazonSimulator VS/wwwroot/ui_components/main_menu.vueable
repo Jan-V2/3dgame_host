@@ -1,11 +1,13 @@
 <div >
     % v-if="current_menu === 'main_menu'" =>
-    <div class="wrapper" ref="level_selector" v-bind:style="{paddingTop: padding_top + 'px'}">
-        % v-for="level_num in _.range(levels)" @click="select_level(level_num + 1)" =>
-        <button type="button" class="btn btn-primary" >{{"level " + (level_num + 1)}}</button>
+    <div class="menu-background container">
+      <div class="wrapper" ref="level_selector" v-bind:style="{paddingTop: padding_top + 'px'}">
+          % v-for="level_num in _.range(levels)" @click="select_level(level_num + 1)" =>
+          <button type="button" class="btn btn-primary" >{{"level " + (level_num + 1)}}</button>
+      </div>
     </div>
     % v-if="current_menu === 'game_ui'" =>
-    <div>
+    <div class ="container">
         % @click="restart_level()" =>
         <button type="button" class="btn btn-primary btn-custom">Restart</button>
         % @click="return_main_menu()" =>
@@ -26,7 +28,7 @@
       </div>
     </div>
     % v-if="current_menu === 'game_over'" =>
-    <div id="game_over_id" class="game-over" ref="game_over">
+    <div id="game_over_id" class="menu-background" ref="game_over">
       <p class="game-over-title text-center">Game Over</p>
         % @click="restart_level()" =>
         <button type="button" class="btn btn-primary btn-game-over-restart">Restart</button>

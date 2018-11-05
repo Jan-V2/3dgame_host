@@ -100,3 +100,63 @@ resize_main_menu();
 let main_menu = new Vue({
     el: '#main_menu'
 });
+
+const _C = document.querySelector('.container');
+
+let x0 = null;
+
+function lock(e) { x0 = unify(e).clientX };
+
+let i = 0;
+
+var start = { x: 0, y: 0 };
+
+function touchStart(event) {
+
+    start.x = event.touches[0].pageX;
+    start.y = event.touches[0].pageY;
+}
+
+function touchMove(event) {
+
+    offset = {};
+
+    offset.x = start.x - event.touches[0].pageX;
+    offset.y = start.y - event.touches[0].pageY;
+    if (event.touches[0].pageX < offset.x) {
+        moveBlock('x', "dec", "move");
+        console.log("dec")
+    } else if (event.touches[0].pageX > offset.x) {
+        moveBlock('x', "inc", "move");
+        console.log("inc");
+    }
+
+    console.log(event.touches[0].pageX);
+    console.log(offset);
+    return offset;
+}
+
+function move(e) {
+    if (x0 || x0 === 0) {
+        let dx = unify(e).clientX - x0, s = Math.sign(dx);
+
+        if ((i > 0 || s < 0) && (i < N - 1 || s > 0))
+            console.log("touch");
+
+        x0 = null
+    }
+};
+function unify(e) { return e.changedTouches ? e.changedTouches[0] : e };
+function drag(e) {
+    e.preventDefault()
+    
+};
+
+_C.addEventListener('mousemove', drag, false);
+_C.addEventListener('touchmove', touchMove, false);
+_C.addEventListener('mousedown', lock, false);
+_C.addEventListener('touchstart', touchStart, false);
+
+_C.addEventListener('mouseup', move, false);
+_C.addEventListener('touchend', move, false);
+
