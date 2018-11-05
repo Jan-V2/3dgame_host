@@ -12,6 +12,7 @@ namespace Levels
         private List<Coord> ends = new List<Coord>();
         private List<Coord> triggers = new List<Coord>();
         private List<Coord> bridges = new List<Coord>();
+        private List<Coord> fragiles = new List<Coord>();
 
         public Level(char[,] level_data)
         {
@@ -43,6 +44,11 @@ namespace Levels
                         bridges.Add(new Coord(j, i));
                         layout[i, j] = false;
                     }
+                    else if (square == 'f')
+                    {
+                        fragiles.Add(new Coord(j, i));
+                        layout[i, j] = false;
+                    }
                 }
             }
         }
@@ -54,7 +60,8 @@ namespace Levels
                 starts,
                 ends,
                 triggers,
-                bridges
+                bridges,
+                fragiles
             });
         }
     }
