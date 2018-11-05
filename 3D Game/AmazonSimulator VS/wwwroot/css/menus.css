@@ -1,6 +1,8 @@
 .wrapper {
     display: grid;
-    grid-template-columns: 100px 100px 100px 100px 100px;/*todo maak dit dynamic*/
+    /*
+    grid-template-columns: 100px 100px 100px 100px 100px;!*todo maak dit dynamic*!
+    */
     margin: auto;
     width: fit-content;
     width: -moz-fit-content;

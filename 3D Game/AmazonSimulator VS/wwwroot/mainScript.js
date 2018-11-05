@@ -30,6 +30,7 @@ let levelData;
 let playerPosition;
 let animated = false;
 let three_started = false;
+let current_level_number;
 
 const colors = Object.freeze({
     start_square: "",
@@ -768,10 +769,12 @@ function moveBlock(axis, dir, type) {
     function winCheck(coord) {
         if (levelData.ends[0].x === coord.x && levelData.ends[0].y === coord.y) {
             inputReady = false;
+            store.commit("add_passed_level", current_level_number)
 
             blockMoveInterval = setInterval(function () {
                 counter++;
                 cube.position.y -= 0.12;
+
 
                 if (counter >= 32) {
                     clearInterval(blockMoveInterval);
