@@ -31,6 +31,8 @@ let levelData;
 let playerPosition;
 let animated = false;
 let three_started = false;
+let triggered;
+let plane1;
 
 const colors = Object.freeze({
     start_square: "",
@@ -791,12 +793,19 @@ function moveBlock(axis, dir, type) {
                     let bridgeX = levelData.bridges[i].x;
 
                     if (!levelData.layout[bridgeY][bridgeX]) {
-                        let plane = new createObject(squareSize, 0.1, squareSize, "bridge", false, true);
-                        plane.position.z = squareSize * bridgeY;
-                        plane.position.y = -0.05;
-                        plane.position.x = squareSize * bridgeX;
-                        scene.add(plane);
+                        plane1 = new createObject(squareSize, 0.1, squareSize, "bridge", false, true);
+                        plane1.position.z = squareSize * bridgeY;
+                        plane1.position.y = -0.05;
+                        plane1.position.x = squareSize * bridgeX;
+                        scene.add(plane1);
                         levelData.layout[bridgeY][bridgeX] = true;
+                    }
+                    else {
+                        levelData.layout[bridgeY][bridgeX] = false;
+                        while (scene.getObjectByName("bridge")) {
+                            let selectedObject = scene.getObjectByName("bridge");
+                            scene.remove(selectedObject);
+                        }
                     }
                 }
             }
