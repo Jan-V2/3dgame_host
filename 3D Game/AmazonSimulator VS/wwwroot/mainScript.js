@@ -805,6 +805,7 @@ function moveBlock(axis, dir, type) {
                             levelData.layout[bridgeY][bridgeX] = false;
                             while (scene.getObjectByName("bridge")) {
                                 let selectedObject = scene.getObjectByName("bridge");
+                                selectedObject.geometry.dispose();
                                 scene.remove(selectedObject);
                             }
                         }
