@@ -482,6 +482,8 @@ function moveBlock(axis, dir, type) {
     }
 
     function fall1(givenEndpoint, time) {
+        inputReady = false;
+
         if (givenEndpoint) {
             while (scene.getObjectByName("fragile")) {
                 fragileObject = scene.getObjectByName("fragile");
@@ -501,7 +503,6 @@ function moveBlock(axis, dir, type) {
 
             if (counter >= time) {
                 clearInterval(blockMoveInterval);
-                inputReady = true;
 
                 if (givenEndpoint) {
                     store.commit("load_game_over");
