@@ -1,5 +1,7 @@
-let hooks = new function () {
 
+
+let hooks = new function () {
+    // an object that contains the functions necessary for the test logic to interact with the gameworld.
     function getRandomInt(max) {
         return Math.floor(Math.random() * Math.floor(max));
     }
@@ -48,7 +50,7 @@ let hooks = new function () {
     this.load_nieuw_level = function (level_num) {
         store.commit("load_game_ui");
         let num = (+level_num)+1;
-        load_nieuw_level(JSON.parse(utils.syncAjax("api/total_levels/" + num)));
+        load_nieuw_level(JSON.parse(utils.syncAjax("api/levels/" + num)));
     };
 
     this.sleep = function sleep(ms) {
@@ -70,9 +72,10 @@ let hooks = new function () {
 };
 
 let errs = [];
-let ticks_per_level = 1000;
+let ticks_per_level = 10000;
 let keypresses = [];
 
+// the testing logic
 if (do_monkeytest){
     $(document).ready(async function () {
         for (let level_id in _.range(total_levels)) {
@@ -82,6 +85,7 @@ if (do_monkeytest){
             hooks.load_nieuw_level(level_id);
             await hooks.sleep(2000);
             for (let i in _.range(ticks_per_level)) {
+                // tries random keystrokes. if the game crashes, the orror is logged.
                 try {
                     if (hooks.has_lost()) {
                         keypresses = [];
@@ -89,7 +93,7 @@ if (do_monkeytest){
                     } else {
                         hooks.random_direction();
                     }
-                    await hooks.sleep(400);
+                    await hooks.sleep(40);
                 } catch (err) {
                     console.log(err);
                     errs.push({level_id: level_id, err: err, keypresses: keypresses});

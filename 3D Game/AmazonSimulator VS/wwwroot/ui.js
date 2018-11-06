@@ -1,4 +1,7 @@
 
+// the ui is build using the vue framework.
+// this makes it so that it's much easier to add interactiveity
+
 let main_menu_template;
 let is_on_mobile;
 let parser = new Vueable();
@@ -10,13 +13,9 @@ r_async.parallel([
     () => {total_levels = JSON.parse(utils.syncAjax("api/levels")).n_levels}
 ]);
 
-/*todo
-* start scherm
-* level select scherm
-* options?
-*/
 
 const store = new Vuex.Store({
+    // the store uses a libary called veux, as a way to share state between the three.js code and the ui code.
     state: {
         menu: "main_menu",
         passed_levels : [],
@@ -64,6 +63,7 @@ is_on_mobile = function() {
 
 
 Vue.component('main_menu', {
+    // this is the vue component that serves as the controller for the template
     template:  main_menu_template,
     data: function () {
 
@@ -163,6 +163,7 @@ Vue.component('main_menu', {
 });
 
 function resize_main_menu() {
+    // resizes the ui, if the window is resized.
     let div  = $("#main_menu")[0];
     div.style.width = window.innerWidth + "px";
     div.style.height = window.innerHeight + "px";
@@ -172,6 +173,7 @@ window.addEventListener('resize', resize_main_menu, false);
 resize_main_menu();
 
 
+// loads the vue component into the page.
 let main_menu = new Vue({
     el: '#main_menu'
 });

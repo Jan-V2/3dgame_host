@@ -1,4 +1,10 @@
+
+
 <div >
+    <!––
+    this is the template for all of the menues.
+    the active menu is determined by the value of the
+    ––>
     % v-if="current_menu === 'main_menu'" =>
     <div class="menu-background">
         <div class="centervh">

@@ -1,4 +1,6 @@
-﻿class Materials {
+﻿
+// object that contains all the textures used in the game.
+class Materials {
     constructor(sizeX, sizeY, sizeZ, name, cast, receive) {
         var geometry = new THREE.BoxGeometry(sizeX, sizeY, sizeZ);
         var cubeMaterials;
