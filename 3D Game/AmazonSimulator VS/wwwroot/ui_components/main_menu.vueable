@@ -22,10 +22,10 @@
     % v-if="current_menu === 'game_over'" =>
     <div class="menu-background" ref="game_over">
       <p class="game-over-title text-center">Game Over</p>
+        % @click="return_main_menu()" =>
+        <button type="button" class="btn btn-lg btn-primary btn-game-over-restart">Back to main menu</button>
         % @click="restart_level()" =>
         <button type="button" class="btn btn-lg btn-primary btn-game-over-restart">Restart</button>
-        % @click="return_main_menu()" =>
-        <button type="button" class="btn btn-lg btn-primary btn-game-over-restart">Main Menu</button>
     </div>
     % v-if="current_menu === 'level_won'" =>
     <div style="text-align: center; padding-top: 100px;color:white">
@@ -40,7 +40,7 @@
     <div style="text-align: center; padding-top: 100px;color: white">
         <h1>Congratulations!</h1>
         <div class="clearfix" > </div>
-        <h3>You have completed the game!</h3>
+        <h3 style ="padding-bottom: 20px">You have completed the game!</h3>
         <div class="clearfix"></div>
         %  @click="load_menu('load_main_menu')" =>
         <button class="btn btn-lg btn-primary btn-game-over-restart">Back to main menu</button>

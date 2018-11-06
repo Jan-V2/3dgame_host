@@ -257,9 +257,13 @@ function restart_level() {
         levelData.layout[antiBridgeY][antiBridgeX] = true;
     }
 
-    if (levelData.fragiles.length > 0 && fragileObject) {
-        scene.add(fragileObject);
-        fragileObject = false;
+    if (levelData.fragiles.length > 0) {
+        try {
+            scene.add(fragileObject);
+        }
+        catch{
+            console.log("No fragileObject to add!")
+        }
     }
 
     while (scene.getObjectByName("checkedFragile")) {
