@@ -31,6 +31,7 @@ let playerPosition;
 let animated = false;
 let three_started = false;
 let current_level_number;
+let fragileObject;
 
 const colors = Object.freeze({
     start_square: "",
@@ -446,14 +447,17 @@ function moveBlock(axis, dir, type) {
 
                 toggleFlat(axis);
 
-                inputReady = true;
-
                 clearInterval(blockMoveInterval);
 
                 winCheck(givenEndpoint);
                 triggerCheck(givenEndpoint, p1, p2);
 
-                if (fragile) fall1(givenEndpoint, 45);
+                if (fragile) {
+                    fall1(givenEndpoint, 45);
+                }
+                else {
+                    inputReady = true;
+                }
             }
         }, animInterval);
     }

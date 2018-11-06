@@ -12,6 +12,5 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Views" />
-    <Folder Include="wwwroot\scripts\" />
   </ItemGroup>
 </Project>
