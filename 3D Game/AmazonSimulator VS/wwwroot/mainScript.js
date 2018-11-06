@@ -176,6 +176,9 @@ function load_nieuw_level(level) {
     light.intensity = 2;
     scene.add(light);
 
+    let skybox = new SkyBox("skybox/", "1", "3", "top", "bot","2", "3", "jpg");
+
+    scene.add(skybox);
     if (!animated) {
         animate();
         animated = true;

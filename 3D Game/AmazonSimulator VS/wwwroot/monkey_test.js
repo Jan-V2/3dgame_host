@@ -70,7 +70,7 @@ let hooks = new function () {
 };
 
 let errs = [];
-let ticks_per_level = 10;
+let ticks_per_level = 1000;
 let keypresses = [];
 
 if (do_monkeytest){

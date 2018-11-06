@@ -1,7 +1,7 @@
 ﻿class SkyBox extends THREE.Group {
     constructor(textPath, left, right, up, down, front, back, type) {
         super();
-        var imagePrefix = "textures/" + textPath;
+        var imagePrefix = "textures/" + textPath + "/";
 
         var directions = [left, right, up, down, front, back];
 
@@ -15,7 +15,7 @@
 
             materialArray.push(new THREE.MeshBasicMaterial({
 
-                map: THREE.ImageUtils.loadTexture(imagePrefix + directions[i] + imageSuffix),
+                map: THREE.ImageUtils.loadTexture(imagePrefix + directions[i] + "." +  imageSuffix),
 
                 side: THREE.BackSide
 
