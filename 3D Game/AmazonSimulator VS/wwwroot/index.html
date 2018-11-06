@@ -5,29 +5,32 @@
     <meta charset="UTF-8">
     <title>Bloxorz but not really</title>
     <script type="text/javascript">
-        let devmode = false;
+        let progression_disabled = true;
+        let do_monkeytest = false;
     </script>
     <link rel="stylesheet" href="css/menus.css">
-    <link rel="stylesheet" href="scripts/bootstrap-4.1.3/css/bootstrap.css">
+    <link rel="stylesheet" href="libs/bootstrap-4.1.3/css/bootstrap.css">
+    <link rel="stylesheet" href="libs/css/jquery-ui.min.css">
 
-    <script src="scripts/three.min.js"></script>
-    <script src="scripts/LoadModel.js"></script>
-    <script src="scripts/createObject.js"></script>
-    <script src="scripts/MTLLoader.js"></script>
-    <script src="scripts/OBJLoader.js"></script>
-    <script src="scripts/OrbitControls.js"></script>
-    <script src="scripts/addSpotLight.js"></script>
-    <script src="scripts/addPointLight.js"></script>
-    <script src="scripts/SkyBox.js"></script>
+    <script src="libs/three.min.js"></script>
+    <script src="libs/LoadModel.js"></script>
+    <script src="materials.js"></script>
+    <script src="libs/MTLLoader.js"></script>
+    <script src="libs/OBJLoader.js"></script>
+    <script src="libs/OrbitControls.js"></script>
+    <script src="libs/addSpotLight.js"></script>
+    <script src="libs/addPointLight.js"></script>
+    <script src="libs/SkyBox.js"></script>
 
+    <script src="libs/vue.js"></script>
+    <script src="libs/vueable.js"></script>
+    <script src="libs/vuex.js"></script>
 
-    <script src="scripts/vue.js"></script>
-    <script src="scripts/vueable.js"></script>
-    <script src="scripts/vuex.js"></script>
+    <script src="libs/lodash.min.js"></script>
+    <script src="libs/jquery-3.3.1.min.js"></script>
+    <script src="libs/jquery-ui.min.js"></script>
 
-    <script src="scripts/lodash.min.js"></script>
-    <script src="scripts/jquery-3.3.1.min.js"></script>
-    <script src="scripts/async.js"></script>
+    <script src="libs/async.js"></script>
     <script src="utils.js"></script>
 
     <script src="mainScript.js"></script>
@@ -45,6 +48,8 @@
 </body>
 
 <script src="ui.js"></script>
-<script src="scripts/bootstrap-4.1.3/js/bootstrap.js"></script>
+<script src="libs/bootstrap-4.1.3/js/bootstrap.js"></script>
+
+<script src="monkey_test.js"></script>
 
 </html>

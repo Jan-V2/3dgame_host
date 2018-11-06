@@ -96,7 +96,7 @@ function load_nieuw_level(level) {
     for (let i = 0; i < levelData.layout.length; i++) {
         for (let j = 0; j < levelData.layout[0].length; j++) {
             if (levelData.layout[i][j]) {
-                let plane = new createObject(squareSize, 0.2, squareSize, "plane", false, true);
+                let plane = new Materials(squareSize, 0.2, squareSize, "plane", false, true);
                 plane.position.z = squareSize * i;
                 plane.position.y = -0.1;
                 plane.position.x = squareSize * j;
@@ -110,7 +110,7 @@ function load_nieuw_level(level) {
         let triggerX = levelData.triggers[i].x;
 
         if (!levelData.layout[triggerY][triggerX]) {
-            let plane = new createObject(squareSize, 0.2, squareSize, "trigger", false, true);
+            let plane = new Materials(squareSize, 0.2, squareSize, "trigger", false, true);
             plane.position.z = squareSize * triggerY;
             plane.position.y = -0.1;
             plane.position.x = squareSize * triggerX;
@@ -124,7 +124,7 @@ function load_nieuw_level(level) {
         let fragileX = levelData.fragiles[i].x;
 
         if (!levelData.layout[fragileY][fragileX]) {
-            let plane = new createObject(squareSize, 0.2, squareSize, "fragile", false, true);
+            let plane = new Materials(squareSize, 0.2, squareSize, "fragile", false, true);
             plane.position.z = squareSize * fragileY;
             plane.position.y = -0.1;
             plane.position.x = squareSize * fragileX;
@@ -138,12 +138,12 @@ function load_nieuw_level(level) {
         let endX = levelData.ends[i].x;
 
         if (!levelData.layout[endY][endX]) {
-            let plane = new createObject(squareSize - 0.01, 1, squareSize - 0.01, "end", false, true);
+            let plane = new Materials(squareSize - 0.01, 1, squareSize - 0.01, "end", false, true);
             plane.position.z = squareSize * endY;
             plane.position.y = -0.57;
             plane.position.x = squareSize * endX;
             scene.add(plane);
-            plane = new createObject(squareSize + 0.01, 2.5, squareSize + 0.01, "end2", false, false);
+            plane = new Materials(squareSize + 0.01, 2.5, squareSize + 0.01, "end2", false, false);
             plane.position.z = squareSize * endY;
             plane.position.y = -1.4;
             plane.position.x = squareSize * endX;
@@ -195,7 +195,7 @@ function loadCube() {
     cubeZ = levelData.starts[0].y;
     playerPosition = new FlatCoord(levelData.starts[0].x, levelData.starts[0].y);
 
-    cube = new createObject(squareSize, squareSize * 2, squareSize, "cube", true, false);
+    cube = new Materials(squareSize, squareSize * 2, squareSize, "cube", true, false);
     cube.position.x = cubeX;
     cube.position.y = cubeY;
     cube.position.z = cubeZ;
@@ -212,7 +212,7 @@ function loadCube() {
     cameraControls.update();
 }
 
-function restart() {
+function restart_level() {
     var selectedObject = scene.getObjectByName("cube");
     selectedObject.geometry.dispose();
     scene.remove(selectedObject);
@@ -809,7 +809,8 @@ function moveBlock(axis, dir, type) {
     function winCheck(coord) {
         if (levelData.ends[0].x === coord.x && levelData.ends[0].y === coord.y) {
             inputReady = false;
-            store.commit("add_passed_level", current_level_number)
+            store.commit("load_level_won", current_level_number);
+
 
             blockFallInterval = setInterval(function () {
                 counter++;
@@ -837,7 +838,7 @@ function moveBlock(axis, dir, type) {
                         let bridgeX = levelData.bridges[j].x;
 
                         if (!levelData.layout[bridgeY][bridgeX]) {
-                            let plane = new createObject(squareSize, 0.1, squareSize, "bridge", false, true);
+                            let plane = new Materials(squareSize, 0.1, squareSize, "bridge", false, true);
                             plane.position.z = squareSize * bridgeY;
                             plane.position.y = -0.05;
                             plane.position.x = squareSize * bridgeX;
@@ -863,16 +864,4 @@ function FlatCoord(x, y) {
     let _this = this;
     this.x = x;
     this.y = y;
-    this.move_up = function (amount) {
-        _this.y += amount;
-    };
-    this.move_down = function (amount) {
-        _this.y -= amount;
-    };
-    this.move_left = function (amount) {
-        _this.x -= amount;
-    };
-    this.move_right = function (amount) {
-        _this.x += amount;
-    };
 }
