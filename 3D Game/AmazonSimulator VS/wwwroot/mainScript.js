@@ -1,6 +1,9 @@
 // inclare letiables that are needed here so it's all grouped nicely
 let camera, scene, renderer;
 let cameraControls;
+// Path needs to be changed for both or we keep them doesn't really matter
+let modelPath = "/3dmodels/";
+let texturesPath = "/textures/models/";
 // Setup the size, animation tickrate, geometry & materials
 let squareSize = 1;
 let animInterval = 20;
@@ -28,9 +31,8 @@ let levelData;
 let playerPosition;
 let animated = false;
 let three_started = false;
-let fragileObject;
-let fragile;
 let current_level_number;
+let fragileObject;
 
 const colors = Object.freeze({
     start_square: "",
@@ -96,7 +98,7 @@ function load_nieuw_level(level) {
     for (let i = 0; i < levelData.layout.length; i++) {
         for (let j = 0; j < levelData.layout[0].length; j++) {
             if (levelData.layout[i][j]) {
-                let plane = new createObject(squareSize, 0.2, squareSize, "plane", false, true);
+                let plane = new Materials(squareSize, 0.2, squareSize, "plane", false, true);
                 plane.position.z = squareSize * i;
                 plane.position.y = -0.1;
                 plane.position.x = squareSize * j;
@@ -105,23 +107,12 @@ function load_nieuw_level(level) {
         }
     }
 
-    for (let j = 0; j < levelData.antiBridges.length; j++) {
-        let antiBridgeY = levelData.antiBridges[j].y;
-        let antiBridgeX = levelData.antiBridges[j].x;
-        let plane = new createObject(squareSize, 0.1, squareSize, "antiBridge", false, true);
-        plane.position.z = squareSize * antiBridgeY;
-        plane.position.y = -0.05;
-        plane.position.x = squareSize * antiBridgeX;
-        scene.add(plane);
-        levelData.layout[antiBridgeY][antiBridgeX] = true;
-    }
-
     for (let i = 0; i < levelData.triggers.length; i++) {
         let triggerY = levelData.triggers[i].y;
         let triggerX = levelData.triggers[i].x;
 
         if (!levelData.layout[triggerY][triggerX]) {
-            let plane = new createObject(squareSize, 0.2, squareSize, "trigger", false, true);
+            let plane = new Materials(squareSize, 0.2, squareSize, "trigger", false, true);
             plane.position.z = squareSize * triggerY;
             plane.position.y = -0.1;
             plane.position.x = squareSize * triggerX;
@@ -130,26 +121,12 @@ function load_nieuw_level(level) {
         }
     }
 
-    for (let i = 0; i < levelData.antiTriggers.length; i++) {
-        let antiTriggerY = levelData.antiTriggers[i].y;
-        let antiTriggerX = levelData.antiTriggers[i].x;
-
-        if (!levelData.layout[antiTriggerY][antiTriggerX]) {
-            let plane = new createObject(squareSize, 0.2, squareSize, "antiTrigger", false, true);
-            plane.position.z = squareSize * antiTriggerY;
-            plane.position.y = -0.1;
-            plane.position.x = squareSize * antiTriggerX;
-            scene.add(plane);
-            levelData.layout[antiTriggerY][antiTriggerX] = true;
-        }
-    }
-
     for (let i = 0; i < levelData.fragiles.length; i++) {
         let fragileY = levelData.fragiles[i].y;
         let fragileX = levelData.fragiles[i].x;
 
         if (!levelData.layout[fragileY][fragileX]) {
-            let plane = new createObject(squareSize, 0.2, squareSize, "fragile", false, true);
+            let plane = new Materials(squareSize, 0.2, squareSize, "fragile", false, true);
             plane.position.z = squareSize * fragileY;
             plane.position.y = -0.1;
             plane.position.x = squareSize * fragileX;
@@ -163,12 +140,12 @@ function load_nieuw_level(level) {
         let endX = levelData.ends[i].x;
 
         if (!levelData.layout[endY][endX]) {
-            let plane = new createObject(squareSize - 0.01, 1, squareSize - 0.01, "end", false, true);
+            let plane = new Materials(squareSize - 0.01, 1, squareSize - 0.01, "end", false, true);
             plane.position.z = squareSize * endY;
             plane.position.y = -0.57;
             plane.position.x = squareSize * endX;
             scene.add(plane);
-            plane = new createObject(squareSize + 0.01, 2.5, squareSize + 0.01, "end2", false, false);
+            plane = new Materials(squareSize + 0.01, 2.5, squareSize + 0.01, "end2", false, false);
             plane.position.z = squareSize * endY;
             plane.position.y = -1.4;
             plane.position.x = squareSize * endX;
@@ -220,7 +197,7 @@ function loadCube() {
     cubeZ = levelData.starts[0].y;
     playerPosition = new FlatCoord(levelData.starts[0].x, levelData.starts[0].y);
 
-    cube = new createObject(squareSize, squareSize * 2, squareSize, "cube", true, false);
+    cube = new Materials(squareSize, squareSize * 2, squareSize, "cube", true, false);
     cube.position.x = cubeX;
     cube.position.y = cubeY;
     cube.position.z = cubeZ;
@@ -237,8 +214,8 @@ function loadCube() {
     cameraControls.update();
 }
 
-function restart() {
-    let selectedObject = scene.getObjectByName("cube");
+function restart_level() {
+    var selectedObject = scene.getObjectByName("cube");
     selectedObject.geometry.dispose();
     scene.remove(selectedObject);
 
@@ -248,7 +225,7 @@ function restart() {
         selectedObject.geometry.dispose();
         scene.remove(selectedObject);
     }
-
+    
     for (let j = 0; j < levelData.antiBridges.length; j++) {
         let antiBridgeY = levelData.antiBridges[j].y;
         let antiBridgeX = levelData.antiBridges[j].x;
@@ -266,12 +243,11 @@ function restart() {
         fragileObject = false;
     }
 
-    while (scene.getObjectByName("test")) {
-        selectedObject = scene.getObjectByName("test");
-        console.log(selectedObject);
+    while (scene.getObjectByName("checkedFragile")) {
+        selectedObject = scene.getObjectByName("checkedFragile");
         selectedObject.name = "fragile";
     } 
-
+    
     try {
         clearInterval(blockMoveInterval);
         clearInterval(blockMoveInterval);
@@ -327,6 +303,7 @@ function onWindowResize() {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
+
 
 function moveBlock(axis, dir, type) {
     let counter = 0;
@@ -440,27 +417,17 @@ function moveBlock(axis, dir, type) {
                 if (levelData.fragiles.length > 0) {
                     for (let i = 0; i < levelData.fragiles.length; i++) {
                         if (levelData.fragiles[i].x === endpoint.x && levelData.fragiles[i].y === endpoint.y) {
-                            if (calcPoint1 === endpoint) {
-                                move(endpoint, true, calcPoint1, calcPoint2);
-                            }
-                            else {
-                                move(endpoint, true);
-                            }
+                            move(endpoint, true, calcPoint1, calcPoint2);
                             return;
                         }
                     }
                 }
-                if (calcPoint1 === endpoint) {
-                    move(endpoint, false, calcPoint1, calcPoint2);
-                }
-                else {
-                    move(endpoint, false);
-                }
+                move(endpoint, false, calcPoint1, calcPoint2);
             }
         }
         else if (type === "fall") {
             fall();
-        } 
+        }
     }
 
     function move(givenEndpoint, fragile, p1, p2) {
@@ -481,19 +448,17 @@ function moveBlock(axis, dir, type) {
 
                 toggleFlat(axis);
 
-                inputReady = true;
-
                 clearInterval(blockMoveInterval);
 
                 winCheck(givenEndpoint);
-                if (p1 === p2) {
-                    triggerCheck(givenEndpoint, p1, p2);
+                triggerCheck(givenEndpoint, p1, p2);
+
+                if (fragile) {
+                    fall1(givenEndpoint, 45);
                 }
                 else {
-                    triggerCheck(givenEndpoint);
+                    inputReady = true;
                 }
-
-                if (fragile) fall1(givenEndpoint, 45);
             }
         }, animInterval);
     }
@@ -503,8 +468,7 @@ function moveBlock(axis, dir, type) {
             while (scene.getObjectByName("fragile")) {
                 fragileObject = scene.getObjectByName("fragile");
 
-                fragileObject.name = "test";
-                console.log("looping");
+                fragileObject.name = "checkedFragile";
 
                 if (fragileObject.position.x === givenEndpoint.x && fragileObject.position.z === givenEndpoint.y) {
                     scene.remove(fragileObject);
@@ -574,19 +538,18 @@ function moveBlock(axis, dir, type) {
                     }
                 }
                 else if (counter >= 10 && counter < 20 && type === 3) {
+                    cubeY = cube.position.y -= 0.1;
                     if (axis === "x") {
                         if (counter === 10) {
                             cubeX = cube.position.x;
                             cubeZ = cube.position.z;
                         }
-                        cubeY = cube.position.y -= 0.12;
                     }
                     else if (axis === "z") {
                         if (counter === 10) {
                             cubeX = cube.position.x;
                             cubeZ = cube.position.z;
                         }
-                        cubeY = cube.position.y -= 0.12;
                     }
                 }
             }
@@ -617,7 +580,7 @@ function moveBlock(axis, dir, type) {
                     }
                 }
             }
-            else if (counter >= 20 && counter < 30 && (type === 2 || type === 3)) {
+            else if (counter >= 20 && counter < 30 && (type === 1 || type === 2)) {
                 cube.position.y -= 0.1;
                 cubeY = cube.position.y;
             }
@@ -702,162 +665,6 @@ function moveBlock(axis, dir, type) {
                 cube.rotation.z = correctRot(cube.rotation.z);
 
                 if (type === 0) changeR = false;
-                clearInterval(blockMoveInterval);
-                store.commit("load_game_over");
-            }
-        }, animInterval);
-    }
-
-    function fall1(type) {
-        blockMoveInterval = setInterval(function () {
-            if (counter >= 10 && counter < 20 && type === 1) {
-                if (axis === "x") {
-                    ax = new THREE.Vector3(0, 0, 1);
-
-                    if (counter === 10 && changeR && dir === "dec") {
-                        r *= -1;
-                    }
-                    else {
-                        dir = "dec";
-                    }
-                }
-                else if (axis === "z") {
-                    ax = new THREE.Vector3(1, 0, 0);
-
-                    if (counter === 10 && changeR && dir === "dec") {
-                        r *= -1;
-                    }
-                    else {
-                        dir = "dec";
-                    }
-                }
-            }
-            else if (counter >= 10 && counter < 20 && type === 2) {
-                if (axis === "x") {
-                    ax = new THREE.Vector3(0, 0, 1);
-
-                    if (counter === 10 && changeR && dir === "inc") {
-                        r *= -1;
-                    }
-                    else {
-                        dir = "inc";
-                    }
-                }
-                else if (axis === "z") {
-                    ax = new THREE.Vector3(1, 0, 0);
-
-                    if (counter === 10 && changeR && dir === "inc") {
-                        r *= -1;
-                    }
-                    else {
-                        dir = "inc";
-                    }
-                }
-            }
-            else if (counter >= 10 && counter < 20 && type === 3) {
-                if (axis === "x") {
-                    if (counter === 10) {
-                        cubeX = cube.position.x;
-                        cubeZ = cube.position.z;
-                    }
-                    cubeY = cube.position.y -= 0.12;
-                }
-                else if (axis === "z") {
-                    if (counter === 10) {
-                        cubeX = cube.position.x;
-                        cubeZ = cube.position.z;
-                    }
-                    cubeY = cube.position.y -= 0.12;
-                }
-            }
-
-            setRotPoint(startRot);
-
-            if (counter >= 20 && counter < 30 && (type === 2 || type === 3)) {
-                cube.position.y -= 0.1;
-                cubeY = cube.position.y;
-            }
-            else if (counter >= 20 && type === 3) {
-                cube.position.y -= 0.1;
-                cubeY = cube.position.y;
-                if (axis === 'x') {
-                    if (dir === "dec") {
-                        cube.position.z -= 0.05;
-                        cubeZ -= 0.05;
-                    }
-                    else if (dir === "inc") {
-                        cube.position.z += 0.05;
-                        cubeZ += 0.05;
-                    }
-                }
-                else if (axis === 'z') {
-                    if (dir === "dec") {
-                        cube.position.x -= 0.05;
-                        cubeX -= 0.05;
-                    }
-                    else if (dir === "inc") {
-                        cube.position.x += 0.05;
-                        cubeX += 0.05;
-                    }
-                }
-            }
-            else if (counter >= 30 && type === 1) {
-                cube.position.y -= 0.1;
-                cubeY = cube.position.y;
-                if (axis === 'z') {
-                    if (dir === "dec") {
-                        cube.position.z -= 0.05;
-                        cubeZ -= 0.05;
-                    }
-                    else if (dir === "inc") {
-                        cube.position.z += 0.05;
-                        cubeZ += 0.05;
-                    }
-                }
-                else if (axis === 'x') {
-                    if (dir === "dec") {
-                        cube.position.x -= 0.05;
-                        cubeX -= 0.05;
-                    }
-                    else if (dir === "inc") {
-                        cube.position.x += 0.05;
-                        cubeX += 0.05;
-                    }
-                }
-            }
-            else if (counter >= 30 && type === 2) {
-                cube.position.y -= 0.1;
-                cubeY = cube.position.y;
-                if (axis === 'z') {
-                    if (dir === "dec") {
-                        cube.position.z -= 0.05;
-                        cubeZ -= 0.05;
-                    }
-                    else if (dir === "inc") {
-                        cube.position.z += 0.05;
-                        cubeZ += 0.05;
-                    }
-                }
-                else if (axis === 'x') {
-                    if (dir === "dec") {
-                        cube.position.x -= 0.05;
-                        cubeX -= 0.05;
-                    }
-                    else if (dir === "inc") {
-                        cube.position.x += 0.05;
-                        cubeX += 0.05;
-                    }
-                }
-            }
-
-            counter++;
-            cube.rotateAroundWorldAxis(p, ax, r);
-
-            if (counter >= 80) {
-                cube.rotation.x = correctRot(cube.rotation.x);
-                cube.rotation.z = correctRot(cube.rotation.z);
-
-                changeR = false;
                 clearInterval(blockMoveInterval);
                 store.commit("load_game_over");
             }
@@ -991,12 +798,10 @@ function moveBlock(axis, dir, type) {
     function winCheck(coord) {
         if (levelData.ends[0].x === coord.x && levelData.ends[0].y === coord.y) {
             inputReady = false;
-            
+
             fall1(0, 24);
 
-            store.commit("add_passed_level", current_level_number);
-
-            setTimeout(function () { store.commit("load_main_menu"); }, 24*animInterval);
+            setTimeout(function () { store.commit("load_level_won", current_level_number); }, 24*animInterval);
         }
     }
 
@@ -1005,14 +810,14 @@ function moveBlock(axis, dir, type) {
             for (let i = 0; i < levelData.triggers.length; i++) {
                 let triggerX = levelData.triggers[i].x;
                 let triggerY = levelData.triggers[i].y;
-                
+
                 if (triggerX === coord.x && triggerY === coord.y) {
                     for (let j = 0; j < levelData.bridges.length; j++) {
                         let bridgeY = levelData.bridges[j].y;
                         let bridgeX = levelData.bridges[j].x;
 
                         if (!levelData.layout[bridgeY][bridgeX]) {
-                            let plane = new createObject(squareSize, 0.1, squareSize, "bridge", false, true);
+                            let plane = new Materials(squareSize, 0.1, squareSize, "bridge", false, true);
                             plane.position.z = squareSize * bridgeY;
                             plane.position.y = -0.05;
                             plane.position.x = squareSize * bridgeX;
@@ -1036,9 +841,6 @@ function moveBlock(axis, dir, type) {
                 let antiTriggerX = levelData.antiTriggers[i].x;
                 let antiTriggerY = levelData.antiTriggers[i].y;
 
-                console.log(c1);
-                console.log(c2);
-
                 if ((antiTriggerX === c1.x && antiTriggerY === c1.y) || (antiTriggerX === c2.x && antiTriggerY === c2.y) || (antiTriggerX === coord.x && antiTriggerY === coord.y)) {
                     for (let j = 0; j < levelData.antiBridges.length; j++) {
                         let antiBridgeY = levelData.antiBridges[j].y;
@@ -1058,6 +860,7 @@ function moveBlock(axis, dir, type) {
         }
     }
 }
+
 
 function FlatCoord(x, y) {
     let _this = this;

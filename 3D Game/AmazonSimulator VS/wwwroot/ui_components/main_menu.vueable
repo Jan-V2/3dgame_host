@@ -10,6 +10,7 @@
                 <button type="button" class="btn btn-primary" >{{"level " + (level_num + 1)}}</button>
             </div>
         </div>
+
     </div>
     % v-if="current_menu === 'game_ui'" =>
     <div class ="container" id="game">
@@ -38,6 +39,26 @@
         % @click="restart_level()" =>
         <button type="button" class="btn btn-primary btn-game-over-restart">Restart</button>
         % @click="return_main_menu()" =>
-        <button type="button" class="btn btn-primary btn-game-over-menu">Main Menu</button>
+        <button type="button" class="btn btn-primary btn-game-over-menu">Main Menwu</button>
+    </div>
+    % v-if="current_menu === 'level_won'" =>
+    <div style="text-align: center; padding-top: 100px;color:red">
+        <h1>Congratulations!</h1>
+        <div class="clearfix" > </div>
+        <h3>you have completed the level</h3>
+        <div class="clearfix"></div>
+        %  @click="load_menu('load_main_menu')" =>
+        <button class="btn btn-primary btn-custom">Back to main menu</button>
+        %  @click="select_next_level()" =>
+        <button class="btn btn-primary btn-custom">Next level</button>
+    </div>
+    % v-if="current_menu === 'game_won'" =>
+    <div style="text-align: center; padding-top: 100px;color: red">
+        <h1>Congratulations!</h1>
+        <div class="clearfix" > </div>
+        <h3>you have completed the game!</h3>
+        <div class="clearfix"></div>
+        %  @click="load_menu('load_main_menu')" =>
+        <button class="btn btn-primary btn-custom">Back to main menu</button>
     </div>
 </div>

@@ -1,4 +1,3 @@
-
 let main_menu_template;
 let is_on_mobile;
 let parser = new Vueable();
@@ -167,10 +166,6 @@ resize_main_menu();
 let main_menu = new Vue({
     el: '#main_menu'
 });
-
-function onTouch(evt) {
-    
-}
 
 function swipedetect(el, callback) {
     console.log("swipedetect");
