@@ -265,9 +265,8 @@ function restart() {
         fragileObject = false;
     }
 
-    while (scene.getObjectByName("test")) {
-        selectedObject = scene.getObjectByName("test");
-        console.log(selectedObject);
+    while (scene.getObjectByName("checkedFragile")) {
+        selectedObject = scene.getObjectByName("checkedFragile");
         selectedObject.name = "fragile";
     } 
 
@@ -439,22 +438,12 @@ function moveBlock(axis, dir, type) {
                 if (levelData.fragiles.length > 0) {
                     for (let i = 0; i < levelData.fragiles.length; i++) {
                         if (levelData.fragiles[i].x === endpoint.x && levelData.fragiles[i].y === endpoint.y) {
-                            if (calcPoint1 === endpoint) {
-                                move(endpoint, true, calcPoint1, calcPoint2);
-                            }
-                            else {
-                                move(endpoint, true);
-                            }
+                            move(endpoint, true, calcPoint1, calcPoint2);
                             return;
                         }
                     }
                 }
-                if (calcPoint1 === endpoint) {
-                    move(endpoint, false, calcPoint1, calcPoint2);
-                }
-                else {
-                    move(endpoint, false);
-                }
+                move(endpoint, false, calcPoint1, calcPoint2);
             }
         }
         else if (type === "fall") {
@@ -485,12 +474,7 @@ function moveBlock(axis, dir, type) {
                 clearInterval(blockMoveInterval);
 
                 winCheck(givenEndpoint);
-                if (p1 === p2) {
-                    triggerCheck(givenEndpoint, p1, p2);
-                }
-                else {
-                    triggerCheck(givenEndpoint);
-                }
+                triggerCheck(givenEndpoint, p1, p2);
 
                 if (fragile) fall1(givenEndpoint, 45);
             }
@@ -502,8 +486,7 @@ function moveBlock(axis, dir, type) {
             while (scene.getObjectByName("fragile")) {
                 fragileObject = scene.getObjectByName("fragile");
 
-                fragileObject.name = "test";
-                console.log("looping");
+                fragileObject.name = "checkedFragile";
 
                 if (fragileObject.position.x === givenEndpoint.x && fragileObject.position.z === givenEndpoint.y) {
                     scene.remove(fragileObject);
@@ -573,19 +556,18 @@ function moveBlock(axis, dir, type) {
                     }
                 }
                 else if (counter >= 10 && counter < 20 && type === 3) {
+                    cubeY = cube.position.y -= 0.1;
                     if (axis === "x") {
                         if (counter === 10) {
                             cubeX = cube.position.x;
                             cubeZ = cube.position.z;
                         }
-                        cubeY = cube.position.y -= 0.12;
                     }
                     else if (axis === "z") {
                         if (counter === 10) {
                             cubeX = cube.position.x;
                             cubeZ = cube.position.z;
                         }
-                        cubeY = cube.position.y -= 0.12;
                     }
                 }
             }
@@ -616,7 +598,7 @@ function moveBlock(axis, dir, type) {
                     }
                 }
             }
-            else if (counter >= 20 && counter < 30 && (type === 2 || type === 3)) {
+            else if (counter >= 20 && counter < 30 && (type === 1 || type === 2)) {
                 cube.position.y -= 0.1;
                 cubeY = cube.position.y;
             }
@@ -878,9 +860,6 @@ function moveBlock(axis, dir, type) {
             for (let i = 0; i < levelData.antiTriggers.length; i++) {
                 let antiTriggerX = levelData.antiTriggers[i].x;
                 let antiTriggerY = levelData.antiTriggers[i].y;
-
-                console.log(c1);
-                console.log(c2);
 
                 if ((antiTriggerX === c1.x && antiTriggerY === c1.y) || (antiTriggerX === c2.x && antiTriggerY === c2.y) || (antiTriggerX === coord.x && antiTriggerY === coord.y)) {
                     for (let j = 0; j < levelData.antiBridges.length; j++) {
