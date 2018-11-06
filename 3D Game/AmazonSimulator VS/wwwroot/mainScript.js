@@ -61,7 +61,6 @@ function load_nieuw_level(level) {
 
     try {
         clearInterval(blockMoveInterval);
-        clearInterval(blockMoveInterval);
     }
     catch{
         console.log("No intervals to clear");
@@ -102,6 +101,17 @@ function load_nieuw_level(level) {
         }
     }
 
+    for (let j = 0; j < levelData.antiBridges.length; j++) {
+        let antiBridgeY = levelData.antiBridges[j].y;
+        let antiBridgeX = levelData.antiBridges[j].x;
+        let plane = new Materials(squareSize, 0.1, squareSize, "antiBridge", false, true);
+        plane.position.z = squareSize * antiBridgeY;
+        plane.position.y = -0.05;
+        plane.position.x = squareSize * antiBridgeX;
+        scene.add(plane);
+        levelData.layout[antiBridgeY][antiBridgeX] = true;
+    }
+
     for (let i = 0; i < levelData.triggers.length; i++) {
         let triggerY = levelData.triggers[i].y;
         let triggerX = levelData.triggers[i].x;
@@ -130,14 +140,28 @@ function load_nieuw_level(level) {
         }
     }
 
+    for (let i = 0; i < levelData.antiTriggers.length; i++) {
+        let antiTriggerY = levelData.antiTriggers[i].y;
+        let antiTriggerX = levelData.antiTriggers[i].x;
+
+        if (!levelData.layout[antiTriggerY][antiTriggerX]) {
+            let plane = new Materials(squareSize, 0.2, squareSize, "antiTrigger", false, true);
+            plane.position.z = squareSize * antiTriggerY;
+            plane.position.y = -0.1;
+            plane.position.x = squareSize * antiTriggerX;
+            scene.add(plane);
+            levelData.layout[antiTriggerY][antiTriggerX] = true;
+        }
+    }
+
     for (let i = 0; i < levelData.ends.length; i++) {
         let endY = levelData.ends[i].y;
         let endX = levelData.ends[i].x;
 
         if (!levelData.layout[endY][endX]) {
-            let plane = new Materials(squareSize - 0.01, 0.7, squareSize - 0.01, "end", false, true);
+            let plane = new Materials(squareSize - 0.01, 0.5, squareSize - 0.01, "end", false, true);
             plane.position.z = squareSize * endY;
-            plane.position.y = -0.42;
+            plane.position.y = -0.32;
             plane.position.x = squareSize * endX;
             scene.add(plane);
             levelData.layout[endY][endX] = true;
@@ -168,7 +192,6 @@ function load_nieuw_level(level) {
     light.intensity = 2;
     scene.add(light);
 
-
     // adds  the skybox
     let skybox = new SkyBox("skybox/", "1", "3", "top", "bot","2", "3", "jpg");
     scene.add(skybox);
@@ -197,6 +220,7 @@ function loadCube() {
     cube.position.y = cubeY;
     cube.position.z = cubeZ;
     scene.add(cube);
+
     // the dummy is an invisible cube that serves as a target for the camera.
     dummy.position.x = cube.position.x;
     dummy.position.y = 0;
@@ -221,8 +245,29 @@ function restart_level() {
         scene.remove(selectedObject);
     }
 
+    for (let j = 0; j < levelData.antiBridges.length; j++) {
+        let antiBridgeY = levelData.antiBridges[j].y;
+        let antiBridgeX = levelData.antiBridges[j].x;
+
+        let plane = new Materials(squareSize, 0.1, squareSize, "antiBridge", false, true);
+        plane.position.z = squareSize * antiBridgeY;
+        plane.position.y = -0.05;
+        plane.position.x = squareSize * antiBridgeX;
+        scene.add(plane);
+        levelData.layout[antiBridgeY][antiBridgeX] = true;
+    }
+
+    if (levelData.fragiles.length > 0 && fragileObject) {
+        scene.add(fragileObject);
+        fragileObject = false;
+    }
+
+    while (scene.getObjectByName("checkedFragile")) {
+        selectedObject = scene.getObjectByName("checkedFragile");
+        selectedObject.name = "fragile";
+    } 
+
     try {
-        clearInterval(blockMoveInterval);
         clearInterval(blockMoveInterval);
     }
     catch{
@@ -276,7 +321,6 @@ function onWindowResize() {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
-
 
 function moveBlock(axis, dir, type) {
     let counter = 0;
@@ -390,22 +434,12 @@ function moveBlock(axis, dir, type) {
                 if (levelData.fragiles.length > 0) {
                     for (let i = 0; i < levelData.fragiles.length; i++) {
                         if (levelData.fragiles[i].x === endpoint.x && levelData.fragiles[i].y === endpoint.y) {
-                            if (calcPoint1 === endpoint) {
-                                move(endpoint, true, calcPoint1, calcPoint2);
-                            }
-                            else {
-                                move(endpoint, true);
-                            }
+                            move(endpoint, true, calcPoint1, calcPoint2);
                             return;
                         }
                     }
                 }
-                if (calcPoint1 === endpoint) {
-                    move(endpoint, false, calcPoint1, calcPoint2);
-                }
-                else {
-                    move(endpoint, false);
-                }
+                move(endpoint, false, calcPoint1, calcPoint2);
             }
         }
         else if (type === "fall") {
@@ -431,17 +465,12 @@ function moveBlock(axis, dir, type) {
 
                 toggleFlat(axis);
 
-                inputReady = true;
+                if(!fragile) inputReady = true;
 
                 clearInterval(blockMoveInterval);
 
                 winCheck(givenEndpoint);
-                if (p1 === p2) {
-                    triggerCheck(givenEndpoint, p1, p2);
-                }
-                else {
-                    triggerCheck(givenEndpoint);
-                }
+                triggerCheck(givenEndpoint, p1, p2);
 
                 if (fragile) fall1(givenEndpoint, 45);
             }
@@ -453,8 +482,7 @@ function moveBlock(axis, dir, type) {
             while (scene.getObjectByName("fragile")) {
                 fragileObject = scene.getObjectByName("fragile");
 
-                fragileObject.name = "test";
-                console.log("looping");
+                fragileObject.name = "checkedFragile";
 
                 if (fragileObject.position.x === givenEndpoint.x && fragileObject.position.z === givenEndpoint.y) {
                     scene.remove(fragileObject);
@@ -463,12 +491,14 @@ function moveBlock(axis, dir, type) {
             }
         }
 
-        blockFallInterval = setInterval(function () {
+        blockMoveInterval = setInterval(function () {
             counter++;
             cube.position.y -= 0.18;
 
             if (counter >= time) {
-                clearInterval(blockFallInterval);
+                clearInterval(blockMoveInterval);
+                inputReady = true;
+
                 if (givenEndpoint) {
                     store.commit("load_game_over");
                 }
@@ -477,6 +507,7 @@ function moveBlock(axis, dir, type) {
     }
 
     function fall(type) {
+        console.log(type);
         blockMoveInterval = setInterval(function () {
             if (type !== 0) {
                 if (counter >= 10 && counter < 20 && type === 1) {
@@ -524,19 +555,18 @@ function moveBlock(axis, dir, type) {
                     }
                 }
                 else if (counter >= 10 && counter < 20 && type === 3) {
+                    cubeY = cube.position.y -= 0.1;
                     if (axis === "x") {
                         if (counter === 10) {
                             cubeX = cube.position.x;
                             cubeZ = cube.position.z;
                         }
-                        cubeY = cube.position.y -= 0.12;
                     }
                     else if (axis === "z") {
                         if (counter === 10) {
                             cubeX = cube.position.x;
                             cubeZ = cube.position.z;
                         }
-                        cubeY = cube.position.y -= 0.12;
                     }
                 }
             }
@@ -567,7 +597,7 @@ function moveBlock(axis, dir, type) {
                     }
                 }
             }
-            else if (counter >= 20 && counter < 30 && (type === 2 || type === 3)) {
+            else if (counter >= 20 && counter < 30 && (type === 1 || type === 2)) {
                 cube.position.y -= 0.1;
                 cubeY = cube.position.y;
             }

@@ -202,8 +202,10 @@ function swipedetect(el, callback) {
     }, false)
 
     touchsurface.addEventListener('touchmove', function (e) {
-        e.preventDefault() // prevent scrolling when inside DIV
-    }, false)
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+    }, { passive: false });
 
     touchsurface.addEventListener('touchend', function (e) {
         var touchobj = e.changedTouches[0]
