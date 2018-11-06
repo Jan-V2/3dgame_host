@@ -6,7 +6,9 @@
 }
 .wrapper {
     display: grid;
-    grid-template-columns: 100px 100px 100px 100px 100px;/*todo maak dit dynamic*/
+    /*
+    grid-template-columns: 100px 100px 100px 100px 100px;!*todo maak dit dynamic*!
+    */
     margin: auto;
     width: fit-content;
     width: -moz-fit-content;
@@ -33,7 +35,26 @@
     font-size: 100px;
     font-family: 'Caveat Brush', cursive;
     color: white;
+}
 
+.menu-background {
+    background: url(menuBG2.png) no-repeat center center fixed;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    width: 100%;
+}
+
+.centervh {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
 }
 
 .btn-custom {
