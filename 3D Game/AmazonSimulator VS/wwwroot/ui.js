@@ -145,37 +145,9 @@ function swipedetect(el, callback) {
             else if (Math.abs(distY) >= threshold && Math.abs(distX) <= restraint) { // 2nd condition for vertical swipe met
                 swipedir = (distY < 0) ? 'up' : 'down' // if dist traveled is negative, it indicates up swipe
             } else {
-                e.preventDefault();
-                if (e.touches.length > 1 || (e.type == "touchend" && e.touches.length > 0))
-                    return;
-
-                var newEvt = document.createEvent("MouseEvents");
-                var type = null;
-                var touch = null;
-
-                switch (e.type) {
-                    case "touchstart":
-                        type = "mousedown";
-                        touch = e.changedTouches[0];
-                        break;
-                    case "touchmove":
-                        type = "mousemove";
-                        touch = e.changedTouches[0];
-                        break;
-                    case "touchend":
-                        type = "mouseup";
-                        touch = e.changedTouches[0];
-                        break;
-                }
-                /*var evt = new MouseEvent("click", {
-                    bubbles: true,
-                    cancelable: true,
-                    view: window
-                });*/
-                newEvt.MouseEvent(type, true, true, e.originalTarget.ownerDocument.defaultView, 0,
-                    touch.screenX, touch.screenY, touch.clientX, touch.clientY,
-                    e.ctrlKey, e.altKey, e.shiftKey, e.metaKey, 0, null);
-                e.originalTarget.dispatchEvent(evt);
+                let target = document.elementFromPoint(touchobj.pageX, touchobj.pageY);
+                let e = new Event('touchstart');
+                target.dispatchEvent(e);
             }
         }
         handleswipe(swipedir)
