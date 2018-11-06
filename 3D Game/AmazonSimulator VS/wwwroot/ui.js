@@ -4,10 +4,10 @@ let is_on_mobile;
 let parser = new Vueable();
 // fetches the templates from the server.
 
-let levels;
+let total_levels;
 r_async.parallel([
     () => {main_menu_template = parser.parse( utils.syncAjax('ui_components/main_menu.vueable'))},
-    () => {levels = JSON.parse(utils.syncAjax("api/levels")).n_levels}
+    () => {total_levels = JSON.parse(utils.syncAjax("api/levels")).n_levels}
 ]);
 
 /*todo
@@ -26,10 +26,15 @@ const store = new Vuex.Store({
         load_main_menu: state => state.menu = "main_menu",
         load_game_ui: state => state.menu = "game_ui",
         load_game_over: state => state.menu = "game_over",
-        add_passed_level: (state, level_num) => {
+        load_level_won:(state, level_num) => {
             if (state.passed_levels.indexOf(level_num) === -1){
                 state.passed_levels.push(level_num);
                 document.cookie = JSON.stringify(state.passed_levels);
+            }
+            if(level_num < total_levels){
+                state.menu = "level_won"
+            }else{
+                state.menu = "game_won"
             }
         },
         load_unlocks_from_cookie:(state) => {
@@ -37,13 +42,11 @@ const store = new Vuex.Store({
                 state.passed_levels = JSON.parse(document.cookie);
             }
             catch(err) {
+                console.log("could not find cookie")
             }
         }
     }
 });
-
-
-
 
 is_on_mobile = function() {
     var userAgent = window.navigator.userAgent,
@@ -86,12 +89,12 @@ Vue.component('main_menu', {
             return store.state.menu;
         },
         num_available_levels: function () {
-            if(devmode){
-                return levels;
+            if(progression_disabled){
+                return total_levels;
             }else{
                 let ret = store.state.passed_levels.length +1;
-                if (ret > levels){
-                    return levels;
+                if (ret > total_levels){
+                    return total_levels;
                 }else{
                     return ret;
                 }
@@ -116,16 +119,13 @@ Vue.component('main_menu', {
 
     },
     methods: {
-
-
-
         select_level: function (level_num) {
-            console.log(level_num);
-            //this.game_started = true;
             store.commit("load_game_ui");
-            console.log(store.state.menu);
             load_nieuw_level(JSON.parse(utils.syncAjax("api/levels/" +level_num)));
             current_level_number = level_num;
+        },
+        select_next_level: function () {
+            this.select_level( +current_level_number + 1)
         },
         recalculate_padding: function () {
             if (this.$refs.level_selector !== undefined){
@@ -137,9 +137,12 @@ Vue.component('main_menu', {
                 }
             }
         },
+        load_menu: function (menu) {
+            store.commit(menu);
+        },
         restart_level: function () {
             store.commit("load_game_ui");
-            restart();
+            restart_level();
         },
         return_main_menu: function () {
             store.commit("load_main_menu");

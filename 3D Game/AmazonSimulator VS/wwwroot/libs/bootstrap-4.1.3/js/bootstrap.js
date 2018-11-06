@@ -762,7 +762,7 @@
             // here, we listen for touchend, explicitly pause the carousel
             // (as if it's the second time we tap on it, mouseenter compat event
             // is NOT fired) and after a timeout (to allow for mouse compatibility
-            // events to fire) we explicitly restart cycling
+            // events to fire) we explicitly restart_level cycling
             $$$1(this._element).on(Event.TOUCHEND, function () {
               _this2.pause();
 

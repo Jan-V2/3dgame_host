@@ -1,4 +1,4 @@
-﻿class createObject {
+﻿class Materials {
     constructor(sizeX, sizeY, sizeZ, name, cast, receive) {
         var geometry = new THREE.BoxGeometry(sizeX, sizeY, sizeZ);
         var cubeMaterials;
@@ -67,7 +67,7 @@
                 new THREE.MeshPhongMaterial({ visible: false }), //LEFT
                 new THREE.MeshPhongMaterial({ color: 0x74603A, side: THREE.FrontSide }), //RIGHT
                 new THREE.MeshPhongMaterial({ map: new THREE.TextureLoader().load("textures/PlanksTex.png"), side: THREE.FrontSide }), //TOP
-                new THREE.MeshPhongMaterial({ visible: false}), //BOTTOM
+                new THREE.MeshPhongMaterial({ visible: false }), //BOTTOM
                 new THREE.MeshPhongMaterial({ color: 0x74603A, side: THREE.FrontSide }), //FRONT
                 new THREE.MeshPhongMaterial({ color: 0x74603A, side: THREE.FrontSide }) //BACK
             ];
