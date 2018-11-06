@@ -1,10 +1,4 @@
-
-
 <div >
-    <!––
-    this is the template for all of the menues.
-    the active menu is determined by the value of the
-    ––>
     % v-if="current_menu === 'main_menu'" =>
     <div class="menu-background">
         <div class="centervh">
@@ -19,19 +13,19 @@
 
     </div>
     % v-if="current_menu === 'game_ui'" =>
-    <div class ="container" id="game">
+    <div>
         % @click="restart_level()" =>
         <button type="button" class="btn btn-primary btn-custom">Restart</button>
         % @click="return_main_menu()" =>
         <button type="button" class="btn btn-primary btn-custom">Return to Main Menu</button>
     </div>
     % v-if="current_menu === 'game_over'" =>
-    <div id="game_over_id" class="menu-background" ref="game_over">
+    <div class="menu-background" ref="game_over">
       <p class="game-over-title text-center">Game Over</p>
         % @click="restart_level()" =>
         <button type="button" class="btn btn-primary btn-game-over-restart">Restart</button>
         % @click="return_main_menu()" =>
-        <button type="button" class="btn btn-primary btn-game-over-menu">Main Menu</button>
+        <button type="button" class="btn btn-primary btn-game-over-menu">Main Menwu</button>
     </div>
     % v-if="current_menu === 'level_won'" =>
     <div style="text-align: center; padding-top: 100px;color:red">
