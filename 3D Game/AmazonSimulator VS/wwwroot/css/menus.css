@@ -1,3 +1,9 @@
+@import url(https://fonts.googleapis.com/css?family=Caveat+Brush); 
+
+.container {
+    width: 100vw;
+    height: 100vh;
+}
 .wrapper {
     display: grid;
     /*
@@ -9,11 +15,10 @@
     grid-gap: 15px;
 }
 
-.game-over {
+.menu-background {
     align-content: center;
     position: absolute;
     margin: auto;
-    background-color: red;
     background: black;
     min-height: 100vh;
     width: fit-content;
@@ -21,6 +26,15 @@
     min-width: 100vw;
     text-align: center;
     z-index: 10;
+}
+
+.game-over-title {
+    position: relative;
+    padding-top: 20%;
+    text-align: center;
+    font-size: 100px;
+    font-family: 'Caveat Brush', cursive;
+    color: white;
 }
 
 .menu-background {
@@ -53,18 +67,15 @@
     background-color: red !important;
     border-color: red !important;
     font-size: 30px;
-    transition: .5s ease;
-    position: absolute;
-    top: 50% !important;
-    left: 55%
+    position: relative;
+    text-align: center !important;
 }
 
 .btn-game-over-restart {
     background-color: red !important;
     border-color: red !important;
     font-size: 30px;
-    transition: .5s ease;
-    position: absolute;
-    top: 50% !important;
-    left: 45%
+    position: relative;
+    margin-right: 35px;
+    text-align: center !important;
 }

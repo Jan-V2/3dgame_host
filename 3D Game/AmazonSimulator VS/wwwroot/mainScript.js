@@ -54,7 +54,6 @@ THREE.Object3D.prototype.rotateAroundWorldAxis = function () {
 }();
 
 function load_nieuw_level(level) {
-    // loads a level from scratch
     let old_game = $("#game")[0].firstChild;
     if (old_game) {
         old_game.remove();
@@ -177,11 +176,6 @@ function load_nieuw_level(level) {
     light.intensity = 2;
     scene.add(light);
 
-    // adds  the skybox
-    let skybox = new SkyBox("skybox/", "1", "3", "top", "bot","2", "3", "jpg")
-    scene.add(skybox);
-
-    // enables animation if not enabled.
     if (!animated) {
         animate();
         animated = true;
@@ -189,7 +183,6 @@ function load_nieuw_level(level) {
 }
 
 function loadCube() {
-    // places the player into the world.
     cubeY = 1;
     changeR = false;
     flatX = false;
@@ -207,7 +200,6 @@ function loadCube() {
     cube.position.y = cubeY;
     cube.position.z = cubeZ;
     scene.add(cube);
-
     // the dummy is an invisible cube that serves as a target for the camera.
     dummy.position.x = cube.position.x;
     dummy.position.y = 0;
@@ -276,7 +268,6 @@ function initInput() {
 
 // Changes the scene as per updated model so we see the models change
 function animate() {
-    // animates the world.
     requestAnimationFrame(animate);
     cameraControls.update();
     renderer.render(scene, camera);
@@ -284,7 +275,6 @@ function animate() {
 
 // Adjusts the scene to the correct window size whenever the window gets resized
 function onWindowResize() {
-    // when the window is resized, this adapts the size of the camera.
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -292,7 +282,6 @@ function onWindowResize() {
 
 
 function moveBlock(axis, dir, type) {
-    //contains all the logic for moving the player, and playing the animation related to this.
     let counter = 0;
     let startRot = 0;
 
@@ -718,7 +707,6 @@ function moveBlock(axis, dir, type) {
     }
 
     function quantNum(num) {
-        // turns inexact world coordinates and rounds then down to the nearest .25
         let integerComp = Math.floor(num);
         let remainder = num - integerComp;
         if (0.25 < remainder && remainder <= 0.75) {
@@ -733,7 +721,6 @@ function moveBlock(axis, dir, type) {
     }
 
     function calcEndpoint() {
-        // calulates where the player is going to end up, to determine which animation needs to play.
         if (!flatX && !flatZ) {
             if (axis === "x") {
                 if (dir === "inc") {
@@ -786,7 +773,6 @@ function moveBlock(axis, dir, type) {
     }
 
     function saveMapGet(x, y) {
-        // a wrapper that returns a falsey result if the coords given aren't in the array
         let result;
 
         try {
@@ -800,18 +786,16 @@ function moveBlock(axis, dir, type) {
     }
 
     function winCheck(coord) {
-        // checks if the player has won the level.
         if (levelData.ends[0].x === coord.x && levelData.ends[0].y === coord.y) {
             inputReady = false;
 
-            // plays victory animation and then shows the level won screen.
             fall1(0, 24);
+
             setTimeout(function () { store.commit("load_level_won", current_level_number); }, 24*animInterval);
         }
     }
 
     function triggerCheck(coord, c1, c2) {
-        // checks if the player is on a bridge switch.
         if (levelData.triggers.length > 0) {
             for (let i = 0; i < levelData.triggers.length; i++) {
                 let triggerX = levelData.triggers[i].x;
@@ -870,9 +854,21 @@ function moveBlock(axis, dir, type) {
     }
 }
 
-// a 2d coord. the y matches up to the worlds' z axis
+
 function FlatCoord(x, y) {
     let _this = this;
     this.x = x;
     this.y = y;
+    this.move_up = function (amount) {
+        _this.y += amount;
+    };
+    this.move_down = function (amount) {
+        _this.y -= amount;
+    };
+    this.move_left = function (amount) {
+        _this.x -= amount;
+    };
+    this.move_right = function (amount) {
+        _this.x += amount;
+    };
 }
