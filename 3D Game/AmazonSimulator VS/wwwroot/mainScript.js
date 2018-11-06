@@ -1,9 +1,6 @@
 // inclare letiables that are needed here so it's all grouped nicely
 let camera, scene, renderer;
 let cameraControls;
-// Path needs to be changed for both or we keep them doesn't really matter
-let modelPath = "/3dmodels/";
-let texturesPath = "/textures/models/";
 // Setup the size, animation tickrate, geometry & materials
 let squareSize = 1;
 let animInterval = 20;
@@ -138,14 +135,9 @@ function load_nieuw_level(level) {
         let endX = levelData.ends[i].x;
 
         if (!levelData.layout[endY][endX]) {
-            let plane = new Materials(squareSize - 0.01, 1, squareSize - 0.01, "end", false, true);
+            let plane = new Materials(squareSize - 0.01, 0.7, squareSize - 0.01, "end", false, true);
             plane.position.z = squareSize * endY;
-            plane.position.y = -0.57;
-            plane.position.x = squareSize * endX;
-            scene.add(plane);
-            plane = new Materials(squareSize + 0.01, 2.5, squareSize + 0.01, "end2", false, false);
-            plane.position.z = squareSize * endY;
-            plane.position.y = -1.4;
+            plane.position.y = -0.42;
             plane.position.x = squareSize * endX;
             scene.add(plane);
             levelData.layout[endY][endX] = true;
@@ -794,7 +786,7 @@ function moveBlock(axis, dir, type) {
         if (levelData.ends[0].x === coord.x && levelData.ends[0].y === coord.y) {
             inputReady = false;
 
-            fall1(0, 24);
+            fall1(0, 80);
 
             setTimeout(function () { store.commit("load_level_won", current_level_number); }, 24*animInterval);
         }

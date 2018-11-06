@@ -84,16 +84,6 @@ class Materials {
                 new THREE.MeshPhongMaterial({ map: new THREE.TextureLoader().load("textures/DiamondTex.png"), side: THREE.BackSide }) //BACK
             ];
         }
-        else if (name === "end2") {
-            cubeMaterials = [
-                new THREE.MeshPhongMaterial({ visible: false }), //FRONT
-                new THREE.MeshPhongMaterial({ color: 0x00000, side: THREE.FrontSide }), //BACK
-                new THREE.MeshPhongMaterial({ visible: false }), //TOP
-                new THREE.MeshPhongMaterial({ visible: false }), //BOTTOM
-                new THREE.MeshPhongMaterial({ color: 0x00000, side: THREE.FrontSide }), //LEFT
-                new THREE.MeshPhongMaterial({ color: 0x00000, side: THREE.FrontSide }) //RIGHT
-            ];
-        }
 
         var material = new THREE.MeshFaceMaterial(cubeMaterials);
         var object = new THREE.Mesh(geometry, material);
