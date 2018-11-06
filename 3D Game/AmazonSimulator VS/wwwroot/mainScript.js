@@ -30,6 +30,10 @@ let three_started = false;
 let fragileObject;
 let fragile;
 let current_level_number;
+let aantalzakken = 0;
+
+let begonnen = true;
+let beginspel = true;
 
 const colors = Object.freeze({
     start_square: "",
@@ -207,7 +211,8 @@ function load_nieuw_level(level) {
 }
 
 function loadCube() {
-    cubeY = 1;
+    cubeY = undefined;
+    Zakken();
     changeR = false;
     flatX = false;
     flatZ = false;
@@ -237,6 +242,9 @@ function loadCube() {
 }
 
 function restart() {
+
+    begonnen = true;
+    beginspel = true;
     let selectedObject = scene.getObjectByName("cube");
     selectedObject.geometry.dispose();
     scene.remove(selectedObject);
@@ -1074,4 +1082,30 @@ function FlatCoord(x, y) {
     this.move_right = function (amount) {
         _this.x += amount;
     };
+}
+
+function Zakken() {
+
+    if (begonnen) {
+        cubeY = 3;
+        begonnen = false;
+        aantalzakken++;
+    }
+
+    if (!begonnen) {
+
+        setInterval(function () {
+            if (cubeY >= 1) {
+                inputReady = false;
+                cubeY -= (0.15 / aantalzakken);
+                cube.position.y = cubeY;
+                console.log(beginspel);
+            }
+            else if (beginspel) {
+                inputReady = true;
+                beginspel = false;
+            }
+
+        }, animInterval);
+    }
 }
