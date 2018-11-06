@@ -881,7 +881,6 @@ function moveBlock(axis, dir, type) {
     }
 }
 
-
 function FlatCoord(x, y) {
     let _this = this;
     this.x = x;
