@@ -3,9 +3,16 @@
 
 <head>
     <meta charset="UTF-8">
+
+    <script type="text/javascript">
+        window.onLoad = function () {
+            window.scrollTo(0, 1);
+        }
+    </script>
+
     <title>Bloxorz 2.0</title>
     <script type="text/javascript">
-        let progression_disabled = true;
+        let progression_disabled = false;
         let do_monkeytest = false;
     </script>
     <link rel="stylesheet" href="css/menus.css">
@@ -43,7 +50,7 @@
         </div>
     </div>
     <div style="position: absolute; left: 0px; top: 0px; z-index: 0; width: 100px; height: 100px"></div>
-    <div id="game" style="position: absolute; left: 0px; top: 0px; z-index: -1"></div>
+    <div id="game" style="position: fixed; left: 0px; top: 0px; z-index: -1"></div>
 </body>
 
 <script src="ui.js"></script>

@@ -1,4 +1,4 @@
-<div >
+<div>
     % v-if="current_menu === 'main_menu'" =>
     <div class="menu-background">
         <div class="centervh">
