@@ -51,6 +51,7 @@ THREE.Object3D.prototype.rotateAroundWorldAxis = function () {
 }();
 
 function load_nieuw_level(level) {
+    // this function loads a level from scratch
     let old_game = $("#game")[0].firstChild;
     if (old_game) {
         old_game.remove();
@@ -327,6 +328,7 @@ function onWindowResize() {
 }
 
 function moveBlock(axis, dir, type) {
+    // this function moves and animates the player
     let counter = 0;
     let startRot = 0;
 
@@ -739,6 +741,7 @@ function moveBlock(axis, dir, type) {
     }
 
     function quantNum(num) {
+        // takes an inexact world coordinate, and quanitivies is to the nearest .25
         let integerComp = Math.floor(num);
         let remainder = num - integerComp;
         if (0.25 < remainder && remainder <= 0.75) {
@@ -753,6 +756,7 @@ function moveBlock(axis, dir, type) {
     }
 
     function calcEndpoint() {
+        // determines where the player is going to land, so the right animation can be played.
         if (!flatX && !flatZ) {
             if (axis === "x") {
                 if (dir === "inc") {
@@ -805,6 +809,7 @@ function moveBlock(axis, dir, type) {
     }
 
     function saveMapGet(x, y) {
+        // returns false if the provided coordinate isn't in the levaldata array.
         let result;
 
         try {
@@ -818,6 +823,7 @@ function moveBlock(axis, dir, type) {
     }
 
     function winCheck(coord) {
+        // checks is the player has won the level
         if (levelData.ends[0].x === coord.x && levelData.ends[0].y === coord.y) {
             inputReady = false;
 
@@ -828,6 +834,7 @@ function moveBlock(axis, dir, type) {
     }
 
     function triggerCheck(coord, c1, c2) {
+        // checks if the player in on a trigger block.
         if (levelData.triggers.length > 0) {
             for (let i = 0; i < levelData.triggers.length; i++) {
                 let triggerX = levelData.triggers[i].x;
@@ -887,19 +894,7 @@ function moveBlock(axis, dir, type) {
 }
 
 function FlatCoord(x, y) {
-    let _this = this;
+    // this is a 2d coord class
     this.x = x;
     this.y = y;
-    this.move_up = function (amount) {
-        _this.y += amount;
-    };
-    this.move_down = function (amount) {
-        _this.y -= amount;
-    };
-    this.move_left = function (amount) {
-        _this.x -= amount;
-    };
-    this.move_right = function (amount) {
-        _this.x += amount;
-    };
 }

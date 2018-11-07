@@ -1,4 +1,5 @@
-
+// this is the file with all of the ui code.
+// it uses a libary called vue to create a dynamic and responsive ui.
 let main_menu_template;
 let is_on_mobile;
 let parser = new Vueable();
@@ -10,23 +11,21 @@ r_async.parallel([
     () => {total_levels = JSON.parse(utils.syncAjax("api/levels")).n_levels}
 ]);
 
-/*todo
-* start scherm
-* level select scherm
-* options?
-*/
-
+// the store alllows the threejs code to interact with the vue code.
+// it utilizes a library called vuex.
 const store = new Vuex.Store({
     state: {
         menu: "main_menu",
         passed_levels : [],
-
+        current_level: 0
     },
     mutations: {
+        // all changes to the store object, are made through these setter functions.
         load_main_menu: state => state.menu = "main_menu",
         load_game_ui: state => state.menu = "game_ui",
         load_game_over: state => state.menu = "game_over",
         load_level_won:(state, level_num) => {
+            state.current_level = level_num;
             if (state.passed_levels.indexOf(level_num) === -1){
                 state.passed_levels.push(level_num);
                 document.cookie = JSON.stringify(state.passed_levels);
@@ -68,6 +67,7 @@ Vue.component('main_menu', {
     data: function () {
 
         store.commit("load_unlocks_from_cookie")
+
         return {
             top_padding: 0,
             padding_top:0,
@@ -76,15 +76,18 @@ Vue.component('main_menu', {
             collumn_css: undefined,
             classObject: {
                     color: "blue",
-
             }
         }
     },
     mounted: function(){
+        // this function is run when the ui is loaded
+        // it activates the automatic resizing function.
         window.addEventListener('resize', this.recalculate_padding, false);
         this.recalculate_padding();
     },
     computed:{
+        // these are automatically calculated variables.
+        // if the values the result is based on, they automatically recalcuate
         current_menu: function () {
             return store.state.menu;
         },
@@ -119,13 +122,15 @@ Vue.component('main_menu', {
 
     },
     methods: {
+        // these functions are called by pressing buttons on the template.
         select_level: function (level_num) {
             store.commit("load_game_ui");
             load_nieuw_level(JSON.parse(utils.syncAjax("api/levels/" +level_num)));
             current_level_number = level_num;
         },
         select_next_level: function () {
-            this.select_level( +current_level_number + 1)
+            // selects the next level.
+            this.select_level( +store.state.current_level + 1)
         },
         recalculate_padding: function () {
             if (this.$refs.level_selector !== undefined){
@@ -147,16 +152,16 @@ Vue.component('main_menu', {
         return_main_menu: function () {
             store.commit("load_main_menu");
         },
-        up_press: function () {
+        up_press: function () { // deprecated?
             moveBlock('z', "inc", "move");
         },
-        down_press: function () {
+        down_press: function () {// deprecated?
             moveBlock('z', "dec", "move");
         },
-        left_press: function () {
+        left_press: function () {// deprecated?
             moveBlock('x', "dec", "move");
         },
-        right_press: function () {
+        right_press: function () {// deprecated?
             moveBlock('x', "inc", "move");
         }
     }
@@ -172,12 +177,14 @@ function resize_main_menu() {
 window.addEventListener('resize', resize_main_menu, false);
 resize_main_menu();
 
-
+// adds the ui into the dom
 let main_menu = new Vue({
     el: '#main_menu'
 });
 
+
 function swipedetect(el, callback) {
+    // detects if the screen is being swiped, and in which direction.
     console.log("swipedetect");
     var touchsurface = el,
         swipedir,
@@ -227,6 +234,7 @@ function swipedetect(el, callback) {
 
 let el = window;
 swipedetect(el, function (swipedir) {
+    // calls swipedetect and moves the player depending on the direction.
     if (swipedir == 'left') {
         console.log("left swipe");
         moveBlock('x', "dec", "move");

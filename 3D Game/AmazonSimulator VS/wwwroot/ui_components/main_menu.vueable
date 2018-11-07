@@ -1,4 +1,10 @@
 <div>
+<!-- this is the template for the ui.
+     it's a normal vue template, but it preparsed by a custom tool called vueable that i (jan) have written
+     for more information on vueable visit: https://github.com/johnvanderholt/vueable
+
+     each section of this template is a different screen.
+     which screen is active is determined by the value of the current_module variable in the vue component.-->
     % v-if="current_menu === 'main_menu'" =>
     <div class="menu-background">
         <div class="centervh">
