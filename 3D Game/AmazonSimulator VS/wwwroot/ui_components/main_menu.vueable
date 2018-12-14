@@ -9,24 +9,33 @@
     <div class="menu-background">
         <div class="centervh">
             <div>
-              <img src="textures/BloxorzLogo.png"></img>
+                <img src="textures/BloxorzLogo.png"></img>
             </div>
-            <div class="wrapper" ref="level_selector" v-bind:style="{paddingTop: 100 + 'px',gridTemplateColumns: column_class_text }">
-                % v-for="level_num in _.range(num_available_levels)" @click="select_level(level_num + 1)" =>
-                <button type="button" class="btn btn-primary" >{{"level " + (level_num + 1)}}</button>
+            % v-if="!credits_active" =>
+            <div>
+                <div class="wrapper" ref="level_selector" v-bind:style="{paddingTop: 100 + 'px',gridTemplateColumns: column_class_text }">
+                    % v-for="level_num in _.range(num_available_levels)" @click="select_level(level_num + 1)" =>
+                    <button type="button" class="btn btn-primary" >{{"level " + (level_num + 1)}}</button>
+                </div>
+                <div class="clearfix" style="height: 50px;"></div>
+                % @click="toggle_credits()" =>
+                <button class="btn btn-secondary">credits</button>
+            </div>
+            % v-else =>
+            <div style="color: white">
+                <h3>frontend programmer: daan</h3>
+                <a href="https://github.com/CrEaTiiOn187">github</a>
+                <h3>3d programming: jeffery</h3>
+                <a href="https://github.com/Raphire">github</a>
+                <h3>level designer: david </h3>
+                <a href="https://github.com/verburg95">github</a>
+                <h3>backend programmer: jan</h3>
+                <a href="https://github.com/johnvanderholt">github</a>
+                <div class="clearfix" style="height: 30px"></div>
+                % @click="toggle_credits()"=>
+                <button class="btn btn-secondary">Back to main menu</button>
             </div>
         </div>
-        <div class="clearfix"></div>
-<!--        % @click= =>
-        <button>credits</button>-->
-
-    </div>
-    % v-if="current_menu === 'credits'" =>
-    <div>
-        <h3>frontend programmer: koen</h3>
-        <h3>3d programming: jeffery</h3>
-        <h3>level designer: daan </h3>
-        <h3>backend programmer: jan</h3>
     </div>
     % v-if="current_menu === 'game_ui'" =>
     <div>

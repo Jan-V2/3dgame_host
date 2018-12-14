@@ -23,6 +23,7 @@ const store = new Vuex.Store({
         // all changes to the store object, are made through these setter functions.
         load_main_menu: state => state.menu = "main_menu",
         load_game_ui: state => state.menu = "game_ui",
+        load_credits: state => state.menu = "credits",
         load_game_over: state => state.menu = "game_over",
         load_level_won:(state, level_num) => {
             state.current_level = level_num;
@@ -76,7 +77,8 @@ Vue.component('main_menu', {
             collumn_css: undefined,
             classObject: {
                     color: "blue",
-            }
+            },
+            credits_active :false,
         }
     },
     mounted: function(){
@@ -141,6 +143,9 @@ Vue.component('main_menu', {
                     this.padding_top = 0;
                 }
             }
+        },
+        toggle_credits: function(){
+            this.credits_active = !this.credits_active;
         },
         load_menu: function (menu) {
             store.commit(menu);

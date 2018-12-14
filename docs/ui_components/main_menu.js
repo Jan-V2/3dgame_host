@@ -9,24 +9,33 @@ main_menu_templ = "<div>\n" +
     "    <div class=\"menu-background\">\n" +
     "        <div class=\"centervh\">\n" +
     "            <div>\n" +
-    "              <img src=\"textures/BloxorzLogo.png\"></img>\n" +
+    "                <img src=\"textures/BloxorzLogo.png\"></img>\n" +
     "            </div>\n" +
-    "            <div class=\"wrapper\" ref=\"level_selector\" v-bind:style=\"{paddingTop: 100 + 'px',gridTemplateColumns: column_class_text }\">\n" +
-    "                % v-for=\"level_num in _.range(num_available_levels)\" @click=\"select_level(level_num + 1)\" =>\n" +
-    "                <button type=\"button\" class=\"btn btn-primary\" >{{\"level \" + (level_num + 1)}}</button>\n" +
+    "            % v-if=\"!credits_active\" =>\n" +
+    "            <div>\n" +
+    "                <div class=\"wrapper\" ref=\"level_selector\" v-bind:style=\"{paddingTop: 100 + 'px',gridTemplateColumns: column_class_text }\">\n" +
+    "                    % v-for=\"level_num in _.range(num_available_levels)\" @click=\"select_level(level_num + 1)\" =>\n" +
+    "                    <button type=\"button\" class=\"btn btn-primary\" >{{\"level \" + (level_num + 1)}}</button>\n" +
+    "                </div>\n" +
+    "                <div class=\"clearfix\" style=\"height: 50px;\"></div>\n" +
+    "                % @click=\"toggle_credits()\" =>\n" +
+    "                <button class=\"btn btn-secondary\">credits</button>\n" +
+    "            </div>\n" +
+    "            % v-else =>\n" +
+    "            <div style=\"color: white\">\n" +
+    "                <h3>frontend programmer: daan</h3>\n" +
+    "                <a href=\"https://github.com/CrEaTiiOn187\">github</a>\n" +
+    "                <h3>3d programming: jeffery</h3>\n" +
+    "                <a href=\"https://github.com/Raphire\">github</a>\n" +
+    "                <h3>level designer: david </h3>\n" +
+    "                <a href=\"https://github.com/verburg95\">github</a>\n" +
+    "                <h3>backend programmer: jan</h3>\n" +
+    "                <a href=\"https://github.com/johnvanderholt\">github</a>\n" +
+    "                <div class=\"clearfix\" style=\"height: 30px\"></div>\n" +
+    "                % @click=\"toggle_credits()\"=>\n" +
+    "                <button class=\"btn btn-secondary\">Back to main menu</button>\n" +
     "            </div>\n" +
     "        </div>\n" +
-    "        <div class=\"clearfix\"></div>\n" +
-    "<!--        % @click= =>\n" +
-    "        <button>credits</button>-->\n" +
-    "\n" +
-    "    </div>\n" +
-    "    % v-if=\"current_menu === 'credits'\" =>\n" +
-    "    <div>\n" +
-    "        <h3>frontend programmer: koen</h3>\n" +
-    "        <h3>3d programming: jeffery</h3>\n" +
-    "        <h3>level designer: daan </h3>\n" +
-    "        <h3>backend programmer: jan</h3>\n" +
     "    </div>\n" +
     "    % v-if=\"current_menu === 'game_ui'\" =>\n" +
     "    <div>\n" +
@@ -61,4 +70,4 @@ main_menu_templ = "<div>\n" +
     "        %  @click=\"load_menu('load_main_menu')\" =>\n" +
     "        <button class=\"btn btn-lg btn-primary btn-game-over-restart\">Back to main menu</button>\n" +
     "    </div>\n" +
-    "</div>\n;"
+    "</div>\n"
