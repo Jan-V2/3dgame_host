@@ -8,7 +8,7 @@ let parser = new Vueable();
 let total_levels;
 r_async.parallel([
     () => {main_menu_template = parser.parse( utils.syncAjax('ui_components/main_menu.vueable'))},
-    () => {total_levels = JSON.parse(utils.syncAjax("api/levels")).n_levels}
+    () => {total_levels = Object.keys(levels).length}
 ]);
 
 // the store alllows the threejs code to interact with the vue code.
@@ -92,7 +92,7 @@ Vue.component('main_menu', {
             return store.state.menu;
         },
         num_available_levels: function () {
-            if(progression_disabled){
+            if(!progression_enabled){
                 return total_levels;
             }else{
                 let ret = store.state.passed_levels.length +1;
@@ -125,7 +125,7 @@ Vue.component('main_menu', {
         // these functions are called by pressing buttons on the template.
         select_level: function (level_num) {
             store.commit("load_game_ui");
-            load_nieuw_level(JSON.parse(utils.syncAjax("api/levels/" +level_num)));
+            load_nieuw_level(levels[level_num]);
             current_level_number = level_num;
         },
         select_next_level: function () {
