@@ -1,0 +1,84 @@
+@import url(https://fonts.googleapis.com/css?family=Caveat+Brush); 
+
+.container {
+    width: 100vw;
+    height: 100vh;
+}
+.wrapper {
+    display: grid;
+    /*
+    grid-template-columns: 100px 100px 100px 100px 100px;!*todo maak dit dynamic*!
+    */
+    margin: auto;
+    width: fit-content;
+    width: -moz-fit-content;
+    grid-gap: 15px;
+}
+
+.menu-background {
+    align-content: center;
+    position: absolute;
+    margin: auto;
+    background: black;
+    min-height: 100vh;
+    width: fit-content;
+    width: -moz-fit-content;
+    min-width: 100vw;
+    text-align: center;
+    z-index: 10;
+}
+
+.game-over-title {
+    position: relative;
+    padding-top: 20%;
+    text-align: center;
+    font-size: 100px;
+    font-family: 'Caveat Brush', cursive;
+    color: white;
+}
+
+.menu-background {
+    background: url(menuBG2.png) no-repeat center center fixed;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    width: 100%;
+}
+
+.centervh {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+}
+
+.btn-custom {
+    background-color: red !important;
+    border-color: red !important;
+    font-size: 10px !important;
+    margin-left: 10px;
+    margin-top: 10px;
+}
+
+.btn-game-over-menu {
+    background-color: red !important;
+    border-color: red !important;
+    font-size: 30px;
+    position: relative;
+    text-align: center !important;
+}
+
+.btn-game-over-restart {
+    background-color: red !important;
+    border-color: red !important;
+    font-size: 30px;
+    position: relative;
+    margin-left: 20px;
+    margin-right: 20px;
+    text-align: center !important;
+}

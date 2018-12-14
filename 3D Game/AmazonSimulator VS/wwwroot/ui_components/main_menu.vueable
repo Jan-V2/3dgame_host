@@ -16,7 +16,17 @@
                 <button type="button" class="btn btn-primary" >{{"level " + (level_num + 1)}}</button>
             </div>
         </div>
+        <div class="clearfix"></div>
+<!--        % @click= =>
+        <button>credits</button>-->
 
+    </div>
+    % v-if="current_menu === 'credits'" =>
+    <div>
+        <h3>frontend programmer: koen</h3>
+        <h3>3d programming: jeffery</h3>
+        <h3>level designer: daan </h3>
+        <h3>backend programmer: jan</h3>
     </div>
     % v-if="current_menu === 'game_ui'" =>
     <div>
