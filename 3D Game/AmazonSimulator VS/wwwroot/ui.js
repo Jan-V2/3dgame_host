@@ -125,7 +125,7 @@ Vue.component('main_menu', {
         // these functions are called by pressing buttons on the template.
         select_level: function (level_num) {
             store.commit("load_game_ui");
-            load_nieuw_level(levels[level_num]);
+            load_nieuw_level(clone(levels[level_num]));
             current_level_number = level_num;
         },
         select_next_level: function () {
@@ -254,3 +254,15 @@ swipedetect(el, function (swipedir) {
         target.dispatchEvent(e);
     }
 })
+
+
+function clone(obj){
+    if(obj == null || typeof(obj) != 'object')
+        return obj;
+    
+    var temp = new obj.constructor();
+    for(var key in obj)
+        temp[key] = clone(obj[key]);
+    
+    return temp;
+}

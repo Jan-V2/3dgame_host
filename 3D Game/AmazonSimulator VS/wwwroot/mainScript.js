@@ -88,7 +88,7 @@ function load_nieuw_level(level) {
 
     initInput();
     three_started = true;
-
+    
     // Create the groundplanes
     for (let i = 0; i < levelData.layout.length; i++) {
         for (let j = 0; j < levelData.layout[0].length; j++) {
@@ -270,7 +270,7 @@ function restart_level() {
     while (scene.getObjectByName("checkedFragile")) {
         selectedObject = scene.getObjectByName("checkedFragile");
         selectedObject.name = "fragile";
-    } 
+    }
 
     try {
         clearInterval(blockMoveInterval);
